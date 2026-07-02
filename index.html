@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STUDIO — Films & Tools for the AI Creator</title>
+<meta name="description" content="A production studio for brands, artists and founders — plus digital products that put the studio pipeline in your hands. Cinematic results, delivered at a pace no traditional studio can match.">
+<meta property="og:title" content="STUDIO — Films & Tools for the AI Creator">
+<meta property="og:description" content="Cinematic production for brands, artists and founders — and the prompt libraries, systems and kits behind it. Concept to final cut.">
+<meta property="og:image" content="media/posters/cocka.jpg">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:#0a0a0b;
+  --bg-2:#101012;
+  --surface:#141416;
+  --surface-2:#1a1a1d;
+  --border:#262629;
+  --border-2:#33333a;
+  --text:#f4f4f2;
+  --muted:#8a8a92;
+  --accent:#ff3d2e;
+  --accent-2:#ffd84d;
+  --maxw:1440px;
+}
+
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Archivo', system-ui, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a { color:inherit; text-decoration:none; }
+img, video { display:block; max-width:100%; }
+
+.mono { font-family:'JetBrains Mono', monospace; }
+.wrap { max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,72px); }
+
+/* ===== NAV ===== */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px clamp(20px,5vw,72px);
+  mix-blend-mode:difference;
+}
+nav .logo { font-weight:900; font-size:20px; letter-spacing:-0.5px; color:#fff; }
+nav .logo b { color:var(--accent); }
+nav .nav-links { display:flex; gap:30px; }
+nav .nav-links a { font-size:13px; font-weight:600; letter-spacing:0.5px; color:#fff; text-transform:uppercase; transition:opacity .2s; }
+nav .nav-links a:hover { opacity:.5; }
+@media(max-width:820px){ nav .nav-links { display:none; } }
+
+/* ===== HERO ===== */
+.hero {
+  position:relative;
+  min-height:100vh;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding-bottom:6vh;
+  overflow:hidden;
+}
+#hero-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+.hero::after {
+  content:''; position:absolute; inset:0; z-index:1;
+  background:radial-gradient(ellipse at 70% 30%, transparent 0%, var(--bg) 78%),
+             linear-gradient(180deg, rgba(10,10,11,.4) 0%, transparent 30%, transparent 60%, var(--bg) 100%);
+  pointer-events:none;
+}
+.hero-inner { position:relative; z-index:2; width:100%; }
+.hero-eyebrow {
+  font-family:'JetBrains Mono', monospace; font-size:13px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--accent); margin-bottom:24px;
+  display:flex; align-items:center; gap:12px;
+}
+.hero-eyebrow::before { content:''; width:40px; height:1px; background:var(--accent); }
+.hero h1 {
+  font-size:clamp(48px, 9.5vw, 168px);
+  font-weight:900; line-height:0.92; letter-spacing:-0.04em;
+  text-transform:uppercase; margin-bottom:32px;
+}
+.hero h1 .out { -webkit-text-stroke:2px var(--text); color:transparent; }
+.hero-row { display:flex; align-items:flex-end; justify-content:space-between; gap:40px; flex-wrap:wrap; }
+.hero-sub { font-size:clamp(16px,1.6vw,21px); color:var(--muted); max-width:560px; font-weight:400; }
+.hero-ctas { display:flex; gap:12px; flex-wrap:wrap; }
+.hero-cta {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:18px 34px; background:var(--text); color:var(--bg);
+  font-weight:700; font-size:15px; border-radius:100px;
+  transition:transform .25s, background .25s; white-space:nowrap;
+}
+.hero-cta:hover { background:var(--accent); color:#fff; transform:translateY(-3px); }
+.hero-cta.ghost { background:transparent; color:var(--text); border:1px solid var(--border-2); }
+.hero-cta.ghost:hover { background:var(--surface); border-color:var(--accent); color:#fff; }
+.scroll-hint { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:2;
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; opacity:.7; }
+
+/* ===== MARQUEE ===== */
+.marquee { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:22px 0; overflow:hidden; white-space:nowrap; background:var(--bg); }
+.marquee-track { display:inline-flex; gap:48px; animation:scroll 28s linear infinite; }
+.marquee span { font-size:clamp(18px,2.4vw,30px); font-weight:800; text-transform:uppercase; letter-spacing:-0.01em; color:var(--text); }
+.marquee span.dim { color:transparent; -webkit-text-stroke:1px var(--muted); }
+@keyframes scroll { to { transform:translateX(-50%); } }
+
+/* ===== SECTION SHELL ===== */
+section { padding:clamp(80px,11vw,160px) 0; }
+.sec-head { margin-bottom:64px; }
+.sec-label { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+.sec-title { font-size:clamp(34px,6vw,82px); font-weight:900; line-height:0.96; letter-spacing:-0.03em; text-transform:uppercase; }
+.sec-desc { font-size:clamp(16px,1.6vw,20px); color:var(--muted); max-width:600px; margin-top:24px; }
+
+/* ===== WORK (case-study rows) ===== */
+.work-row {
+  position:relative; display:grid; grid-template-columns:1fr 1.25fr; gap:clamp(24px,5vw,80px);
+  align-items:center; padding:clamp(40px,6vw,80px) 0; border-top:1px solid var(--border);
+}
+.work-row:last-child { border-bottom:1px solid var(--border); }
+.work-row.flip { grid-template-columns:1.25fr 1fr; }
+.work-row.flip .work-media { order:-1; }
+.work-meta-col .idx { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:20px; }
+.work-meta-col h3 { font-size:clamp(28px,4vw,56px); font-weight:900; line-height:0.98; letter-spacing:-0.03em; margin-bottom:18px; text-transform:uppercase; }
+.work-meta-col .cat { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+.work-meta-col p { color:var(--muted); font-size:16px; max-width:420px; margin-bottom:28px; }
+.work-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+.work-tags span { font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 12px; border:1px solid var(--border); border-radius:100px; color:var(--muted); }
+.watch-btn { display:inline-flex; align-items:center; gap:12px; font-weight:700; font-size:14px; color:var(--text); border:none; background:none; cursor:pointer; }
+.watch-btn .dot { width:44px; height:44px; border-radius:50%; background:var(--accent); display:grid; place-items:center; transition:transform .25s; }
+.watch-btn:hover .dot { transform:scale(1.12); }
+.watch-btn .dot svg { width:14px; height:14px; fill:#fff; margin-left:2px; }
+
+.work-media { position:relative; border-radius:14px; overflow:hidden; cursor:pointer; aspect-ratio:16/9; background:var(--surface) center/cover no-repeat; transform-style:preserve-3d; transition:transform .15s ease-out; will-change:transform; }
+.work-media[data-poster] { background-image:var(--poster); }
+.work-media.vert { aspect-ratio:4/5; }
+.work-media video, .work-media img { width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+.work-media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.55)); pointer-events:none; }
+.work-media:hover video, .work-media:hover img { transform:scale(1.05); }
+.media-badge { position:absolute; top:14px; left:14px; z-index:3; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; padding:6px 11px; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.14); border-radius:100px; }
+@media(max-width:860px){ .work-row, .work-row.flip { grid-template-columns:1fr; gap:28px; } .work-row.flip .work-media { order:0; } }
+
+/* ===== PRODUCTS ===== */
+#products { background:linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 50%, var(--bg) 100%); }
+.prod-head-row { display:flex; align-items:flex-end; justify-content:space-between; gap:40px; flex-wrap:wrap; margin-bottom:56px; }
+.prod-head-row .sec-head { margin-bottom:0; }
+.prod-note { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.7; max-width:280px; }
+.prod-note b { color:var(--accent-2); }
+.prod-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:1000px){ .prod-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:640px){ .prod-grid { grid-template-columns:1fr; } }
+
+.prod {
+  position:relative; display:flex; flex-direction:column;
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:32px 30px 30px; overflow:hidden;
+  transition:transform .3s cubic-bezier(.16,1,.3,1), border-color .3s, background .3s;
+}
+.prod::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2)); transform:scaleX(0); transform-origin:left; transition:transform .4s ease;
+}
+.prod:hover { transform:translateY(-6px); border-color:var(--border-2); background:var(--surface-2); }
+.prod:hover::before { transform:scaleX(1); }
+.prod.feat { border-color:var(--accent); }
+.prod.bundle { grid-column:1 / -1; flex-direction:row; align-items:center; gap:48px; background:linear-gradient(135deg,rgba(255,61,46,.08),rgba(255,216,77,.05)); }
+.prod.bundle .prod-body { flex:1; }
+@media(max-width:760px){ .prod.bundle { flex-direction:column; align-items:flex-start; gap:24px; } }
+
+.prod-top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:20px; }
+.prod-code { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--accent); }
+.prod-badge { font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; padding:5px 10px; border-radius:100px; background:var(--accent); color:#fff; white-space:nowrap; }
+.prod-badge.gold { background:var(--accent-2); color:#111; }
+.prod-badge.ghost { background:transparent; border:1px solid var(--border-2); color:var(--muted); }
+.prod h3 { font-size:25px; font-weight:900; letter-spacing:-0.02em; line-height:1.05; margin-bottom:12px; }
+.prod .promise { font-size:15px; color:var(--muted); line-height:1.55; margin-bottom:22px; flex-grow:0; }
+.prod .inside { list-style:none; margin-bottom:26px; }
+.prod .inside li { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); padding:7px 0; display:flex; gap:9px; align-items:flex-start; }
+.prod .inside li::before { content:'+'; color:var(--accent); font-weight:700; }
+.prod-foot { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:22px; border-top:1px solid var(--border); }
+.prod-price { display:flex; align-items:baseline; gap:8px; }
+.prod-price .amt { font-size:30px; font-weight:900; letter-spacing:-0.03em; }
+.prod-price .amt s { font-size:16px; font-weight:600; color:var(--muted); }
+.prod-price .tier { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+.prod-cta {
+  display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:100px;
+  background:var(--text); color:var(--bg); font-weight:700; font-size:13px; white-space:nowrap;
+  transition:background .25s, transform .25s;
+}
+.prod-cta:hover { background:var(--accent); color:#fff; transform:translateY(-2px); }
+.prod.feat .prod-cta { background:var(--accent); color:#fff; }
+.prod.feat .prod-cta:hover { background:#ff5647; }
+
+/* ===== CAPABILITIES ===== */
+.cap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.cap { background:var(--bg); padding:44px 36px; transition:background .3s; position:relative; }
+.cap:hover { background:var(--surface); }
+.cap .num { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); margin-bottom:24px; }
+.cap h3 { font-size:24px; font-weight:800; margin-bottom:12px; letter-spacing:-0.01em; }
+.cap p { color:var(--muted); font-size:15px; }
+
+/* ===== STATS ===== */
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:24px; }
+.stat { padding:36px 12px; border-top:2px solid var(--accent); }
+.stat .n { font-size:clamp(48px,7vw,92px); font-weight:900; letter-spacing:-0.04em; line-height:1; }
+.stat .l { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:14px; }
+
+/* ===== PROCESS ===== */
+.proc { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.proc-step { background:var(--bg); padding:32px 22px; }
+.proc-step .s { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); margin-bottom:14px; }
+.proc-step h4 { font-size:17px; font-weight:700; margin-bottom:6px; }
+.proc-step p { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* ===== PRICING ===== */
+.price-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:20px; }
+.price { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:40px 34px; transition:transform .25s, border-color .25s; }
+.price:hover { transform:translateY(-6px); border-color:#3a3a3f; }
+.price.feat { border-color:var(--accent); position:relative; }
+.price.feat::before { content:'MOST BOOKED'; position:absolute; top:-11px; left:34px; background:var(--accent); color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; padding:4px 12px; border-radius:100px; }
+.price h3 { font-size:20px; font-weight:800; margin-bottom:6px; }
+.price .amt { font-size:38px; font-weight:900; letter-spacing:-0.03em; }
+.price .note { font-size:13px; color:var(--muted); margin-bottom:26px; }
+.price ul { list-style:none; }
+.price li { padding:11px 0; font-size:14px; color:var(--muted); border-bottom:1px solid var(--border); display:flex; gap:10px; }
+.price li::before { content:'→'; color:var(--accent); }
+/* Quick-Turn lane */
+.qt { margin-top:22px; display:grid; grid-template-columns:1.4fr 1fr; gap:0; background:linear-gradient(135deg,rgba(255,61,46,.06),rgba(255,216,77,.04)); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.qt-left { padding:40px 38px; border-right:1px solid var(--border); }
+.qt-tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent); border-radius:100px; padding:4px 12px; margin-bottom:16px; }
+.qt-left h3 { font-size:26px; font-weight:800; letter-spacing:-0.02em; margin-bottom:12px; line-height:1.1; }
+.qt-left p { font-size:14.5px; color:var(--muted); line-height:1.6; margin-bottom:16px; }
+.qt-note { font-size:13px; color:var(--accent-2); font-weight:600; }
+.qt-right { padding:34px 34px; display:flex; flex-direction:column; justify-content:center; gap:10px; }
+.qt-row { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border:1px solid var(--border); border-radius:10px; font-size:15px; }
+.qt-row span { color:var(--muted); }
+.qt-row b { font-size:20px; font-weight:900; letter-spacing:-0.02em; }
+.qt-row.feat { border-color:var(--accent); background:rgba(255,61,46,.07); }
+.qt-fine { font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+@media(max-width:760px){ .qt { grid-template-columns:1fr; } .qt-left { border-right:none; border-bottom:1px solid var(--border); } }
+
+/* ===== CONTACT ===== */
+.cta-block { text-align:center; }
+.cta-block h2 { font-size:clamp(40px,9vw,140px); font-weight:900; line-height:0.92; letter-spacing:-0.04em; text-transform:uppercase; margin-bottom:32px; }
+.cta-block h2 .out { -webkit-text-stroke:2px var(--text); color:transparent; }
+.cta-block p { color:var(--muted); font-size:18px; max-width:520px; margin:0 auto 40px; }
+.cta-links { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+.cta-links a { padding:16px 32px; border:1px solid var(--border); border-radius:100px; font-weight:600; font-size:14px; transition:all .25s; }
+.cta-links a:hover { border-color:var(--accent); transform:translateY(-3px); }
+.cta-links a.primary { background:var(--text); color:var(--bg); border-color:var(--text); }
+.cta-links a.primary:hover { background:var(--accent); color:#fff; }
+
+footer { border-top:1px solid var(--border); padding:40px 0; }
+footer .wrap { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+footer .mono { font-size:12px; color:var(--muted); }
+
+/* ===== LIGHTBOX ===== */
+.lb { position:fixed; inset:0; z-index:200; background:rgba(5,5,6,.94); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center; padding:4vw; }
+.lb.open { display:flex; }
+.lb video { width:auto; height:auto; max-width:100%; max-height:88vh; border-radius:8px; box-shadow:0 30px 90px rgba(0,0,0,.6); }
+.lb-close { position:absolute; top:28px; right:32px; width:48px; height:48px; border-radius:50%; border:1px solid var(--border); background:rgba(255,255,255,.05); color:#fff; font-size:22px; cursor:pointer; transition:all .2s; }
+.lb-close:hover { background:var(--accent); border-color:var(--accent); }
+.lb-cap { position:absolute; bottom:26px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; }
+
+/* reveal */
+.reveal { opacity:0; transform:translateY(40px); transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+.reveal.in { opacity:1; transform:none; }
+@media (prefers-reduced-motion:reduce){ .reveal{opacity:1;transform:none;} .marquee-track{animation:none;} html{scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">STUDIO<b>.</b></div>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#products">Products</a>
+    <a href="#capabilities">Capabilities</a>
+    <a href="#pricing">Ways to Work</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner wrap">
+    <div class="hero-eyebrow">Production Studio + Digital Products · Brooklyn</div>
+    <h1>We make<br><span class="out">things</span> move.</h1>
+    <div class="hero-row">
+      <p class="hero-sub">Films, music videos and campaigns for brands, artists and founders — plus the prompt libraries, systems and kits that put our studio pipeline in your hands. Big-studio craft, at a pace big studios can't touch.</p>
+      <div class="hero-ctas">
+        <a href="#contact" class="hero-cta">Start a project →</a>
+        <a href="#products" class="hero-cta ghost">Shop the tools</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll ↓</div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track" id="mq">
+    <span>Music Videos</span><span class="dim">★</span>
+    <span>Brand Films</span><span class="dim">★</span>
+    <span>Campaigns</span><span class="dim">★</span>
+    <span>Prompt Libraries</span><span class="dim">★</span>
+    <span>Creator Tools</span><span class="dim">★</span>
+    <span>Concept to Cut</span><span class="dim">★</span>
+  </div>
+</div>
+
+<!-- WORK -->
+<section id="work" class="wrap">
+  <div class="sec-head reveal">
+    <div class="sec-label">Selected Work</div>
+    <h2 class="sec-title">The Reel</h2>
+    <p class="sec-desc">Every frame directed, every cut intentional. A look at recent films and campaigns — press play.</p>
+  </div>
+
+  <!-- TOP TIER -->
+  <div class="work-row reveal">
+    <div class="work-meta-col">
+      <div class="idx">01 / Music Video</div>
+      <h3>Top Tier</h3>
+      <p>A multi-act hip-hop video that travels from Brooklyn rooftops to neon Tokyo — one artist, one look, held consistent across a hundred-plus shots with full performance lip-sync.</p>
+      <div class="work-tags"><span>Direction</span><span>Cinematography</span><span>Lip-sync</span><span>Edit + Grade</span></div>
+      <button class="watch-btn" data-video="media/full/toptier.mp4" data-cap="Top Tier — Music Video">
+        <span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span> Watch the film
+      </button>
+    </div>
+    <div class="work-media tilt" data-video="media/full/toptier.mp4" data-cap="Top Tier — Music Video" data-poster style="--poster:url('media/posters/toptier.jpg')">
+      <span class="media-badge">▶ Play</span>
+      <video src="media/loops/toptier.mp4" poster="media/posters/toptier.jpg" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
+  <!-- KITTY TRAP -->
+  <div class="work-row flip reveal">
+    <div class="work-meta-col">
+      <div class="idx">02 / Music Video</div>
+      <h3>Kitty Trap</h3>
+      <p>A full visual world for a single — art-deco clubs, character-driven performance, and cut-to-the-beat energy. Built end to end from concept and look-dev through final color.</p>
+      <div class="work-tags"><span>Creative Direction</span><span>Character Design</span><span>VFX</span><span>Edit</span></div>
+      <button class="watch-btn" data-video="media/full/kitty.mp4" data-cap="Kitty Trap — Music Video">
+        <span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span> Watch the film
+      </button>
+    </div>
+    <div class="work-media tilt" data-video="media/full/kitty.mp4" data-cap="Kitty Trap — Music Video" data-poster style="--poster:url('media/posters/kitty.jpg')">
+      <span class="media-badge">▶ Play</span>
+      <video src="media/loops/kitty.mp4" poster="media/posters/kitty.jpg" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
+  <!-- COCKA SHARK -->
+  <div class="work-row reveal">
+    <div class="work-meta-col">
+      <div class="idx">03 / Film</div>
+      <h3>Cocka Shark</h3>
+      <p>An original creature feature in active development — a deep-sea eco-thriller. Full screenplay, world bible, creature design, and finished cinematic sequences in 4K.</p>
+      <div class="work-tags"><span>Screenplay</span><span>World Building</span><span>Creature Design</span><span>4K Sequences</span></div>
+      <button class="watch-btn" data-video="media/full/cocka.mp4" data-cap="Cocka Shark — Sub Encounter">
+        <span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span> Watch the sequence
+      </button>
+    </div>
+    <div class="work-media tilt" data-video="media/full/cocka.mp4" data-cap="Cocka Shark — Sub Encounter" data-poster style="--poster:url('media/posters/cocka.jpg')">
+      <span class="media-badge">▶ Play</span>
+      <video src="media/loops/cocka.mp4" poster="media/posters/cocka.jpg" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
+  <!-- SOL CATSKILLS -->
+  <div class="work-row flip reveal">
+    <div class="work-meta-col">
+      <div class="idx">04 / Brand Film</div>
+      <h3>SOL Catskills</h3>
+      <p>A property film for an off-grid luxury rental — selling the feeling of the escape, not just the rooms. Lifestyle storytelling that turns a listing into a destination.</p>
+      <div class="work-tags"><span>Brand Film</span><span>Lifestyle</span><span>Social Cutdowns</span></div>
+      <button class="watch-btn" data-video="media/full/sol.mp4" data-cap="SOL Catskills — Property Film">
+        <span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span> Watch the film
+      </button>
+    </div>
+    <div class="work-media tilt" data-video="media/full/sol.mp4" data-cap="SOL Catskills — Property Film" data-poster style="--poster:url('media/posters/sol.jpg')">
+      <span class="media-badge">▶ Play</span>
+      <video src="media/loops/sol.mp4" poster="media/posters/sol.jpg" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
+  <!-- 1MK / FOOD -->
+  <div class="work-row reveal">
+    <div class="work-meta-col">
+      <div class="idx">05 / Content Series</div>
+      <h3>1 Minute Kitchen</h3>
+      <p>A short-form food series built for the scroll — moody, tactile, no narration. Designed for batch production: a repeatable look that ships episode after episode.</p>
+      <div class="work-tags"><span>Series Format</span><span>Food / ASMR</span><span>Batch Production</span><span>Shorts</span></div>
+      <button class="watch-btn" data-video="media/full/ramen.mp4" data-cap="1 Minute Kitchen — Tonkotsu Ramen">
+        <span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span> Watch an episode
+      </button>
+    </div>
+    <div class="work-media tilt" data-video="media/full/ramen.mp4" data-cap="1 Minute Kitchen — Tonkotsu Ramen" data-poster style="--poster:url('media/posters/ramen.jpg')">
+      <span class="media-badge">▶ Play</span>
+      <video src="media/loops/ramen.mp4" poster="media/posters/ramen.jpg" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="wrap">
+  <div class="stats">
+    <div class="stat reveal"><div class="n" data-count="4">4K</div><div class="l">Finishing Resolution</div></div>
+    <div class="stat reveal"><div class="n">Days</div><div class="l">Not Months</div></div>
+    <div class="stat reveal"><div class="n">∞</div><div class="l">Revisions In Pre</div></div>
+    <div class="stat reveal"><div class="n">1</div><div class="l">Director, End To End</div></div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="wrap">
+  <div class="prod-head-row">
+    <div class="sec-head reveal" style="margin-bottom:0">
+      <div class="sec-label">Digital Products</div>
+      <h2 class="sec-title">The Studio,<br>Boxed Up.</h2>
+      <p class="sec-desc">The exact prompt libraries, systems and kits we run in production — packaged so you can run them too. Made once, yours forever. No subscription.</p>
+    </div>
+    <p class="prod-note reveal">Every tool here is <b>battle-tested on real client work</b> — the reel above is the proof. Not theory. Production.</p>
+  </div>
+
+  <div class="prod-grid">
+
+    <!-- PRODUCT_CARD: P1 -->
+    <div class="prod feat reveal">
+      <div class="prod-top">
+        <span class="prod-code">P1 · PROMPTS</span>
+        <span class="prod-badge">★ Flagship</span>
+      </div>
+      <h3>The Shot Caller</h3>
+      <p class="promise">116 production-tested cinematic prompts for AI video — built on real music video, product ad and narrative credits. Stop guessing at your gen tool; start directing it.</p>
+      <ul class="inside">
+        <li>116 copy-paste prompts across lens · movement · lighting · genre</li>
+        <li>Every prompt matched to a real camera preset (ARRI, RED, Sony Venice)</li>
+        <li>Short-prompt style that actually works with Kling, Seedance, Higgsfield</li>
+        <li>Full catalog index with usage notes + platform guidance</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price"><span class="amt">$49</span><span class="tier">/ $99 commercial</span></div>
+        <a href="#" data-product="p1" class="prod-cta">Get it →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P1 -->
+
+    <!-- PRODUCT_CARD: P2 -->
+    <div class="prod reveal">
+      <div class="prod-top">
+        <span class="prod-code">P2 · NOTION OS</span>
+        <span class="prod-badge ghost">System</span>
+      </div>
+      <h3>AI Production OS</h3>
+      <p class="promise">A complete Notion system for AI filmmakers — first concept to final delivery, with client tracking and asset versioning built in.</p>
+      <ul class="inside">
+        <li>7 linked databases: Projects, Pre-Pro, Gen Log, Edit/Delivery, CRM, Assets, Prompts</li>
+        <li>Drop-in templates: briefs, character checklists, shot lists, delivery</li>
+        <li>Credit rollup by project — know your true cost-per-deliverable</li>
+        <li>Duplicate to your workspace (free Notion account)</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price"><span class="amt">$79</span></div>
+        <a href="#" data-product="p2" class="prod-cta">Get it →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P2 -->
+
+    <!-- PRODUCT_CARD: P3 -->
+    <div class="prod reveal">
+      <div class="prod-top">
+        <span class="prod-code">P3 · AD KIT</span>
+        <span class="prod-badge ghost">Best for e-comm</span>
+      </div>
+      <h3>UGC Ad Factory</h3>
+      <p class="promise">Turn one product photo into 30 platform-ready UGC ads — prompt chains, hook scripts and format templates included. ~$2–5 in credits per batch.</p>
+      <ul class="inside">
+        <li>15 product-photo expansion prompts (one image → full asset library)</li>
+        <li>15 proven hook scripts: Problem-First, Social Proof, Curiosity, Direct Offer</li>
+        <li>Complete 30-ad delivery map — hooks × variants × formats × platforms</li>
+        <li>3-phase chain: NB Pro expand → Kling 3.0 scenes → assembly</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price"><span class="amt">$129</span></div>
+        <a href="#" data-product="p3" class="prod-cta">Get it →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P3 -->
+
+    <!-- PRODUCT_CARD: P4 -->
+    <div class="prod reveal">
+      <div class="prod-top">
+        <span class="prod-code">P4 · AGENTS</span>
+        <span class="prod-badge ghost">Advanced</span>
+      </div>
+      <h3>Orchestrator Kits</h3>
+      <p class="promise">Claude agent configs that run your creative ops — brief intake to asset delivery — automatically. Kill the operational drag.</p>
+      <ul class="inside">
+        <li>5 agent configs: Brief Parser, Gen Router, Asset Organizer, Credit Tracker, Report Gen</li>
+        <li>Integration wiring to the Production OS (Notion) + Higgsfield API</li>
+        <li>Setup guide with real music-video brief-to-delivery run</li>
+        <li>Requires Claude API access</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price"><span class="amt">$149</span></div>
+        <a href="#" data-product="p4" class="prod-cta">Get it →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P4 -->
+
+    <!-- PRODUCT_CARD: P5 -->
+    <div class="prod reveal">
+      <div class="prod-top">
+        <span class="prod-code">P5 · BRAND KIT</span>
+        <span class="prod-badge ghost">For artists</span>
+      </div>
+      <h3>Artist Identity Engine</h3>
+      <p class="promise">A complete AI brand kit for musicians — visual identity, character consistency and content templates on the Nano Banana Pro pipeline.</p>
+      <ul class="inside">
+        <li>Full character turnaround build guide (source photos → Higgsfield Element)</li>
+        <li>15 environment prompts across Performance, Lifestyle, Promotional</li>
+        <li>Social templates (Reels 9:16, Feed 4:5, thumbnail 16:9) with consistency</li>
+        <li>The workflow behind Kiki G + real artist campaigns</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price"><span class="amt">$59</span></div>
+        <a href="#" data-product="p5" class="prod-cta">Get it →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P5 -->
+
+    <!-- PRODUCT_CARD: P6 -->
+    <div class="prod bundle reveal">
+      <div class="prod-body">
+        <div class="prod-top" style="margin-bottom:14px">
+          <span class="prod-code">P6 · THE BUNDLE</span>
+          <span class="prod-badge gold">Save $166</span>
+        </div>
+        <h3 style="font-size:32px">AI Studio in a Box</h3>
+        <p class="promise" style="max-width:640px">The full stack — all 5 products in one bundle. Cinematic prompts, the production OS, the UGC ad chain, the automation layer and the artist identity engine. Everything to run a professional AI studio from day one, commercial license included.</p>
+      </div>
+      <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:16px;">
+        <div class="prod-price"><span class="amt">$299 <s>$465</s></span></div>
+        <a href="#" data-product="p6" class="prod-cta" style="padding:16px 28px; font-size:15px;">Get the bundle →</a>
+      </div>
+    </div>
+    <!-- /PRODUCT_CARD: P6 -->
+
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section id="capabilities" class="wrap">
+  <div class="sec-head reveal">
+    <div class="sec-label">What We Do</div>
+    <h2 class="sec-title">Capabilities</h2>
+    <p class="sec-desc">One studio, the whole pipeline. We take the brief and hand back finished work — no agency layers, no handoffs.</p>
+  </div>
+  <div class="cap-grid">
+    <div class="cap reveal"><div class="num">01</div><h3>Music Videos</h3><p>Concept, look-dev, performance and edit for artists and labels who want a video that punches above the budget.</p></div>
+    <div class="cap reveal"><div class="num">02</div><h3>Brand & Product Films</h3><p>Story-led films and ads that sell the feeling, not just the features. Hero spot to a full social cutdown kit.</p></div>
+    <div class="cap reveal"><div class="num">03</div><h3>Film & Narrative</h3><p>Original IP, proof-of-concept sequences, and pitch trailers — from screenplay to finished, gradeable footage.</p></div>
+    <div class="cap reveal"><div class="num">04</div><h3>Image & Art Direction</h3><p>Campaign stills, key art, posters and product imagery — a consistent visual world, shot-quality, at any volume.</p></div>
+    <div class="cap reveal"><div class="num">05</div><h3>Short-Form Content</h3><p>Series formats and content engines for Reels, Shorts and TikTok — built to be produced in volume, on brand.</p></div>
+    <div class="cap reveal"><div class="num">06</div><h3>Creative Direction</h3><p>Identity, look books, and campaign worlds. We set the vision and own it through to the last frame.</p></div>
+    <div class="cap reveal"><div class="num">07</div><h3>Sound & Music</h3><p>Original music, sound design and full audio finishing — so the picture and the track land as one piece.</p></div>
+    <div class="cap reveal"><div class="num">08</div><h3>Pipeline & Automation</h3><p>Custom production systems that turn one idea into a hundred on-brand assets — the engine behind the output.</p></div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" class="wrap">
+  <div class="sec-head reveal">
+    <div class="sec-label">How It Ships</div>
+    <h2 class="sec-title">The Process</h2>
+    <p class="sec-desc">The same discipline as a film set — compressed into a workflow that moves in days.</p>
+  </div>
+  <div class="proc">
+    <div class="proc-step reveal"><div class="s">01</div><h4>Brief & Concept</h4><p>Goal, look, references</p></div>
+    <div class="proc-step reveal"><div class="s">02</div><h4>Look-Dev</h4><p>Characters + style locked</p></div>
+    <div class="proc-step reveal"><div class="s">03</div><h4>Boards</h4><p>Shot list + storyboard</p></div>
+    <div class="proc-step reveal"><div class="s">04</div><h4>Production</h4><p>Shots generated + shot</p></div>
+    <div class="proc-step reveal"><div class="s">05</div><h4>Edit & Sound</h4><p>Cut, lip-sync, mix</p></div>
+    <div class="proc-step reveal"><div class="s">06</div><h4>Grade & Deliver</h4><p>Color, finish, exports</p></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="wrap">
+  <div class="sec-head reveal">
+    <div class="sec-label">Engagements</div>
+    <h2 class="sec-title">Ways To Work</h2>
+    <p class="sec-desc">Scoped to the project. Every engagement includes creative direction and unlimited revision rounds in pre-production.</p>
+  </div>
+  <div class="price-grid">
+    <div class="price reveal">
+      <h3>Hero Clip</h3>
+      <div class="amt">$1.5k–2.5k</div>
+      <div class="note">one signature 30–60s spot</div>
+      <ul>
+        <li>Concept + shot plan</li>
+        <li>Production + edit</li>
+        <li>Color + sound design</li>
+        <li>4K final delivery</li>
+        <li>Fast turnaround</li>
+      </ul>
+    </div>
+    <div class="price feat reveal">
+      <h3>Full Production</h3>
+      <div class="amt">$3.5k–7.5k</div>
+      <div class="note">music video, film piece or campaign</div>
+      <ul>
+        <li>Script + storyboard</li>
+        <li>Character / look system</li>
+        <li>Full production + lip-sync</li>
+        <li>Edit, sound, color finish</li>
+        <li>Unlimited pre-pro rounds</li>
+        <li>Social cutdown kit</li>
+      </ul>
+    </div>
+    <div class="price reveal">
+      <h3>Studio Retainer</h3>
+      <div class="amt">$5k–10k<span style="font-size:16px">/mo</span></div>
+      <div class="note">ongoing content partner</div>
+      <ul>
+        <li>8–12 pieces / month</li>
+        <li>Dedicated creative direction</li>
+        <li>Series + content engine</li>
+        <li>Brand & character system</li>
+        <li>Priority turnaround</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- QUICK-TURN LANE (separate product, local/SMB capture) -->
+  <div class="qt reveal">
+    <div class="qt-left">
+      <div class="qt-tag">Quick-Turn Motion</div>
+      <h3>Product ads for local & small business.</h3>
+      <p>A scroll-stopping 15-second motion ad for your product or storefront — concept, build and delivery in days, not weeks. Built to run on Instagram, TikTok and your product page. The fast lane, same studio polish.</p>
+      <div class="qt-note">Best value in packs — most brands run a set across products, flavors or colors.</div>
+    </div>
+    <div class="qt-right">
+      <div class="qt-row"><span>Single ad</span><b>$400</b></div>
+      <div class="qt-row feat"><span>3-pack</span><b>$1,000</b></div>
+      <div class="qt-row"><span>10-pack</span><b>$2,500</b></div>
+      <div class="qt-fine">15-second vertical or square · 4K · 1 revision round · add brand kit / product stills on request</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="wrap">
+  <div class="cta-block reveal">
+    <h2>Let's make<br>something <span class="out">unreal.</span></h2>
+    <p>Got a track, a product, a story, or a brand that needs to move? Tell us what you're building.</p>
+    <div class="cta-links">
+      <a href="mailto:hello@studio.com" class="primary">Start a project →</a>
+      <a href="#products">Shop the tools</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo" style="font-weight:900;font-size:18px">STUDIO<b style="color:var(--accent)">.</b></div>
+    <div class="mono">© 2026 · Brooklyn, NY · Films & tools for the AI creator</div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <button class="lb-close" id="lbClose">✕</button>
+  <video id="lbVideo" controls playsinline></video>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="src/app.js"></script>
+
+<!-- ===== CHECKOUT WIRING (Lemon Squeezy) =====
+     To go live: create the 6 products in Lemon Squeezy, then paste each
+     product's Share/Checkout URL into CHECKOUT_URLS below. That's the ONLY edit.
+     URLs look like: https://YOURSTORE.lemonsqueezy.com/checkout/buy/UUID
+     Leaving a value as null keeps that button in "coming soon" mode (no dead link). -->
+<script>
+(function(){
+  var CHECKOUT_URLS = {
+    p1: null, // The Shot Caller — $49 / $99 commercial
+    p2: null, // AI Production OS — $79
+    p3: null, // UGC Ad Factory — $129
+    p4: null, // Orchestrator Kits — $149
+    p5: null, // Artist Identity Engine — $59
+    p6: null  // AI Studio in a Box (bundle) — $299
+  };
+
+  // Load Lemon Squeezy overlay only if at least one real URL is set.
+  var hasLive = Object.keys(CHECKOUT_URLS).some(function(k){ return !!CHECKOUT_URLS[k]; });
+  if (hasLive) {
+    var s = document.createElement('script');
+    s.src = 'https://assets.lemonsqueezy.com/lemon.js';
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  document.querySelectorAll('.prod-cta[data-product]').forEach(function(btn){
+    var key = btn.getAttribute('data-product');
+    var url = CHECKOUT_URLS[key];
+    if (url) {
+      // ?embed=1 triggers the Lemon Squeezy overlay checkout (falls back to full page if lemon.js not yet ready)
+      btn.setAttribute('href', url + (url.indexOf('?')>-1?'&':'?') + 'embed=1');
+      btn.classList.add('lemonsqueezy-button');
+      btn.removeAttribute('data-soon');
+    } else {
+      // No URL yet — disable gracefully, no dead '#' link
+      btn.setAttribute('href','#contact');
+      btn.setAttribute('data-soon','1');
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        var orig = btn.textContent;
+        btn.textContent = 'Coming soon — join the list';
+        setTimeout(function(){ btn.textContent = orig; }, 1600);
+        var contact = document.querySelector('#contact');
+        if (contact) contact.scrollIntoView({behavior:'smooth'});
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

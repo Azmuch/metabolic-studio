@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dmitri — AI Creative Director & Visual Producer</title>
+<meta name="description" content="AI-native creative direction, video production, and visual storytelling. From concept to final cut — powered by generative AI, directed by human vision.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #1a1a1a;
+  --border: #222222;
+  --text: #f0f0f0;
+  --text-muted: #888888;
+  --accent: #ff4d00;
+  --accent-glow: rgba(255, 77, 0, 0.15);
+  --gold: #d4a84b;
+  --cyan: #00d4ff;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- HERO --- */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 32px;
+}
+
+.hero h1 span { color: var(--accent); }
+
+.hero-sub {
+  font-size: clamp(18px, 2.5vw, 24px);
+  color: var(--text-muted);
+  max-width: 640px;
+  line-height: 1.5;
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 36px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.hero-cta:hover {
+  background: #ff6a2f;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 77, 0, 0.3);
+}
+
+/* --- SECTIONS --- */
+section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 40px;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 24px;
+  line-height: 1.1;
+}
+
+.section-desc {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin-bottom: 64px;
+  font-weight: 300;
+}
+
+/* --- SERVICES GRID --- */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.service-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 40px 32px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.service-card:hover {
+  border-color: #333;
+  transform: translateY(-4px);
+}
+
+.service-card:hover::before { opacity: 1; }
+
+.service-icon {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.service-card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.service-card p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.service-tags {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.service-tags span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+}
+
+/* --- PIPELINE --- */
+.pipeline {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px;
+  margin-top: 64px;
+}
+
+.pipeline h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+
+.pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.pipeline-step {
+  text-align: center;
+  padding: 24px 16px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  position: relative;
+}
+
+.pipeline-step .step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.pipeline-step .step-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pipeline-step .step-tool {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* --- STATS --- */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin: 80px 0;
+}
+
+.stat {
+  text-align: center;
+  padding: 32px;
+}
+
+.stat-num {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* --- WORK SAMPLES --- */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.work-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.work-card:hover {
+  border-color: #333;
+  transform: translateY(-4px);
+}
+
+.work-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.work-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.work-card:hover .work-thumb img { transform: scale(1.06); }
+
+.work-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none;
+}
+
+.work-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  color: var(--text);
+}
+
+.work-thumb .play-icon {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 77, 0, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.work-card:hover .play-icon { opacity: 1; }
+
+.work-info {
+  padding: 24px;
+}
+
+.work-info h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.work-info p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.work-info .work-meta {
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+/* --- PRICING --- */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.price-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 40px 32px;
+  transition: all 0.3s;
+}
+
+.price-card.featured {
+  border-color: var(--accent);
+  position: relative;
+}
+
+.price-card.featured::after {
+  content: 'MOST POPULAR';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 4px 16px;
+  border-radius: 20px;
+}
+
+.price-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.price-card .price {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.price-card .price-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.price-card ul {
+  list-style: none;
+  margin-bottom: 32px;
+}
+
+.price-card ul li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.price-card ul li::before {
+  content: '→ ';
+  color: var(--accent);
+}
+
+/* --- CONTACT --- */
+.contact-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 64px 48px;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.contact-block h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.contact-block p {
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.contact-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.contact-links a {
+  padding: 12px 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.contact-links a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.contact-links a.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.contact-links a.primary:hover {
+  background: #ff6a2f;
+}
+
+/* --- FOOTER --- */
+footer {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .hero { padding: 60px 24px; }
+  section { padding: 80px 24px; }
+  .pipeline { padding: 32px 24px; }
+  .contact-block { padding: 40px 24px; }
+  .pipeline-steps { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-label">AI Creative Director & Visual Producer</div>
+  <h1>I direct AI<span>.</span><br>It builds worlds<span>.</span></h1>
+  <p class="hero-sub">Full-stack creative production powered by generative AI — from concept and storyboard through final cut. Human vision, machine execution, cinematic quality.</p>
+  <a href="#contact" class="hero-cta">Let's Build Something ↗</a>
+</header>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label">01 — Services</div>
+  <h2 class="section-title">What I Do</h2>
+  <p class="section-desc">End-to-end creative production using the latest AI generation tools — directed with the eye of a trained art director.</p>
+  
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🎬</div>
+      <h3>AI Video Production</h3>
+      <p>Music videos, commercials, short films, and branded content. Full pipeline from concept to color-graded final export. Lipsync, multi-character scenes, camera motion — cinematic quality at a fraction of traditional cost.</p>
+      <div class="service-tags">
+        <span>Kling 3.0</span>
+        <span>VEO 3.1</span>
+        <span>Seedance</span>
+        <span>After Effects</span>
+        <span>Lipsync</span>
+      </div>
+    </div>
+    
+    <div class="service-card">
+      <div class="service-icon">🖼️</div>
+      <h3>AI Image & Art Direction</h3>
+      <p>Photorealistic stills, storyboard grids, character design, product visuals, editorial imagery. Consistent characters across dozens of shots. 4K output indistinguishable from professional photography.</p>
+      <div class="service-tags">
+        <span>Nano Banana Pro</span>
+        <span>Midjourney V8</span>
+        <span>Flux</span>
+        <span>Seedream</span>
+        <span>4K Output</span>
+      </div>
+    </div>
+    
+    <div class="service-card">
+      <div class="service-icon">📐</div>
+      <h3>Creative Direction & Brand</h3>
+      <p>Visual identity systems, mood boards, style guides, and campaign art direction built around AI-native workflows. I set the creative vision and use AI as the production engine.</p>
+      <div class="service-tags">
+        <span>Brand Systems</span>
+        <span>Style Guides</span>
+        <span>Campaign Art</span>
+        <span>Social Content</span>
+      </div>
+    </div>
+    
+    <div class="service-card">
+      <div class="service-icon">📱</div>
+      <h3>Social & UGC Content</h3>
+      <p>Scroll-stopping short-form content at scale. AI-generated food videos, lifestyle content, product demos, and UGC-style posts optimized for Instagram, TikTok, and YouTube Shorts.</p>
+      <div class="service-tags">
+        <span>YouTube Shorts</span>
+        <span>Instagram</span>
+        <span>TikTok</span>
+        <span>Batch Production</span>
+      </div>
+    </div>
+    
+    <div class="service-card">
+      <div class="service-icon">🎵</div>
+      <h3>Music & Audio Production</h3>
+      <p>AI-generated music, sound design, and full music video production. From track creation through visual storytelling — concept to published asset.</p>
+      <div class="service-tags">
+        <span>ElevenLabs</span>
+        <span>Suno</span>
+        <span>Music Videos</span>
+        <span>Sound Design</span>
+      </div>
+    </div>
+    
+    <div class="service-card">
+      <div class="service-icon">⚡</div>
+      <h3>Pipeline & Automation</h3>
+      <p>Custom AI production pipelines for studios and agencies. Batch generation, quality control systems, automated assembly — turning one-off experiments into repeatable workflows.</p>
+      <div class="service-tags">
+        <span>Custom Pipelines</span>
+        <span>Batch Automation</span>
+        <span>QC Systems</span>
+        <span>API Integration</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-label">02 — Process</div>
+  <h2 class="section-title">The Pipeline</h2>
+  <p class="section-desc">Every project follows a systematic production workflow — the same methodology used by professional film productions, adapted for AI-native tools.</p>
+  
+  <div class="pipeline">
+    <h3>From Brief to Final Cut</h3>
+    <div class="pipeline-steps">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <div class="step-name">Research & Script</div>
+        <div class="step-tool">AI Analysis</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <div class="step-name">Character Lock</div>
+        <div class="step-tool">Identity Sheets</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">03</div>
+        <div class="step-name">Cinematography</div>
+        <div class="step-tool">Shot Planning</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">04</div>
+        <div class="step-name">Frame Generation</div>
+        <div class="step-tool">NB Pro / MJ V8</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">05</div>
+        <div class="step-name">Image-to-Video</div>
+        <div class="step-tool">Kling 3.0 / VEO</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">06</div>
+        <div class="step-name">Lipsync & Polish</div>
+        <div class="step-tool">2-Pass System</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">07</div>
+        <div class="step-name">Assembly & Grade</div>
+        <div class="step-tool">After Effects</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">4K</div>
+      <div class="stat-label">Output Resolution</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10x</div>
+      <div class="stat-label">Faster Than Traditional</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">90%</div>
+      <div class="stat-label">Cost Reduction</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Creative Iterations</div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-label">03 — Selected Work</div>
+  <h2 class="section-title">Recent Projects</h2>
+  <p class="section-desc">AI-directed, human-curated. Every frame intentional.</p>
+  
+  <div class="work-grid">
+    <div class="work-card">
+      <div class="work-thumb">
+        <span class="work-tag">Music Video</span>
+        <img src="assets/top-tier.jpg" alt="Top Tier music video — rooftop scene" loading="lazy">
+      </div>
+      <div class="work-info">
+        <h4>"Top Tier" — Music Video</h4>
+        <p>Full AI music video production. Multi-act narrative from Brooklyn rooftops to Tokyo, character-consistent across 100+ shots with two-pass lipsync.</p>
+        <div class="work-meta">Kling 3.0 Pro · VEO 3.1 · After Effects</div>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-thumb">
+        <span class="work-tag">Music Video</span>
+        <img src="assets/kitty-trap.jpg" alt="Kitty Trap campaign — luxe lounge scene" loading="lazy">
+      </div>
+      <div class="work-info">
+        <h4>"Kitty Trap" — Music Campaign</h4>
+        <p>Full visual campaign for a hip-hop single. Character design, art-deco club worlds, performance scenes, and cut-to-beat edits — concept to final cut.</p>
+        <div class="work-meta">Higgsfield · NB Pro · After Effects</div>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-thumb">
+        <span class="work-tag">AI Film</span>
+        <img src="assets/cocka-shark.jpg" alt="Cocka Shark — AI creature film" loading="lazy">
+      </div>
+      <div class="work-info">
+        <h4>"Cocka Shark" — AI Feature Film</h4>
+        <p>Eco-thriller creature feature in active development. Full screenplay, world bible, character design, and AI-generated prologue sequences.</p>
+        <div class="work-meta">Seedance 2.0 · Kling 3.0 · Screenplay</div>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-thumb">
+        <span class="work-tag">Brand Content</span>
+        <img src="assets/sol.jpg" alt="SOL Catskills — luxury rental marketing" loading="lazy">
+      </div>
+      <div class="work-info">
+        <h4>SOL Catskills — Brand Marketing</h4>
+        <p>AI-generated marketing for an off-grid luxury rental. Lifestyle UGC, social carousels, and campaign imagery selling the workcation experience.</p>
+        <div class="work-meta">NB Pro · UGC Lifestyle · Social</div>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-thumb">
+        <span class="work-tag">YouTube Series</span>
+        <img src="assets/1mk.jpg" alt="1 Minute Kitchen — AI food shorts" loading="lazy">
+      </div>
+      <div class="work-info">
+        <h4>1 Minute Kitchen — YouTube Series</h4>
+        <p>AI-generated ASMR food shorts. Multi-episode run, dark moody aesthetic, no talking — from recipe research to published, batch-produced Shorts.</p>
+        <div class="work-meta">Kling 3.0 · NB Pro · YouTube Shorts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">04 — Pricing</div>
+  <h2 class="section-title">Engagement Models</h2>
+  <p class="section-desc">Flexible pricing based on scope. All projects include unlimited revisions on AI generations.</p>
+  
+  <div class="pricing-grid">
+    <div class="price-card">
+      <h3>Hero Clip</h3>
+      <div class="price">$750 – $1,500</div>
+      <div class="price-note">30-60 second deliverable</div>
+      <ul>
+        <li>Storyboard + cinematography plan</li>
+        <li>AI frame generation + image-to-video</li>
+        <li>Color grading + sound design</li>
+        <li>4K final output</li>
+        <li>48-72hr turnaround</li>
+      </ul>
+    </div>
+    
+    <div class="price-card featured">
+      <h3>Full Production</h3>
+      <div class="price">$3,500 – $7,500</div>
+      <div class="price-note">2-3 minute music video or commercial</div>
+      <ul>
+        <li>Script + shot list + storyboard</li>
+        <li>Character consistency system</li>
+        <li>Kling 3.0 Pro / VEO 3.1 generation</li>
+        <li>2-pass lipsync + sound design</li>
+        <li>After Effects assembly + grade</li>
+        <li>Unlimited AI generation rounds</li>
+      </ul>
+    </div>
+    
+    <div class="price-card">
+      <h3>Monthly Retainer</h3>
+      <div class="price">$5,000 – $10,000</div>
+      <div class="price-note">ongoing brand content</div>
+      <ul>
+        <li>8-12 pieces per month</li>
+        <li>Dedicated pipeline + art direction</li>
+        <li>Social, Shorts, Reels optimized</li>
+        <li>Character + brand style system</li>
+        <li>Priority turnaround</li>
+        <li>Custom automation setup</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-block">
+    <h2>Let's make something.</h2>
+    <p>Have a project in mind? I work with brands, agencies, artists, and studios who want cinematic-quality AI content — fast.</p>
+    <div class="contact-links">
+      <a href="mailto:dmitri@gfmsolutions.com" class="primary">Email Me</a>
+      <a href="https://instagram.com/kikigomega" target="_blank">Instagram</a>
+      <a href="https://youtube.com/@Kikigomega" target="_blank">YouTube</a>
+      <a href="https://linkedin.com/" target="_blank">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Dmitri — AI Creative Director & Visual Producer. Built different.</p>
+</footer>
+
+</body>
+</html>
