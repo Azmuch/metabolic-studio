@@ -1,0 +1,340 @@
+import Foundation
+
+public enum ExerciseLibrary {
+
+    /// Availability semantics: an exercise is available when the user has no flagged injury
+    /// among its contraindications AND its equipment requirement is satisfiable — bodyweight
+    /// (`[.none]`) always is; `.fullGym` satisfies everything; otherwise any overlap between
+    /// the exercise's acceptable equipment and the user's counts (the set lists alternatives,
+    /// e.g. goblet squat works with dumbbells OR a kettlebell).
+    public static func available(equipment: Set<Equipment>, injuries: Set<InjuryFlag>) -> [Exercise] {
+        all.filter { exercise in
+            guard exercise.contraindications.isDisjoint(with: injuries) else { return false }
+            if exercise.equipment.contains(.none) { return true }
+            if equipment.contains(.fullGym) { return true }
+            return !exercise.equipment.isDisjoint(with: equipment)
+        }
+    }
+
+    public static func exercise(id: String) -> Exercise? {
+        all.first { $0.id == id }
+    }
+
+    public static let all: [Exercise] = [
+        Exercise(
+            id: "squat", name: "Bodyweight Squat",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee, .hip],
+            met: 5.0, kind: .reps(12),
+            instructions: [
+                "Stand with feet shoulder-width apart, toes slightly out.",
+                "Send hips back and down until thighs are near parallel.",
+                "Keep chest up and heels planted.",
+                "Drive through the floor to stand tall.",
+            ],
+            keyframes: ExercisePoses.squat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "pushUp", name: "Push-Up",
+            muscleGroups: [.chest, .arms, .core],
+            equipment: [.none], contraindications: [.wrist, .shoulder],
+            met: 3.8, kind: .reps(10),
+            instructions: [
+                "Hands under shoulders, body in one straight line.",
+                "Lower your chest until elbows hit ninety degrees.",
+                "Press the floor away without letting hips sag.",
+            ],
+            keyframes: ExercisePoses.pushUp(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "kneePushUp", name: "Knee Push-Up",
+            muscleGroups: [.chest, .arms],
+            equipment: [.none], contraindications: [.wrist],
+            met: 2.8, kind: .reps(12),
+            instructions: [
+                "From knees, form a straight line knees-to-head.",
+                "Lower chest under control, elbows at forty-five degrees.",
+                "Push back up and squeeze your chest at the top.",
+            ],
+            keyframes: ExercisePoses.kneePushUp(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "lunge", name: "Alternating Lunge",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee],
+            met: 4.0, kind: .reps(10),
+            instructions: [
+                "Step forward into a long stance.",
+                "Drop the back knee toward the floor.",
+                "Both knees at ninety degrees at the bottom.",
+                "Push off the front foot to return, then switch.",
+            ],
+            keyframes: ExercisePoses.lunge(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "gluteBridge", name: "Glute Bridge",
+            muscleGroups: [.glutes, .hamstrings],
+            equipment: [.none], contraindications: [],
+            met: 3.0, kind: .reps(15),
+            instructions: [
+                "Lie on your back, knees bent, feet flat.",
+                "Drive hips up until knees, hips and shoulders align.",
+                "Squeeze glutes at the top for one second.",
+                "Lower with control.",
+            ],
+            keyframes: ExercisePoses.gluteBridge(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "plank", name: "Plank",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [.wrist, .shoulder],
+            met: 3.0, kind: .timed(seconds: 45),
+            instructions: [
+                "Forearms or hands under shoulders.",
+                "Brace your core like you're about to be poked.",
+                "One straight line from head to heels — breathe.",
+            ],
+            keyframes: ExercisePoses.plank(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "sidePlank", name: "Side Plank",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [.wrist, .shoulder],
+            met: 3.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Stack feet, elbow under shoulder.",
+                "Lift hips into one straight line.",
+                "Reach the top arm to the ceiling and hold.",
+            ],
+            keyframes: ExercisePoses.sidePlank(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "mountainClimber", name: "Mountain Climber",
+            muscleGroups: [.core, .cardio],
+            equipment: [.none], contraindications: [.wrist],
+            met: 8.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Start in a high plank.",
+                "Drive one knee to your chest, then switch fast.",
+                "Keep hips low and shoulders over wrists.",
+            ],
+            keyframes: ExercisePoses.mountainClimber(), secondsPerCycle: 1.0
+        ),
+        Exercise(
+            id: "jumpingJack", name: "Jumping Jack",
+            muscleGroups: [.cardio, .fullBody],
+            equipment: [.none], contraindications: [.knee, .ankle],
+            met: 8.0, kind: .timed(seconds: 45),
+            instructions: [
+                "Jump feet wide while sweeping arms overhead.",
+                "Land soft on the balls of your feet.",
+                "Snap back to standing and repeat rhythmically.",
+            ],
+            keyframes: ExercisePoses.jumpingJack(), secondsPerCycle: 1.0
+        ),
+        Exercise(
+            id: "highKnees", name: "High Knees",
+            muscleGroups: [.cardio],
+            equipment: [.none], contraindications: [.knee, .ankle],
+            met: 8.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Run in place, driving knees to hip height.",
+                "Pump the arms in rhythm.",
+                "Stay tall — don't lean back.",
+            ],
+            keyframes: ExercisePoses.highKnees(), secondsPerCycle: 0.8
+        ),
+        Exercise(
+            id: "burpee", name: "Burpee",
+            muscleGroups: [.fullBody, .cardio],
+            equipment: [.none], contraindications: [.knee, .wrist, .lowerBack],
+            met: 8.0, kind: .reps(10),
+            instructions: [
+                "Squat down, hands to the floor.",
+                "Kick back to a plank.",
+                "Hop feet back in and jump tall.",
+            ],
+            keyframes: ExercisePoses.burpee(), secondsPerCycle: 3.5
+        ),
+        Exercise(
+            id: "birdDog", name: "Bird Dog",
+            muscleGroups: [.core, .back],
+            equipment: [.none], contraindications: [],
+            met: 2.8, kind: .reps(10),
+            instructions: [
+                "On all fours, spine neutral.",
+                "Reach opposite arm and leg long.",
+                "Pause, return with control, switch sides.",
+            ],
+            keyframes: ExercisePoses.birdDog(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "deadBug", name: "Dead Bug",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [],
+            met: 2.8, kind: .reps(10),
+            instructions: [
+                "On your back, arms up, knees over hips.",
+                "Lower opposite arm and leg toward the floor.",
+                "Keep your lower back pressed down.",
+            ],
+            keyframes: ExercisePoses.deadBug(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "calfRaise", name: "Calf Raise",
+            muscleGroups: [.calves],
+            equipment: [.none], contraindications: [.ankle],
+            met: 3.0, kind: .reps(15),
+            instructions: [
+                "Stand tall, feet hip-width.",
+                "Rise onto the balls of your feet.",
+                "Pause at the top, lower slowly.",
+            ],
+            keyframes: ExercisePoses.calfRaise(), secondsPerCycle: 2.0
+        ),
+        Exercise(
+            id: "wallSit", name: "Wall Sit",
+            muscleGroups: [.quads],
+            equipment: [.none], contraindications: [.knee],
+            met: 3.3, kind: .timed(seconds: 45),
+            instructions: [
+                "Back flat against a wall.",
+                "Slide down until thighs are parallel.",
+                "Knees over ankles — hold and breathe.",
+            ],
+            keyframes: ExercisePoses.wallSit(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "superman", name: "Superman",
+            muscleGroups: [.back, .glutes],
+            equipment: [.none], contraindications: [.lowerBack, .neck],
+            met: 2.8, kind: .reps(12),
+            instructions: [
+                "Lie face down, arms extended.",
+                "Lift arms, chest and legs together.",
+                "Hold one second, lower softly.",
+            ],
+            keyframes: ExercisePoses.superman(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "dbRow", name: "Dumbbell Row",
+            muscleGroups: [.back, .arms],
+            equipment: [.dumbbells], contraindications: [.lowerBack],
+            met: 5.0, kind: .reps(10),
+            instructions: [
+                "Hinge at the hips, flat back.",
+                "Pull the dumbbells to your ribs.",
+                "Squeeze shoulder blades, lower slowly.",
+            ],
+            keyframes: ExercisePoses.dbRow(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "dbShoulderPress", name: "Dumbbell Shoulder Press",
+            muscleGroups: [.shoulders, .arms],
+            equipment: [.dumbbells], contraindications: [.shoulder, .neck],
+            met: 5.0, kind: .reps(10),
+            instructions: [
+                "Dumbbells at shoulder height, palms forward.",
+                "Press straight up without arching your back.",
+                "Lower under control to your ears.",
+            ],
+            keyframes: ExercisePoses.dbShoulderPress(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "dbCurl", name: "Dumbbell Curl",
+            muscleGroups: [.arms],
+            equipment: [.dumbbells], contraindications: [],
+            met: 3.5, kind: .reps(12),
+            instructions: [
+                "Elbows pinned to your sides.",
+                "Curl without swinging the torso.",
+                "Lower slowly for a full stretch.",
+            ],
+            keyframes: ExercisePoses.dbCurl(), secondsPerCycle: 2.0
+        ),
+        Exercise(
+            id: "gobletSquat", name: "Goblet Squat",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.dumbbells, .kettlebell], contraindications: [.knee, .lowerBack],
+            met: 5.0, kind: .reps(10),
+            instructions: [
+                "Hold the weight at your chest.",
+                "Squat between your knees, elbows inside thighs.",
+                "Stand tall driving through the heels.",
+            ],
+            keyframes: ExercisePoses.gobletSquat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "dbRomanianDeadlift", name: "Romanian Deadlift",
+            muscleGroups: [.hamstrings, .glutes, .back],
+            equipment: [.dumbbells], contraindications: [.lowerBack],
+            met: 4.0, kind: .reps(10),
+            instructions: [
+                "Soft knees, weights against your thighs.",
+                "Push hips back, back flat, weights sliding down.",
+                "Feel the hamstrings, then squeeze glutes to stand.",
+            ],
+            keyframes: ExercisePoses.dbRomanianDeadlift(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "lateralRaise", name: "Lateral Raise",
+            muscleGroups: [.shoulders],
+            equipment: [.dumbbells], contraindications: [.shoulder],
+            met: 3.0, kind: .reps(12),
+            instructions: [
+                "Slight bend in the elbows.",
+                "Raise to shoulder height, lead with elbows.",
+                "Lower slower than you lift.",
+            ],
+            keyframes: ExercisePoses.lateralRaise(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "kbSwing", name: "Kettlebell Swing",
+            muscleGroups: [.glutes, .hamstrings, .cardio],
+            equipment: [.kettlebell], contraindications: [.lowerBack],
+            met: 9.5, kind: .reps(15),
+            instructions: [
+                "Hinge and hike the bell between your legs.",
+                "Snap the hips forward — the arms just ride.",
+                "Bell floats to chest height, then back into the hinge.",
+            ],
+            keyframes: ExercisePoses.kbSwing(), secondsPerCycle: 1.5
+        ),
+        Exercise(
+            id: "bandRow", name: "Band Row",
+            muscleGroups: [.back, .arms],
+            equipment: [.resistanceBands], contraindications: [],
+            met: 3.5, kind: .reps(12),
+            instructions: [
+                "Anchor the band at chest height.",
+                "Row elbows past your ribs.",
+                "Squeeze the shoulder blades together.",
+            ],
+            keyframes: ExercisePoses.bandRow(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "bandPullApart", name: "Band Pull-Apart",
+            muscleGroups: [.shoulders, .back],
+            equipment: [.resistanceBands], contraindications: [.shoulder],
+            met: 3.0, kind: .reps(15),
+            instructions: [
+                "Hold the band at shoulder height, arms long.",
+                "Pull apart until it touches your chest.",
+                "Control the return — no snapping back.",
+            ],
+            keyframes: ExercisePoses.bandPullApart(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "pullUp", name: "Pull-Up",
+            muscleGroups: [.back, .arms],
+            equipment: [.pullUpBar], contraindications: [.shoulder, .wrist],
+            met: 8.0, kind: .reps(6),
+            instructions: [
+                "Hang with hands just outside shoulders.",
+                "Pull chest to the bar, elbows down and back.",
+                "Lower all the way to a dead hang.",
+            ],
+            keyframes: ExercisePoses.pullUp(), secondsPerCycle: 3.0
+        ),
+    ]
+}
