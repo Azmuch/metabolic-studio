@@ -161,6 +161,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Metabolic connects to your Bluetooth food scale to weigh portions into your diary.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Metabolic uses the camera to scan product barcodes and analyze meal photos.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Metabolic reads your weight, steps and activity to personalize your plan.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Metabolic saves your meals, water and workouts to Apple Health.";
@@ -195,6 +196,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Metabolic connects to your Bluetooth food scale to weigh portions into your diary.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Metabolic uses the camera to scan product barcodes and analyze meal photos.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Metabolic reads your weight, steps and activity to personalize your plan.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Metabolic saves your meals, water and workouts to Apple Health.";

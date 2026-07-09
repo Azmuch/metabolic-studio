@@ -36,6 +36,15 @@ Photo calorie estimation calls the Claude API directly. Add an Anthropic API key
 sizes, calories and macros from a photo of your plate. (For App Store distribution, route
 this through your own backend proxy instead of shipping user-entered keys.)
 
+### Smart food scale
+
+Pair a Bluetooth kitchen scale (standard GATT Weight Scale profile) under *You → Settings →
+Devices*, or from the scale button inside any food-logging flow. Weigh a portion, tap
+**Use N g**, and the grams flow straight into the entry — in the search flow the serving
+multiplier is recalculated from the weighed amount automatically. A built-in **Demo Scale**
+simulates readings so the flow works on the simulator and without hardware; vendor-specific
+scale protocols can be added in `SmartScaleService`.
+
 ### Product scanning
 
 Barcode scans hit the free [OpenFoodFacts](https://world.openfoodfacts.org) database. Scores

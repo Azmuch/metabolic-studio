@@ -13,6 +13,7 @@ on; owners may add more members but never rename/remove these.
 | C (Nutrition) | `NutritionView`, `AddFoodSheet`, `ManualFoodEntryView`, `FoodSearchView`, `MealPhotoView`, `WaterDetailView`, `OpenFoodFactsClient`, `ClaudeVisionClient`, `MealVisionError`, `APIKeyStore`, `UsageMeter`, `DemoMealAnalysis` |
 | D (Training) | `TrainingView`, `OnboardingFlowView`, `ProfileEditorView`, `ExerciseAnimationView`, `ExerciseDetailView`, `SessionPlayerView`, `PlanDetailView` |
 | E (Commerce/Health) | `ScanTabView`, `YouView`, `SettingsView`, `BarcodeScannerView`, `ScanResultView`, `PaywallView`, `SubscriptionTier`, `SubscriptionManager`, `Feature`, `FeatureGate`, `HealthKitService`, `CSVExporter` |
+| F (Devices) | `SmartScaleService`, `ScaleDevice`, `ScaleConnectionState`, `SmartScaleSheet` — CoreBluetooth food scale (Weight Scale GATT 0x181D + simulated device). `SmartScaleSheet(onUseWeight:)` hands settled grams back to logging flows; injected app-wide via `.environment(SmartScaleService())`. |
 
 ## Tab roots (RootTabView switches on `AppTab`)
 

@@ -6,6 +6,7 @@ struct MetabolicApp: App {
     @State private var appState = AppState()
     @State private var subscriptionManager = SubscriptionManager()
     @State private var healthKitService = HealthKitService()
+    @State private var smartScale = SmartScaleService()
 
     private let modelContainer: ModelContainer = {
         do {
@@ -35,6 +36,7 @@ struct MetabolicApp: App {
             .environment(appState)
             .environment(subscriptionManager)
             .environment(healthKitService)
+            .environment(smartScale)
             .modelContainer(modelContainer)
             .preferredColorScheme(nil)
             .task {

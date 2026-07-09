@@ -1,0 +1,212 @@
+import SwiftUI
+import SwiftData
+import MetabolicCore
+
+/// Settings: AI key, demo mode, smart scale, data export (Pro), about.
+struct SettingsView: View {
+    @Environment(AppState.self) private var appState
+    @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(SmartScaleService.self) private var scale
+    @Environment(\.modelContext) private var modelContext
+
+    @Query private var foods: [FoodEntry]
+    @Query private var workouts: [WorkoutLog]
+    @Query private var weights: [WeightEntry]
+
+    @State private var apiKeyField = ""
+    @State private var hasStoredKey = APIKeyStore.load() != nil
+    @State private var exportURL: URL?
+    @State private var showPaywall = false
+    @State private var showScaleSheet = false
+
+    var body: some View {
+        @Bindable var appState = appState
+
+        ScrollView {
+            VStack(spacing: 12) {
+                section("AI Calorie Vision") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SecureField(hasStoredKey ? "••••••••••••  (key saved)" : "Anthropic API key",
+                                    text: $apiKeyField)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 14).monospaced())
+                            .foregroundStyle(MTTheme.textPrimary)
+                            .padding(12)
+                            .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+                        HStack(spacing: 10) {
+                            MTSecondaryButton(title: "Save key") {
+                                let trimmed = apiKeyField.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !trimmed.isEmpty else { return }
+                                APIKeyStore.save(trimmed)
+                                apiKeyField = ""
+                                hasStoredKey = true
+                                Haptics.success()
+                            }
+                            if hasStoredKey {
+                                MTSecondaryButton(title: "Clear") {
+                                    APIKeyStore.clear()
+                                    hasStoredKey = false
+                                }
+                            }
+                        }
+                        Text("Meal-photo analysis calls the Claude API with your key, straight from the device.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textTertiary)
+                    }
+                }
+
+                section("Demo mode") {
+                    Toggle(isOn: $appState.demoMode) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Demo mode")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            Text("Sample data and canned AI results for exploring the app.")
+                                .font(.system(size: 12))
+                                .foregroundStyle(MTTheme.textSecondary)
+                        }
+                    }
+                    .tint(MTTheme.volt)
+                }
+
+                section("Devices") {
+                    Button {
+                        Haptics.tap()
+                        showScaleSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "scalemass.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.volt)
+                                .frame(width: 36, height: 36)
+                                .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Smart food scale")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(MTTheme.textPrimary)
+                                Text(scale.statusDescription)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(MTTheme.textSecondary)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(MTTheme.textTertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    Text("Pair a Bluetooth kitchen scale to weigh portions straight into your diary.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textTertiary)
+                }
+
+                section("Data") {
+                    if FeatureGate.allows(.dataExport, tier: subscriptionManager.tier) {
+                        if let exportURL {
+                            ShareLink(item: exportURL) {
+                                exportRow(caption: "metabolic-export.csv ready — tap to share")
+                            }
+                        } else {
+                            Button {
+                                Haptics.tap()
+                                exportURL = CSVExporter.export(foods: foods, workouts: workouts,
+                                                               weights: weights)
+                                if exportURL != nil { Haptics.success() }
+                            } label: {
+                                exportRow(caption: "Foods, workouts and weights as CSV")
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } else {
+                        Button {
+                            Haptics.tap()
+                            showPaywall = true
+                        } label: {
+                            HStack {
+                                exportRow(caption: "Foods, workouts and weights as CSV")
+                                MTChip(text: "Pro", systemImage: "lock.fill")
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                section("About") {
+                    HStack {
+                        Text("Version")
+                            .font(.system(size: 15))
+                            .foregroundStyle(MTTheme.textSecondary)
+                        Spacer()
+                        Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0")
+                            .font(.system(size: 15, weight: .semibold).monospacedDigit())
+                            .foregroundStyle(MTTheme.textPrimary)
+                    }
+                    Link(destination: URL(string: "mailto:hello@metabolicstudio.app")!) {
+                        HStack {
+                            Text("Contact")
+                                .font(.system(size: 15))
+                                .foregroundStyle(MTTheme.textSecondary)
+                            Spacer()
+                            Text("hello@metabolicstudio.app")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(MTTheme.volt)
+                        }
+                    }
+                    Text("Nutrition math, plan generation and product scoring run on-device in MetabolicCore.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textTertiary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+        }
+        .scrollIndicators(.hidden)
+        .background(MTTheme.bg.ignoresSafeArea())
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showScaleSheet) { SmartScaleSheet() }
+    }
+
+    private func exportRow(caption: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "square.and.arrow.up.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(MTTheme.volt)
+                .frame(width: 36, height: 36)
+                .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Export data (CSV)")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                Text(caption)
+                    .font(.system(size: 12))
+                    .foregroundStyle(MTTheme.textSecondary)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        MTCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(title.uppercased())
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                content()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+#Preview {
+    NavigationStack { SettingsView() }
+        .environment(AppState())
+        .environment(SubscriptionManager())
+        .environment(SmartScaleService())
+        .modelContainer(for: [FoodEntry.self, WorkoutLog.self, WeightEntry.self], inMemory: true)
+}
