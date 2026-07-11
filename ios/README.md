@@ -82,6 +82,32 @@ Exercise animations are rendered at runtime: each exercise ships normalized 13-j
 keyframes, interpolated with smoothstep easing in a `TimelineView`-driven `Canvas`
 (`ExerciseAnimationView`) — no bundled video or GIF assets.
 
+## v2 highlights
+
+- **US / metric units** toggle (weight in lb, height in ft/in — storage stays metric)
+- **Flexibility & Mobility** training goal + optional **PT-style warm-up/cooldown blocks**
+  built from an 11-move mobility library (functional-fitness ordering under the hood:
+  compound squat/push/pull/hinge patterns lead every session)
+- **Target areas**: pick muscle groups to strengthen/firm on an interactive body map
+  (front/back diagram + custom deep-tissue flags; physician-consult guidance for
+  anything persisting 3+ months)
+- **Smart schedule**: pin days-per-week OR session length — the app recommends the other
+  from your profile; custom equipment entries
+- **Hypertrophy tracking**: optional per-set load logging, weekly volume + estimated
+  sets-per-muscle breakdown
+- **Meal prep**: deterministic weekly plan generator hitting your calorie/protein targets,
+  one-tap meal logging, aggregated grocery list
+- **Hand-portion guide**: sex-scaled palm/fist/cupped-hand/thumb quick logging
+- **Coaching**: on-demand session player (sample HLS streams; swap in your studio's
+  content) + live-session shell gated to Pro — gym/trainer integration comes later
+- **Muscle-activation highlighting** on exercise animations + per-exercise muscle map
+- **Accent themes** (Volt Lime / Tangerine / Earth / Jewel), **goals progress widget**,
+  resting **heart-rate** from Apple Health, improved food search with custom-food fallback
+
+Roadmap (needs assets/backend): true 3D body map + 3D muscle-highlighted exercise
+figures (rigged USDZ + SceneKit), live trainer streaming backend, vendor-specific
+scale protocols.
+
 ## Subscription tiers
 
 | | Free | Plus | Pro |
