@@ -413,7 +413,7 @@ struct WeightTrendWidget: View {
         switch appState.profile.goal {
         case .loseFat: return delta <= 0
         case .gainMuscle: return delta >= 0
-        case .maintain, .improveEndurance: return abs(delta) < 0.5
+        case .maintain, .improveEndurance, .improveMobility: return abs(delta) < 0.5
         }
     }
 }
