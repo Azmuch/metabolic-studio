@@ -40,14 +40,27 @@ struct ExerciseAnimationView: View {
         }
 
         let boneWidth = side * 0.055
-        let boneStyle = StrokeStyle(lineWidth: boneWidth, lineCap: .round, lineJoin: .round)
+        // Under-100pt renders (library thumbnails, row icons) skip the glow so the figure
+        // stays legible; full detail kicks in once there's room for it (hero, session player).
+        let showGlow = min(size.width, size.height) > 100
+        let activated = Self.activatedRegions(for: exercise.muscleGroups)
 
-        func strokeBone(_ a: Joint, _ b: Joint, opacity: Double) {
+        func strokeBone(_ a: Joint, _ b: Joint, region: BoneRegion?) {
             guard let pa = point(for: a), let pb = point(for: b) else { return }
             var path = Path()
             path.move(to: pa)
             path.addLine(to: pb)
-            context.stroke(path, with: .color(tint.opacity(opacity)), style: boneStyle)
+
+            let isInvolved = region.map { activated.contains($0) } ?? false
+            let width = isInvolved ? boneWidth * 1.2 : boneWidth
+            let opacity = isInvolved ? 1.0 : 0.4
+
+            if isInvolved && showGlow {
+                let glowStyle = StrokeStyle(lineWidth: width * 2.2, lineCap: .round, lineJoin: .round)
+                context.stroke(path, with: .color(tint.opacity(0.18)), style: glowStyle)
+            }
+            let style = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
+            context.stroke(path, with: .color(tint.opacity(opacity)), style: style)
         }
 
         // Ground shadow beneath whichever ankle sits lowest on screen (largest y).
@@ -60,22 +73,38 @@ struct ExerciseAnimationView: View {
             context.fill(Path(ellipseIn: shadowRect), with: .color(tint.opacity(0.10)))
         }
 
-        // Back limbs first (far side, depth cue) at reduced opacity.
-        strokeBone(.hip, .leftKnee, opacity: 0.55)
-        strokeBone(.leftKnee, .leftAnkle, opacity: 0.55)
-        strokeBone(.neck, .leftShoulder, opacity: 0.55)
-        strokeBone(.leftShoulder, .leftElbow, opacity: 0.55)
-        strokeBone(.leftElbow, .leftWrist, opacity: 0.55)
+        // Back limbs first (far side, depth cue). Neck–shoulder links are pure connective
+        // tissue in this rig (no dedicated muscle maps to them) so they stay at rest opacity.
+        strokeBone(.hip, .leftKnee, region: .hipKnee)
+        strokeBone(.leftKnee, .leftAnkle, region: .kneeAnkle)
+        strokeBone(.neck, .leftShoulder, region: nil)
+        strokeBone(.leftShoulder, .leftElbow, region: .shoulderElbow)
+        strokeBone(.leftElbow, .leftWrist, region: .elbowWrist)
 
-        // Torso at full opacity.
-        strokeBone(.neck, .hip, opacity: 1)
+        // Torso.
+        strokeBone(.neck, .hip, region: .torso)
 
-        // Front limbs (near side) at full opacity.
-        strokeBone(.hip, .rightKnee, opacity: 1)
-        strokeBone(.rightKnee, .rightAnkle, opacity: 1)
-        strokeBone(.neck, .rightShoulder, opacity: 1)
-        strokeBone(.rightShoulder, .rightElbow, opacity: 1)
-        strokeBone(.rightElbow, .rightWrist, opacity: 1)
+        // Front limbs (near side).
+        strokeBone(.hip, .rightKnee, region: .hipKnee)
+        strokeBone(.rightKnee, .rightAnkle, region: .kneeAnkle)
+        strokeBone(.neck, .rightShoulder, region: nil)
+        strokeBone(.rightShoulder, .rightElbow, region: .shoulderElbow)
+        strokeBone(.rightElbow, .rightWrist, region: .elbowWrist)
+
+        // Glute activation reads as a highlighted hip joint, layered on top of the hip–knee bones.
+        if Set(exercise.muscleGroups).contains(.glutes), let hipPoint = point(for: .hip) {
+            let radius = boneWidth * 0.85
+            if showGlow {
+                let glowRadius = radius * 1.9
+                let glowRect = CGRect(
+                    x: hipPoint.x - glowRadius, y: hipPoint.y - glowRadius,
+                    width: glowRadius * 2, height: glowRadius * 2
+                )
+                context.fill(Path(ellipseIn: glowRect), with: .color(tint.opacity(0.18)))
+            }
+            let rect = CGRect(x: hipPoint.x - radius, y: hipPoint.y - radius, width: radius * 2, height: radius * 2)
+            context.fill(Path(ellipseIn: rect), with: .color(tint))
+        }
 
         // Head, drawn last so it sits on top.
         if let headPoint = point(for: .head), let neckPoint = point(for: .neck) {
@@ -86,6 +115,29 @@ struct ExerciseAnimationView: View {
             )
             context.fill(Path(ellipseIn: headRect), with: .color(tint))
         }
+    }
+
+    // MARK: - Muscle-group → bone mapping
+
+    /// Skeleton segments that can be "activated" by an exercise's muscle groups.
+    private enum BoneRegion {
+        case hipKnee, kneeAnkle, shoulderElbow, elbowWrist, torso
+    }
+
+    /// quads/hamstrings/glutes → hip–knee, calves → knee–ankle, chest/shoulders → shoulder–elbow,
+    /// arms → elbow–wrist, back/core → the neck–hip torso line, fullBody/cardio → everything.
+    private static func activatedRegions(for muscleGroups: [MuscleGroup]) -> Set<BoneRegion> {
+        let groups = Set(muscleGroups)
+        if !groups.isDisjoint(with: [.fullBody, .cardio]) {
+            return [.hipKnee, .kneeAnkle, .shoulderElbow, .elbowWrist, .torso]
+        }
+        var result: Set<BoneRegion> = []
+        if !groups.isDisjoint(with: [.quads, .hamstrings, .glutes]) { result.insert(.hipKnee) }
+        if groups.contains(.calves) { result.insert(.kneeAnkle) }
+        if !groups.isDisjoint(with: [.chest, .shoulders]) { result.insert(.shoulderElbow) }
+        if groups.contains(.arms) { result.insert(.elbowWrist) }
+        if !groups.isDisjoint(with: [.back, .core]) { result.insert(.torso) }
+        return result
     }
 
     /// N keyframes split the loop into N equal segments (k0→k1 … k(N-1)→k0 wrap). `date` maps to

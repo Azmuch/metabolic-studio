@@ -9,6 +9,7 @@ struct TrainingView: View {
     @Environment(SubscriptionManager.self) private var subscriptionManager
 
     @Query private var weekLogs: [WorkoutLog]
+    @Query private var lastWeekLogs: [WorkoutLog]
 
     @State private var selectedIndex: Int
     @State private var showSessionPlayer = false
@@ -24,8 +25,10 @@ struct TrainingView: View {
         let daysSinceMonday = (weekday + 5) % 7
         let monday = cal.date(byAdding: .day, value: -daysSinceMonday, to: today) ?? today
         let nextMonday = cal.date(byAdding: .day, value: 7, to: monday) ?? monday
+        let lastMonday = cal.date(byAdding: .day, value: -7, to: monday) ?? monday
         _selectedIndex = State(initialValue: daysSinceMonday)
         _weekLogs = Query(filter: #Predicate<WorkoutLog> { $0.date >= monday && $0.date < nextMonday })
+        _lastWeekLogs = Query(filter: #Predicate<WorkoutLog> { $0.date >= lastMonday && $0.date < monday })
     }
 
     var body: some View {
@@ -48,6 +51,8 @@ struct TrainingView: View {
                     }
 
                     weekSummaryStrip
+                    hypertrophyCard
+                    coachingSection
                     librarySection
                 }
                 .padding(.horizontal, 20)
@@ -232,15 +237,73 @@ struct TrainingView: View {
                     )
                 }
 
-                VStack(spacing: 12) {
-                    ForEach(plan.items) { item in
-                        NavigationLink {
-                            ExerciseDetailView(exercise: item.exercise)
-                        } label: {
-                            exerciseRow(item)
+                VStack(spacing: 16) {
+                    if hasMobilityBlocks {
+                        if !mobilitySplit.warmup.isEmpty {
+                            exerciseSubSection(title: "WARM-UP", icon: "leaf.fill", items: mobilitySplit.warmup)
                         }
-                        .buttonStyle(.plain)
+                        if !mobilitySplit.main.isEmpty {
+                            exerciseSubSection(title: "WORKOUT", icon: "list.bullet", items: mobilitySplit.main)
+                        }
+                        if !mobilitySplit.cooldown.isEmpty {
+                            exerciseSubSection(title: "COOLDOWN", icon: "leaf.fill", items: mobilitySplit.cooldown)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            ForEach(plan.items) { item in
+                                NavigationLink {
+                                    ExerciseDetailView(exercise: item.exercise)
+                                } label: {
+                                    exerciseRow(item)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    /// Plans may bookend strength work with mobility items (`category == .mobility`, `sets == 1`)
+    /// — split those out into leading "warm-up" / trailing "cooldown" blocks around the main list.
+    private var mobilitySplit: (warmup: [WorkoutItem], main: [WorkoutItem], cooldown: [WorkoutItem]) {
+        let items = plan.items
+        let leadingCount = items.prefix { $0.exercise.category == .mobility }.count
+        let trailingCount = min(
+            items.reversed().prefix { $0.exercise.category == .mobility }.count,
+            items.count - leadingCount
+        )
+        let warmup = Array(items.prefix(leadingCount))
+        let cooldown = trailingCount > 0 ? Array(items.suffix(trailingCount)) : []
+        let mainRange = leadingCount..<(items.count - trailingCount)
+        let main = mainRange.isEmpty ? [] : Array(items[mainRange])
+        return (warmup, main, cooldown)
+    }
+
+    private var hasMobilityBlocks: Bool {
+        !mobilitySplit.warmup.isEmpty || !mobilitySplit.cooldown.isEmpty
+    }
+
+    private func exerciseSubSection(title: String, icon: String, items: [WorkoutItem]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(MTTheme.textTertiary)
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+            }
+            VStack(spacing: 12) {
+                ForEach(items) { item in
+                    NavigationLink {
+                        ExerciseDetailView(exercise: item.exercise)
+                    } label: {
+                        exerciseRow(item)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -303,6 +366,144 @@ struct TrainingView: View {
                 .foregroundStyle(MTTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Hypertrophy
+
+    private var weekVolumeKg: Double { weekLogs.reduce(0) { $0 + $1.totalVolumeKg } }
+    private var lastWeekVolumeKg: Double { lastWeekLogs.reduce(0) { $0 + $1.totalVolumeKg } }
+
+    private var volumeDeltaPercent: Double? {
+        guard lastWeekVolumeKg > 0 else { return nil }
+        return (weekVolumeKg - lastWeekVolumeKg) / lastWeekVolumeKg * 100
+    }
+
+    /// Sets-per-muscle-group breakdown for this week, top 5. We don't store per-exercise set
+    /// counts on `WorkoutLog`, so this approximates 3 sets per completed exercise id — honest
+    /// labeling ("≈ sets" / "estimated") reflects that it's a rough read, not a precise log.
+    private var muscleGroupSetCounts: [(group: MuscleGroup, sets: Int)] {
+        var counts: [MuscleGroup: Int] = [:]
+        for log in weekLogs {
+            for exerciseID in log.completedExerciseIDs {
+                guard let exercise = ExerciseLibrary.exercise(id: exerciseID) else { continue }
+                for group in exercise.muscleGroups {
+                    counts[group, default: 0] += 3
+                }
+            }
+        }
+        return counts
+            .sorted { $0.value > $1.value }
+            .prefix(5)
+            .map { (group: $0.key, sets: $0.value) }
+    }
+
+    private func volumeDisplay(kg: Double) -> String {
+        let value = appState.unitSystem == .imperial ? Units.pounds(fromKg: kg) : kg
+        let unit = appState.unitSystem == .imperial ? "lb" : "kg"
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        let numberString = formatter.string(from: NSNumber(value: value)) ?? "\(Int(value))"
+        return "Σ \(numberString) \(unit)"
+    }
+
+    private func deltaChipText(_ percent: Double) -> String {
+        let sign = percent >= 0 ? "+" : ""
+        return "\(sign)\(Int(percent.rounded()))% vs last week"
+    }
+
+    private var hypertrophyCard: some View {
+        MTCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("HYPERTROPHY")
+                        .font(.system(size: 11, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(MTTheme.textTertiary)
+                    Spacer()
+                    if let delta = volumeDeltaPercent {
+                        MTChip(
+                            text: deltaChipText(delta),
+                            systemImage: delta >= 0 ? "arrow.up.right" : "arrow.down.right"
+                        )
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(volumeDisplay(kg: weekVolumeKg))
+                        .font(MTTheme.numberFont(size: 24))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("Total volume lifted this week")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+
+                if muscleGroupSetCounts.isEmpty {
+                    Text("Log a load during your next equipment set to see your estimated volume breakdown.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(MTTheme.textSecondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("ESTIMATED SETS PER MUSCLE GROUP")
+                            .font(.system(size: 10, weight: .semibold))
+                            .tracking(1.0)
+                            .foregroundStyle(MTTheme.textTertiary)
+                        VStack(spacing: 10) {
+                            ForEach(muscleGroupSetCounts, id: \.group) { entry in
+                                muscleGroupRow(entry)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func muscleGroupRow(_ entry: (group: MuscleGroup, sets: Int)) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(entry.group.displayName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                Spacer()
+                Text("≈ \(entry.sets) sets")
+                    .font(.system(size: 12))
+                    .foregroundStyle(MTTheme.textSecondary)
+            }
+            MTProgressBar(progress: min(Double(entry.sets) / 10, 1), tint: MTTheme.volt)
+        }
+    }
+
+    // MARK: - Coaching
+
+    private var coachingSection: some View {
+        NavigationLink {
+            CoachingView()
+        } label: {
+            MTCard {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
+                        Image(systemName: "video.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(MTTheme.volt)
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Coaching")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(MTTheme.textPrimary)
+                        Text("Sessions with real trainers")
+                            .font(.system(size: 13))
+                            .foregroundStyle(MTTheme.textSecondary)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(MTTheme.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Exercise library

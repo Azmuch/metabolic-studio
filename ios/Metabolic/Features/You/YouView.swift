@@ -16,6 +16,7 @@ struct YouView: View {
 
     @State private var showWeightSheet = false
     @State private var showPaywall = false
+    @State private var restingHR: Double?
 
     var body: some View {
         NavigationStack {
@@ -32,11 +33,30 @@ struct YouView: View {
             .navigationTitle("You")
             .sheet(isPresented: $showWeightSheet) { WeightLogSheet() }
             .sheet(isPresented: $showPaywall) { PaywallView() }
+            .task {
+                restingHR = await healthKit.readRestingHeartRate()
+            }
         }
     }
 
     private var currentWeight: Double {
         weights.first?.weightKg ?? appState.profile.weightKg
+    }
+
+    private var weightDisplayValue: String {
+        switch appState.unitSystem {
+        case .metric: return String(format: "%.1f", currentWeight)
+        case .imperial: return String(format: "%.1f", Units.pounds(fromKg: currentWeight))
+        }
+    }
+
+    private var weightDisplayUnit: String {
+        appState.unitSystem == .metric ? "kg" : "lb"
+    }
+
+    private var restingHRValue: String {
+        guard let restingHR else { return "—" }
+        return "\(Int(restingHR.rounded()))"
     }
 
     private var streak: Int {
@@ -72,7 +92,7 @@ struct YouView: View {
                 }
 
                 HStack(spacing: 0) {
-                    statColumn(value: String(format: "%.1f", currentWeight), unit: "kg",
+                    statColumn(value: weightDisplayValue, unit: weightDisplayUnit,
                                label: "Weight", action: { showWeightSheet = true })
                     divider
                     statColumn(value: "\(streak)", unit: streak == 1 ? "day" : "days",
@@ -80,6 +100,9 @@ struct YouView: View {
                     divider
                     statColumn(value: "\(workoutsThisWeek)", unit: "this week",
                                label: "Workouts", action: nil)
+                    divider
+                    statColumn(value: restingHRValue, unit: "bpm",
+                               label: "Resting HR", action: nil)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -201,6 +224,8 @@ private struct WeightLogSheet: View {
     @State private var text = ""
     @FocusState private var focused: Bool
 
+    private var unitLabel: String { appState.unitSystem == .metric ? "kg" : "lb" }
+
     var body: some View {
         VStack(spacing: 24) {
             MTSheetHeader(title: "Log weight")
@@ -213,23 +238,13 @@ private struct WeightLogSheet: View {
                     .foregroundStyle(MTTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .fixedSize()
-                Text("kg")
+                Text(unitLabel)
                     .font(.system(size: 17))
                     .foregroundStyle(MTTheme.textSecondary)
             }
 
             MTPrimaryButton(title: "Save") {
-                guard let value = Double(text.replacingOccurrences(of: ",", with: ".")),
-                      (25...350).contains(value) else {
-                    Haptics.warning()
-                    return
-                }
-                modelContext.insert(WeightEntry(date: .now, weightKg: value))
-                var profile = appState.profile
-                profile.weightKg = value
-                appState.profile = profile
-                Haptics.success()
-                dismiss()
+                save()
             }
             .padding(.horizontal, 20)
 
@@ -239,6 +254,26 @@ private struct WeightLogSheet: View {
         .background(MTTheme.bg.ignoresSafeArea())
         .presentationDetents([.height(280)])
         .onAppear { focused = true }
+    }
+
+    /// Parses the entered value in the user's display unit, converts to kg for storage,
+    /// and validates against a sane human-weight range (25...350 kg).
+    private func save() {
+        guard let entered = Double(text.replacingOccurrences(of: ",", with: ".")) else {
+            Haptics.warning()
+            return
+        }
+        let kgValue = appState.unitSystem == .metric ? entered : Units.kg(fromPounds: entered)
+        guard (25...350).contains(kgValue) else {
+            Haptics.warning()
+            return
+        }
+        modelContext.insert(WeightEntry(date: .now, weightKg: kgValue))
+        var profile = appState.profile
+        profile.weightKg = kgValue
+        appState.profile = profile
+        Haptics.success()
+        dismiss()
     }
 }
 

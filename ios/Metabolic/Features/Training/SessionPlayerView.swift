@@ -17,6 +17,12 @@ struct SessionPlayerView: View {
     @State private var phase: SessionPhase = .working
     @State private var completedExerciseIDs: [String] = []
 
+    /// Optional per-set load, remembered per-exercise for the life of this session, plus the
+    /// running Σ reps × loadKg for hypertrophy tracking (equipment-based, non-mobility, reps-kind
+    /// work only — timed holds don't have a rep count to multiply against).
+    @State private var loadTextByExercise: [String: String] = [:]
+    @State private var volumeKg: Double = 0
+
     @State private var sessionStart = Date()
     @State private var phaseStart = Date()
     @State private var pausedAt: Date?
@@ -85,6 +91,13 @@ struct SessionPlayerView: View {
     }
 
     private var taskKey: String { "\(phase)-\(itemIndex)-\(currentSet)" }
+
+    private var isMobility: Bool { currentItem.exercise.category == .mobility }
+
+    /// Equipment-based, non-mobility work is where a load is worth tracking.
+    private var showsLoadField: Bool {
+        !isMobility && !currentItem.exercise.equipment.contains(.none)
+    }
 
     // MARK: - Top bar
 
@@ -156,6 +169,9 @@ struct SessionPlayerView: View {
                     .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(MTTheme.textPrimary)
                     .multilineTextAlignment(.center)
+                if isMobility {
+                    MTChip(text: "Mobility", systemImage: "leaf.fill")
+                }
             }
         }
     }
@@ -170,6 +186,9 @@ struct SessionPlayerView: View {
                 Text("\(n) reps")
                     .font(MTTheme.numberFont(size: 40))
                     .foregroundStyle(MTTheme.textPrimary)
+                if showsLoadField {
+                    loadField
+                }
                 MTPrimaryButton(title: "Complete Set", systemImage: "checkmark") {
                     completeSet()
                 }
@@ -193,6 +212,45 @@ struct SessionPlayerView: View {
                 }
             }
         }
+    }
+
+    private var loadField: some View {
+        HStack(spacing: 10) {
+            Text("Load")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(MTTheme.textSecondary)
+            TextField("0", text: loadTextBinding)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .foregroundStyle(MTTheme.textPrimary)
+                .frame(width: 72)
+                .padding(.vertical, 8)
+                .background(MTTheme.surface2)
+                .clipShape(RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous))
+            Text(unitLabel)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+    }
+
+    private var loadTextBinding: Binding<String> {
+        Binding(
+            get: { loadTextByExercise[currentItem.exercise.id] ?? "" },
+            set: { loadTextByExercise[currentItem.exercise.id] = $0 }
+        )
+    }
+
+    private var unitLabel: String {
+        appState.unitSystem == .imperial ? "lb" : "kg"
+    }
+
+    /// Current load field's value converted to kg, or 0 if empty/unparsable.
+    private var currentLoadKg: Double {
+        guard let text = loadTextByExercise[currentItem.exercise.id], let value = Double(text), value > 0 else {
+            return 0
+        }
+        return appState.unitSystem == .imperial ? Units.kg(fromPounds: value) : value
     }
 
     private func workRemaining(now: Date) -> Double {
@@ -303,6 +361,10 @@ struct SessionPlayerView: View {
                 statsGrid(minutes: elapsedMinutes(now: timeline.date))
             }
 
+            if volumeKg > 0 {
+                MTChip(text: volumeSummaryText, systemImage: "scalemass.fill")
+            }
+
             MTPrimaryButton(title: "Save & Finish", systemImage: "checkmark") {
                 Task { await saveAndFinish() }
             }
@@ -334,6 +396,17 @@ struct SessionPlayerView: View {
                 .foregroundStyle(MTTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    /// "Σ 2,340 kg lifted" — converted to the user's preferred unit system.
+    private var volumeSummaryText: String {
+        let value = appState.unitSystem == .imperial ? Units.pounds(fromKg: volumeKg) : volumeKg
+        let unit = appState.unitSystem == .imperial ? "lb" : "kg"
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        let numberString = formatter.string(from: NSNumber(value: value)) ?? "\(Int(value))"
+        return "Σ \(numberString) \(unit) lifted"
     }
 
     private func averageMET() -> Double {
@@ -379,6 +452,9 @@ struct SessionPlayerView: View {
 
     private func completeSet() {
         Haptics.success()
+        if case .reps(let n) = currentItem.kind, showsLoadField {
+            volumeKg += Double(n) * currentLoadKg
+        }
         if currentSet == currentItem.sets, !completedExerciseIDs.contains(currentItem.id) {
             completedExerciseIDs.append(currentItem.id)
         }
@@ -438,7 +514,8 @@ struct SessionPlayerView: View {
             focus: plan.focus,
             minutes: minutes,
             calories: calories,
-            completedExerciseIDs: completedExerciseIDs
+            completedExerciseIDs: completedExerciseIDs,
+            totalVolumeKg: volumeKg
         )
         modelContext.insert(log)
         await healthKit.saveWorkout(log)

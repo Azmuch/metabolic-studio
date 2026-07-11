@@ -9,6 +9,16 @@ struct ProfileEditorView: View {
 
     @State private var draft = FitnessProfile.default
     @State private var loaded = false
+    @State private var showBodyMap = false
+    @State private var customEquipmentText = ""
+
+    private var focusableGroups: [MuscleGroup] {
+        MuscleGroup.allCases.filter { $0 != .fullBody && $0 != .cardio }
+    }
+
+    private var recommendation: (days: Int, minutes: Int) {
+        ScheduleRecommender.recommendation(for: draft)
+    }
 
     var body: some View {
         ScrollView {
@@ -19,6 +29,7 @@ struct ProfileEditorView: View {
                 healthSection
                 equipmentSection
                 scheduleSection
+                macrosSection
                 targetsFooter
             }
             .padding(.horizontal, 20)
@@ -45,10 +56,22 @@ struct ProfileEditorView: View {
             draft = appState.profile
             loaded = true
         }
+        .sheet(isPresented: $showBodyMap) {
+            BodyMapView(selectedAreas: $draft.focusAreas, customFlags: $draft.customFlags)
+        }
     }
 
     private var bodySection: some View {
         section("Body") {
+            @Bindable var appState = appState
+
+            Picker("Units", selection: $appState.unitSystem) {
+                ForEach(UnitSystem.allCases, id: \.self) { system in
+                    Text(system == .metric ? "Metric" : "US").tag(system)
+                }
+            }
+            .pickerStyle(.segmented)
+
             HStack(spacing: 12) {
                 metricField(label: "Age", value: "\(draft.age)")
                 Stepper("", value: $draft.age, in: 14...90).labelsHidden()
@@ -59,11 +82,55 @@ struct ProfileEditorView: View {
                 }
             }
             .pickerStyle(.segmented)
-            sliderRow(label: "Height", value: $draft.heightCm, range: 140...210, step: 1,
-                      format: { "\(Int($0)) cm" })
-            sliderRow(label: "Weight", value: $draft.weightKg, range: 40...160, step: 0.5,
-                      format: { String(format: "%.1f kg", $0) })
+
+            heightRow(unitSystem: appState.unitSystem)
+            weightRow(unitSystem: appState.unitSystem)
         }
+    }
+
+    private func heightRow(unitSystem: UnitSystem) -> some View {
+        VStack(spacing: 6) {
+            HStack {
+                Text("Height")
+                    .font(.system(size: 15))
+                    .foregroundStyle(MTTheme.textSecondary)
+                Spacer()
+                Text(Units.heightString(cm: draft.heightCm, system: unitSystem))
+                    .font(MTTheme.numberFont(size: 20))
+                    .foregroundStyle(MTTheme.textPrimary)
+            }
+            Slider(value: $draft.heightCm, in: 140...210, step: 1)
+                .tint(MTTheme.volt)
+        }
+    }
+
+    private func weightRow(unitSystem: UnitSystem) -> some View {
+        VStack(spacing: 6) {
+            HStack {
+                Text("Weight")
+                    .font(.system(size: 15))
+                    .foregroundStyle(MTTheme.textSecondary)
+                Spacer()
+                Text(Units.weightString(kg: draft.weightKg, system: unitSystem))
+                    .font(MTTheme.numberFont(size: 20))
+                    .foregroundStyle(MTTheme.textPrimary)
+            }
+            if unitSystem == .metric {
+                Slider(value: $draft.weightKg, in: 40...160, step: 0.5)
+                    .tint(MTTheme.volt)
+            } else {
+                Slider(value: weightPoundsBinding, in: 90...350, step: 1)
+                    .tint(MTTheme.volt)
+            }
+        }
+    }
+
+    /// Lets the slider operate in pounds while `draft.weightKg` keeps metric storage.
+    private var weightPoundsBinding: Binding<Double> {
+        Binding(
+            get: { Units.pounds(fromKg: draft.weightKg) },
+            set: { draft.weightKg = Units.kg(fromPounds: $0) }
+        )
     }
 
     private var goalSection: some View {
@@ -92,11 +159,46 @@ struct ProfileEditorView: View {
 
     private var healthSection: some View {
         section("Health flags") {
+            sectionLabel("ROUTE AROUND")
             FlowChips(items: InjuryFlag.allCases.map { ($0.displayName, draft.injuries.contains($0)) }) { index in
                 let flag = InjuryFlag.allCases[index]
                 if draft.injuries.contains(flag) { draft.injuries.remove(flag) }
                 else { draft.injuries.insert(flag) }
             }
+
+            sectionLabel("STRENGTHEN · FIRM · FOCUS")
+                .padding(.top, 6)
+            FlowChips(items: focusableGroups.map { ($0.displayName, draft.focusAreas.contains($0)) }) { index in
+                let group = focusableGroups[index]
+                if draft.focusAreas.contains(group) { draft.focusAreas.remove(group) }
+                else { draft.focusAreas.insert(group) }
+            }
+
+            MTSecondaryButton(title: "Open body map", systemImage: "figure.arms.open") {
+                showBodyMap = true
+            }
+            .padding(.top, 4)
+
+            if !draft.customFlags.isEmpty {
+                sectionLabel("FLAGGED")
+                    .padding(.top, 6)
+                FlowChips(items: draft.customFlags.map { ($0, true) }) { index in
+                    draft.customFlags.remove(at: index)
+                }
+            }
+
+            Toggle(isOn: $draft.includeMobilityWork) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Mobility work")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("Add PT-style warm-up & cooldown to every session")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+            }
+            .tint(MTTheme.volt)
+            .padding(.top, 8)
         }
     }
 
@@ -107,34 +209,149 @@ struct ProfileEditorView: View {
                 if draft.equipment.contains(equipment) { draft.equipment.remove(equipment) }
                 else { draft.equipment.insert(equipment) }
             }
+
+            sectionLabel("CUSTOM EQUIPMENT")
+                .padding(.top, 6)
+            HStack(spacing: 10) {
+                TextField("e.g. Cable machine", text: $customEquipmentText)
+                    .font(.system(size: 15))
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+                Button {
+                    addCustomEquipment()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.black)
+                        .frame(width: 40, height: 40)
+                        .background(MTTheme.volt, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(customEquipmentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            if !draft.customEquipment.isEmpty {
+                FlowChips(items: draft.customEquipment.map { ($0, true) }) { index in
+                    draft.customEquipment.remove(at: index)
+                }
+            }
         }
+    }
+
+    private func addCustomEquipment() {
+        let trimmed = customEquipmentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !draft.customEquipment.contains(trimmed) else { return }
+        Haptics.tap()
+        draft.customEquipment.append(trimmed)
+        customEquipmentText = ""
     }
 
     private var scheduleSection: some View {
         section("Schedule") {
-            HStack {
-                Text("Days per week")
-                    .font(.system(size: 15))
-                    .foregroundStyle(MTTheme.textSecondary)
-                Spacer()
-                Picker("", selection: $draft.workoutDaysPerWeek) {
-                    ForEach(2...6, id: \.self) { Text("\($0)").tag($0) }
+            Picker("Anchor", selection: $draft.scheduleAnchor) {
+                ForEach(ScheduleAnchor.allCases, id: \.self) { anchor in
+                    Text(anchor.displayName).tag(anchor)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
             }
-            HStack(spacing: 8) {
-                ForEach([15, 30, 45, 60, 90], id: \.self) { minutes in
-                    Button {
-                        Haptics.tap()
-                        draft.sessionMinutes = minutes
-                    } label: {
-                        MTChip(text: "\(minutes)m", isActive: draft.sessionMinutes == minutes)
+            .pickerStyle(.segmented)
+            .onChange(of: draft.scheduleAnchor) { _, _ in syncSchedule() }
+
+            if draft.scheduleAnchor == .daysPerWeek {
+                HStack {
+                    Text("Days per week")
+                        .font(.system(size: 15))
+                        .foregroundStyle(MTTheme.textSecondary)
+                    Spacer()
+                    Picker("", selection: $draft.workoutDaysPerWeek) {
+                        ForEach(2...6, id: \.self) { Text("\($0)").tag($0) }
                     }
-                    .buttonStyle(.plain)
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
+                    .onChange(of: draft.workoutDaysPerWeek) { _, _ in syncSchedule() }
                 }
+                recommendationChip(text: "Recommended: \(draft.sessionMinutes) min session")
+            } else {
+                HStack(spacing: 8) {
+                    ForEach([15, 30, 45, 60, 90], id: \.self) { minutes in
+                        Button {
+                            Haptics.tap()
+                            draft.sessionMinutes = minutes
+                            syncSchedule()
+                        } label: {
+                            MTChip(text: "\(minutes)m", isActive: draft.sessionMinutes == minutes)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                recommendationChip(text: "Recommended: \(draft.workoutDaysPerWeek) days/week")
             }
+
+            Text("Based on your profile we suggest \(recommendation.days) days · \(recommendation.minutes) min")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
         }
+    }
+
+    private func syncSchedule() {
+        switch draft.scheduleAnchor {
+        case .daysPerWeek:
+            draft.sessionMinutes = ScheduleRecommender.recommendedMinutes(forDays: draft.workoutDaysPerWeek, profile: draft)
+        case .sessionLength:
+            draft.workoutDaysPerWeek = ScheduleRecommender.recommendedDays(forMinutes: draft.sessionMinutes, profile: draft)
+        }
+    }
+
+    private func recommendationChip(text: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 11, weight: .semibold))
+            Text(text)
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(Color.black)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(MTTheme.volt)
+        .clipShape(Capsule())
+    }
+
+    private var macrosSection: some View {
+        section("Macros") {
+            Text("Leave blank for automatic targets")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
+            macroOverrideRow(label: "Protein (g)", tint: MTTheme.protein, text: optionalIntBinding(\.customProteinG))
+            macroOverrideRow(label: "Carbs (g)", tint: MTTheme.carbs, text: optionalIntBinding(\.customCarbsG))
+            macroOverrideRow(label: "Fat (g)", tint: MTTheme.fat, text: optionalIntBinding(\.customFatG))
+        }
+    }
+
+    private func macroOverrideRow(label: String, tint: Color, text: Binding<String>) -> some View {
+        HStack {
+            Circle().fill(tint).frame(width: 8, height: 8)
+            Text(label)
+                .font(.system(size: 15))
+                .foregroundStyle(MTTheme.textSecondary)
+            Spacer()
+            TextField("Auto", text: text)
+                .keyboardType(.numberPad)
+                .multilineTextAlignment(.trailing)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(MTTheme.textPrimary)
+                .frame(width: 70)
+        }
+    }
+
+    /// Bridges an optional-Int profile field to a text field: empty text means "automatic".
+    private func optionalIntBinding(_ keyPath: WritableKeyPath<FitnessProfile, Int?>) -> Binding<String> {
+        Binding(
+            get: { draft[keyPath: keyPath].map(String.init) ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                draft[keyPath: keyPath] = trimmed.isEmpty ? nil : Int(trimmed)
+            }
+        )
     }
 
     private var targetsFooter: some View {
@@ -161,6 +378,14 @@ struct ProfileEditorView: View {
         }
     }
 
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 11, weight: .semibold))
+            .tracking(1.2)
+            .foregroundStyle(MTTheme.textTertiary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private func metricField(label: String, value: String) -> some View {
         HStack {
             Text(label)
@@ -170,23 +395,6 @@ struct ProfileEditorView: View {
             Text(value)
                 .font(MTTheme.numberFont(size: 20))
                 .foregroundStyle(MTTheme.textPrimary)
-        }
-    }
-
-    private func sliderRow(label: String, value: Binding<Double>, range: ClosedRange<Double>,
-                           step: Double, format: @escaping (Double) -> String) -> some View {
-        VStack(spacing: 6) {
-            HStack {
-                Text(label)
-                    .font(.system(size: 15))
-                    .foregroundStyle(MTTheme.textSecondary)
-                Spacer()
-                Text(format(value.wrappedValue))
-                    .font(MTTheme.numberFont(size: 20))
-                    .foregroundStyle(MTTheme.textPrimary)
-            }
-            Slider(value: value, in: range, step: step)
-                .tint(MTTheme.volt)
         }
     }
 

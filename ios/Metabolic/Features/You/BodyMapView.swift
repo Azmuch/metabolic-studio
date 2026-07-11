@@ -252,7 +252,7 @@ struct BodyMapView: View {
 /// Simple wrapping chip row/grid used for suggestion + deletable-flag chips.
 private struct WrapChips<Item: Hashable, Content: View>: View {
     let items: [Item]
-    @ViewBuilder let content: (Item) -> Content
+    let content: (Item) -> Content
 
     private let columns = [GridItem(.adaptive(minimum: 90), spacing: 8)]
 
