@@ -19,6 +19,38 @@ fileprivate struct OnboardingStepHeader: View {
     }
 }
 
+/// Small tracked-caps overline used above a grouped section within a step.
+fileprivate struct OnboardingSectionLabel: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 11, weight: .semibold))
+            .tracking(1.2)
+            .foregroundStyle(MTTheme.textTertiary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+/// Volt "recommended" pill shown next to auto-computed schedule values.
+fileprivate struct OnboardingRecommendationChip: View {
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 11, weight: .semibold))
+            Text(text)
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(Color.black)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(MTTheme.volt)
+        .clipShape(Capsule())
+    }
+}
+
 // MARK: - Step 1: Welcome
 
 struct OnboardingWelcomeStep: View {
@@ -97,15 +129,25 @@ struct OnboardingAboutYouStep: View {
 // MARK: - Step 3: Body
 
 struct OnboardingBodyStep: View {
+    @Environment(AppState.self) private var appState
     @Binding var draft: FitnessProfile
     let onNext: () -> Void
 
     var body: some View {
+        @Bindable var appState = appState
+
         VStack(spacing: 28) {
             OnboardingStepHeader(title: "Body", subtitle: "Height and weight shape your targets.")
 
+            Picker("Units", selection: $appState.unitSystem) {
+                ForEach(UnitSystem.allCases, id: \.self) { system in
+                    Text(system == .metric ? "Metric" : "US").tag(system)
+                }
+            }
+            .pickerStyle(.segmented)
+
             VStack(spacing: 8) {
-                Text(String(format: "%.0f cm", draft.heightCm))
+                Text(Units.heightString(cm: draft.heightCm, system: appState.unitSystem))
                     .font(MTTheme.numberFont(size: 44))
                     .foregroundStyle(MTTheme.textPrimary)
                 Slider(value: $draft.heightCm, in: 140...210, step: 1)
@@ -113,17 +155,30 @@ struct OnboardingBodyStep: View {
             }
 
             VStack(spacing: 8) {
-                Text(String(format: "%.1f kg", draft.weightKg))
+                Text(Units.weightString(kg: draft.weightKg, system: appState.unitSystem))
                     .font(MTTheme.numberFont(size: 44))
                     .foregroundStyle(MTTheme.textPrimary)
-                Slider(value: $draft.weightKg, in: 40...160, step: 0.5)
-                    .tint(MTTheme.volt)
+                if appState.unitSystem == .metric {
+                    Slider(value: $draft.weightKg, in: 40...160, step: 0.5)
+                        .tint(MTTheme.volt)
+                } else {
+                    Slider(value: weightPoundsBinding, in: 90...350, step: 1)
+                        .tint(MTTheme.volt)
+                }
             }
 
             Spacer()
             MTPrimaryButton(title: "Continue") { onNext() }
         }
         .padding(20)
+    }
+
+    /// Lets the slider operate in pounds while `draft.weightKg` keeps metric storage.
+    private var weightPoundsBinding: Binding<Double> {
+        Binding(
+            get: { Units.pounds(fromKg: draft.weightKg) },
+            set: { draft.weightKg = Units.kg(fromPounds: $0) }
+        )
     }
 }
 
@@ -155,6 +210,7 @@ struct OnboardingGoalStep: View {
         case .maintain: return "equal.circle.fill"
         case .gainMuscle: return "dumbbell.fill"
         case .improveEndurance: return "heart.fill"
+        case .improveMobility: return "figure.flexibility"
         }
     }
 
@@ -164,6 +220,7 @@ struct OnboardingGoalStep: View {
         case .maintain: return "Hold steady where you are."
         case .gainMuscle: return "Build strength and size."
         case .improveEndurance: return "Go longer, recover faster."
+        case .improveMobility: return "Move freely, stretch further, age well."
         }
     }
 
@@ -331,23 +388,55 @@ struct OnboardingHealthFlagsStep: View {
     @Binding var draft: FitnessProfile
     let onNext: () -> Void
 
+    @State private var showBodyMap = false
+
     private let columns = [GridItem(.adaptive(minimum: 110), spacing: 10)]
 
+    private var focusableGroups: [MuscleGroup] {
+        MuscleGroup.allCases.filter { $0 != .fullBody && $0 != .cardio }
+    }
+
     var body: some View {
-        VStack(spacing: 24) {
-            OnboardingStepHeader(title: "Health flags", subtitle: "We'll route around anything that hurts.")
+        ScrollView {
+            VStack(spacing: 24) {
+                OnboardingStepHeader(title: "Health flags", subtitle: "We'll route around anything that hurts.")
 
-            LazyVGrid(columns: columns, spacing: 10) {
-                noneChip
-                ForEach(InjuryFlag.allCases, id: \.self) { flag in
-                    chip(flag)
+                VStack(alignment: .leading, spacing: 10) {
+                    OnboardingSectionLabel(text: "ROUTE AROUND")
+                    LazyVGrid(columns: columns, spacing: 10) {
+                        noneChip
+                        ForEach(InjuryFlag.allCases, id: \.self) { flag in
+                            injuryChip(flag)
+                        }
+                    }
                 }
-            }
 
-            Spacer()
-            MTPrimaryButton(title: "Continue") { onNext() }
+                VStack(alignment: .leading, spacing: 10) {
+                    OnboardingSectionLabel(text: "STRENGTHEN · FIRM · FOCUS")
+                    LazyVGrid(columns: columns, spacing: 10) {
+                        ForEach(focusableGroups, id: \.self) { group in
+                            focusChip(group)
+                        }
+                    }
+                }
+
+                MTSecondaryButton(title: "Open body map", systemImage: "figure.arms.open") {
+                    showBodyMap = true
+                }
+
+                mobilityToggle
+
+                disclaimer
+
+                Spacer(minLength: 8)
+                MTPrimaryButton(title: "Continue") { onNext() }
+            }
+            .padding(20)
         }
-        .padding(20)
+        .scrollIndicators(.hidden)
+        .sheet(isPresented: $showBodyMap) {
+            BodyMapView(selectedAreas: $draft.focusAreas, customFlags: $draft.customFlags)
+        }
     }
 
     private var noneChip: some View {
@@ -360,7 +449,7 @@ struct OnboardingHealthFlagsStep: View {
         .buttonStyle(.plain)
     }
 
-    private func chip(_ flag: InjuryFlag) -> some View {
+    private func injuryChip(_ flag: InjuryFlag) -> some View {
         let isSelected = draft.injuries.contains(flag)
         return Button {
             Haptics.tap()
@@ -374,6 +463,49 @@ struct OnboardingHealthFlagsStep: View {
         }
         .buttonStyle(.plain)
     }
+
+    private func focusChip(_ group: MuscleGroup) -> some View {
+        let isSelected = draft.focusAreas.contains(group)
+        return Button {
+            Haptics.tap()
+            if isSelected {
+                draft.focusAreas.remove(group)
+            } else {
+                draft.focusAreas.insert(group)
+            }
+        } label: {
+            MTChip(text: group.displayName, isActive: isSelected)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var mobilityToggle: some View {
+        MTCard {
+            Toggle(isOn: $draft.includeMobilityWork) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Mobility work")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("Add PT-style warm-up & cooldown to every session")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+            }
+            .tint(MTTheme.volt)
+        }
+    }
+
+    private var disclaimer: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 11))
+            Text("For pre-existing conditions — or any flagged area that has persisted 3 months or more — consult a physician or physical therapist before training it.")
+                .font(.system(size: 11))
+                .multilineTextAlignment(.leading)
+        }
+        .foregroundStyle(MTTheme.textTertiary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
 }
 
 // MARK: - Step 8: Equipment & schedule
@@ -382,59 +514,43 @@ struct OnboardingEquipmentScheduleStep: View {
     @Binding var draft: FitnessProfile
     let onNext: () -> Void
 
+    @State private var customEquipmentText = ""
+
     private let columns = [GridItem(.adaptive(minimum: 140), spacing: 10)]
+    private let customColumns = [GridItem(.adaptive(minimum: 110), spacing: 8)]
     private let minuteOptions = [15, 30, 45, 60, 90]
 
+    private var recommendation: (days: Int, minutes: Int) {
+        ScheduleRecommender.recommendation(for: draft)
+    }
+
     var body: some View {
-        VStack(spacing: 24) {
-            OnboardingStepHeader(title: "Equipment & schedule", subtitle: "What you've got, and how often.")
+        ScrollView {
+            VStack(spacing: 24) {
+                OnboardingStepHeader(title: "Equipment & schedule", subtitle: "What you've got, and how often.")
 
-            LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(Equipment.allCases, id: \.self) { equipment in
-                    chip(equipment)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("DAYS PER WEEK")
-                    .font(.system(size: 11, weight: .semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
-                Picker("Days", selection: $draft.workoutDaysPerWeek) {
-                    ForEach(2...6, id: \.self) { day in
-                        Text("\(day)").tag(day)
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(Equipment.allCases, id: \.self) { equipment in
+                        chip(equipment)
                     }
                 }
-                .pickerStyle(.segmented)
-            }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("SESSION LENGTH")
-                    .font(.system(size: 11, weight: .semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
-                HStack(spacing: 8) {
-                    ForEach(minuteOptions, id: \.self) { minutes in
-                        Button {
-                            Haptics.tap()
-                            draft.sessionMinutes = minutes
-                        } label: {
-                            MTChip(text: "\(minutes)m", isActive: draft.sessionMinutes == minutes)
-                        }
-                        .buttonStyle(.plain)
+                customEquipmentSection
+
+                scheduleSection
+
+                Spacer(minLength: 8)
+                MTPrimaryButton(title: "Continue") {
+                    if draft.equipment.isEmpty {
+                        draft.equipment = [.none]
                     }
+                    onNext()
                 }
             }
-
-            Spacer()
-            MTPrimaryButton(title: "Continue") {
-                if draft.equipment.isEmpty {
-                    draft.equipment = [.none]
-                }
-                onNext()
-            }
+            .padding(20)
         }
-        .padding(20)
+        .scrollIndicators(.hidden)
+        .onAppear { syncSchedule() }
     }
 
     private func chip(_ equipment: Equipment) -> some View {
@@ -450,6 +566,110 @@ struct OnboardingEquipmentScheduleStep: View {
             MTChip(text: equipment.displayName, systemImage: equipment.symbolName, isActive: isSelected)
         }
         .buttonStyle(.plain)
+    }
+
+    private var customEquipmentSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            OnboardingSectionLabel(text: "CUSTOM EQUIPMENT")
+            HStack(spacing: 10) {
+                TextField("e.g. Cable machine", text: $customEquipmentText)
+                    .font(.system(size: 15))
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+                Button {
+                    addCustomEquipment()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.black)
+                        .frame(width: 40, height: 40)
+                        .background(MTTheme.volt, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(customEquipmentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            if !draft.customEquipment.isEmpty {
+                LazyVGrid(columns: customColumns, alignment: .leading, spacing: 8) {
+                    ForEach(draft.customEquipment, id: \.self) { item in
+                        Button {
+                            Haptics.tap()
+                            draft.customEquipment.removeAll { $0 == item }
+                        } label: {
+                            MTChip(text: item, systemImage: "xmark", isActive: true)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    private func addCustomEquipment() {
+        let trimmed = customEquipmentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !draft.customEquipment.contains(trimmed) else { return }
+        Haptics.tap()
+        draft.customEquipment.append(trimmed)
+        customEquipmentText = ""
+    }
+
+    private var scheduleSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            OnboardingSectionLabel(text: "SCHEDULE")
+
+            Picker("Anchor", selection: $draft.scheduleAnchor) {
+                ForEach(ScheduleAnchor.allCases, id: \.self) { anchor in
+                    Text(anchor.displayName).tag(anchor)
+                }
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: draft.scheduleAnchor) { _, _ in syncSchedule() }
+
+            if draft.scheduleAnchor == .daysPerWeek {
+                VStack(alignment: .leading, spacing: 8) {
+                    OnboardingSectionLabel(text: "DAYS PER WEEK")
+                    Picker("Days", selection: $draft.workoutDaysPerWeek) {
+                        ForEach(2...6, id: \.self) { day in
+                            Text("\(day)").tag(day)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: draft.workoutDaysPerWeek) { _, _ in syncSchedule() }
+                }
+                OnboardingRecommendationChip(text: "Recommended: \(draft.sessionMinutes) min session")
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    OnboardingSectionLabel(text: "SESSION LENGTH")
+                    HStack(spacing: 8) {
+                        ForEach(minuteOptions, id: \.self) { minutes in
+                            Button {
+                                Haptics.tap()
+                                draft.sessionMinutes = minutes
+                                syncSchedule()
+                            } label: {
+                                MTChip(text: "\(minutes)m", isActive: draft.sessionMinutes == minutes)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                OnboardingRecommendationChip(text: "Recommended: \(draft.workoutDaysPerWeek) days/week")
+            }
+
+            Text("Based on your profile we suggest \(recommendation.days) days · \(recommendation.minutes) min")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+    }
+
+    private func syncSchedule() {
+        switch draft.scheduleAnchor {
+        case .daysPerWeek:
+            draft.sessionMinutes = ScheduleRecommender.recommendedMinutes(forDays: draft.workoutDaysPerWeek, profile: draft)
+        case .sessionLength:
+            draft.workoutDaysPerWeek = ScheduleRecommender.recommendedDays(forMinutes: draft.sessionMinutes, profile: draft)
+        }
     }
 }
 
