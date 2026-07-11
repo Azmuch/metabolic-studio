@@ -19,8 +19,24 @@ enum MTTheme {
 
     // MARK: - Accent & semantic colors (same in both appearances)
 
-    static let volt = Color(hex: 0xC8F542)
-    static let voltDim = Color(hex: 0xC8F542, alpha: 0.18)
+    /// Resolves from the user's selected `AccentTheme` (persisted in UserDefaults "mt.accent").
+    /// Every screen keeps using `MTTheme.volt` / `voltDim` — only the underlying color changes.
+    static var volt: Color { accent(for: currentAccent) }
+    static var voltDim: Color { accent(for: currentAccent).opacity(0.18) }
+
+    private static var currentAccent: AccentTheme {
+        UserDefaults.standard.string(forKey: "mt.accent").flatMap(AccentTheme.init(rawValue:)) ?? .volt
+    }
+
+    private static func accent(for theme: AccentTheme) -> Color {
+        switch theme {
+        case .volt: return Color(hex: 0xC8F542)
+        case .tangerine: return Color(hex: 0xFF9F45)
+        case .earth: return Color(hex: 0xC9A57B)
+        case .jewel: return Color(hex: 0x45D6C6)
+        }
+    }
+
     static let danger = Color(hex: 0xFF5D4D)
     static let warning = Color(hex: 0xFFB84D)
     static let success = Color(hex: 0x4DDB82)

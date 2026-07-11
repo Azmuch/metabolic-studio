@@ -85,6 +85,7 @@ struct TodayView: View {
         case .streak: StreakWidget()
         case .weightTrend: WeightTrendWidget()
         case .scanShortcut: ScanShortcutWidget()
+        case .goalsTracker: GoalsProgressWidget()
         }
     }
 }

@@ -348,14 +348,9 @@ struct WeightTrendWidget: View {
                     }
                 }
 
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(currentWeight.map { String(format: "%.1f", $0) } ?? "—")
-                        .font(MTTheme.numberFont(size: 24))
-                        .foregroundStyle(MTTheme.textPrimary)
-                    Text("kg")
-                        .font(.system(size: 14))
-                        .foregroundStyle(MTTheme.textSecondary)
-                }
+                Text(currentWeight.map { Units.weightString(kg: $0, system: appState.unitSystem) } ?? "—")
+                    .font(MTTheme.numberFont(size: 24))
+                    .foregroundStyle(MTTheme.textPrimary)
 
                 if recentWeights.count >= 2 {
                     Chart(recentWeights) { entry in
@@ -405,7 +400,7 @@ struct WeightTrendWidget: View {
         let color = good ? MTTheme.success : MTTheme.textSecondary
         return HStack(spacing: 4) {
             Image(systemName: symbol).font(.system(size: 10, weight: .bold))
-            Text(String(format: "%.1f kg", abs(delta))).font(.system(size: 12, weight: .semibold))
+            Text(Units.weightString(kg: abs(delta), system: appState.unitSystem)).font(.system(size: 12, weight: .semibold))
         }
         .foregroundStyle(color)
         .padding(.horizontal, 8)

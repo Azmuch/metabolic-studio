@@ -33,6 +33,7 @@ struct MetabolicApp: App {
                 }
             }
             .animation(.spring(response: 0.45, dampingFraction: 0.8), value: appState.hasCompletedOnboarding)
+            .id(appState.accentTheme)
             .environment(appState)
             .environment(subscriptionManager)
             .environment(healthKitService)

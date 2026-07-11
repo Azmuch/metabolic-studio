@@ -36,6 +36,8 @@ final class HealthKitService {
         let readTypes: Set<HKObjectType> = shareTypes.union([
             quantityType(.stepCount),
             quantityType(.activeEnergyBurned),
+            quantityType(.restingHeartRate),
+            quantityType(.heartRate),
         ])
 
         let granted = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
@@ -174,6 +176,24 @@ final class HealthKitService {
         }
         guard let sum else { return nil }
         return Int(sum.rounded())
+    }
+
+    /// Most recent resting heart rate sample, in beats per minute. `nil` when unauthorized,
+    /// unavailable, or no sample has ever been recorded.
+    func readRestingHeartRate() async -> Double? {
+        guard isAuthorized else { return nil }
+        let type = quantityType(.restingHeartRate)
+        let sort = [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+
+        let sample = await withCheckedContinuation { (continuation: CheckedContinuation<HKQuantitySample?, Never>) in
+            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: sort) { _, samples, _ in
+                continuation.resume(returning: samples?.first as? HKQuantitySample)
+            }
+            store.execute(query)
+        }
+        guard let sample else { return nil }
+        let unit = HKUnit.count().unitDivided(by: .minute())
+        return sample.quantity.doubleValue(for: unit)
     }
 
     // MARK: - Helpers

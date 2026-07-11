@@ -24,6 +24,30 @@ struct SettingsView: View {
 
         ScrollView {
             VStack(spacing: 12) {
+                section("Appearance") {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(spacing: 10) {
+                            ForEach(AccentTheme.allCases, id: \.self) { theme in
+                                accentCard(theme, selection: $appState.accentTheme)
+                            }
+                        }
+
+                        Divider().overlay(MTTheme.stroke)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Units")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            Picker("Units", selection: $appState.unitSystem) {
+                                ForEach(UnitSystem.allCases, id: \.self) { system in
+                                    Text(system.displayName).tag(system)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                    }
+                }
+
                 section("AI Calorie Vision") {
                     VStack(alignment: .leading, spacing: 10) {
                         SecureField(hasStoredKey ? "••••••••••••  (key saved)" : "Anthropic API key",
@@ -189,6 +213,43 @@ struct SettingsView: View {
         }
     }
 
+    private func accentCard(_ theme: AccentTheme, selection: Binding<AccentTheme>) -> some View {
+        let selected = selection.wrappedValue == theme
+        return Button {
+            Haptics.tap()
+            selection.wrappedValue = theme
+        } label: {
+            VStack(spacing: 8) {
+                Circle()
+                    .fill(accentColor(for: theme))
+                    .frame(width: 26, height: 26)
+                Text(theme.displayName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: MTTheme.controlRadius)
+                    .stroke(selected ? MTTheme.volt : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Same palette `MTTheme` resolves `AccentTheme` to — mirrored here for the swatch dots.
+    private func accentColor(for theme: AccentTheme) -> Color {
+        switch theme {
+        case .volt: return Color(hex: 0xC8F542)
+        case .tangerine: return Color(hex: 0xFF9F45)
+        case .earth: return Color(hex: 0xC9A57B)
+        case .jewel: return Color(hex: 0x45D6C6)
+        }
+    }
+
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         MTCard {
             VStack(alignment: .leading, spacing: 14) {
@@ -209,4 +270,15 @@ struct SettingsView: View {
         .environment(SubscriptionManager())
         .environment(SmartScaleService())
         .modelContainer(for: [FoodEntry.self, WorkoutLog.self, WeightEntry.self], inMemory: true)
+}
+
+fileprivate extension Color {
+    init(hex: UInt32, alpha: Double = 1) {
+        self.init(
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255,
+            opacity: alpha
+        )
+    }
 }
