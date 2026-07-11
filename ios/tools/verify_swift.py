@@ -29,6 +29,9 @@ CONTRACT_SYMBOLS = [
     "MealPhotoAnalysis", "AdditiveRisk", "AdditiveTable", "ScannedProduct",
     "ScoreRating", "ScoreFactor", "ProductScore", "ProductScoringEngine",
     "StreakCalculator",
+    # v2
+    "ScheduleAnchor", "ScheduleRecommender", "ExerciseCategory",
+    "MealPlanGenerator", "PlannedMeal", "PlannedMealItem", "MealPlanDay", "GroceryLine",
 ]
 
 CORE_ALLOWED_IMPORTS = {"Foundation", "XCTest", "MetabolicCore"}

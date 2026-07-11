@@ -171,6 +171,50 @@ struct ExerciseDetailView: View { init(exercise: Exercise) }
 struct SessionPlayerView: View { init(plan: WorkoutPlan) }  // fullScreenCover; saves WorkoutLog + HealthKit on finish
 ```
 
+## v2 addendum (HARD CONTRACT for buckets U1–U4)
+
+Core additions (already implemented in MetabolicCore — consume, never declare):
+- `FitnessGoal.improveMobility` (displayName "Flexibility & Mobility")
+- `FitnessProfile` v2 fields: `focusAreas: Set<MuscleGroup>`, `customFlags: [String]`,
+  `includeMobilityWork: Bool`, `customEquipment: [String]`,
+  `customProteinG/customCarbsG/customFatG: Int?`, `scheduleAnchor: ScheduleAnchor`
+- `enum ScheduleAnchor: String, Codable, CaseIterable { case daysPerWeek, sessionLength }` (+displayName)
+- `enum ScheduleRecommender { recommendation(for:) -> (days: Int, minutes: Int);
+  recommendedMinutes(forDays:profile:) -> Int; recommendedDays(forMinutes:profile:) -> Int }`
+- `enum ExerciseCategory: String { case strength, mobility }` — `Exercise.category`;
+  plans bookend 2 warm-up + 2 cooldown mobility items (sets == 1) when
+  `includeMobilityWork` or goal == .improveMobility
+- `MealPlanGenerator.weeklyPlan(targets:profile:weekSeed:) -> [MealPlanDay]`,
+  `.groceryList(for:) -> [GroceryLine]`; `MealPlanDay { dayIndex, meals: [PlannedMeal] }`,
+  `PlannedMeal { mealType, items: [PlannedMealItem], calories/proteinG/carbsG/fatG }`,
+  `PlannedMealItem { food: FoodItem, servings: Double, calories… }`,
+  `GroceryLine { foodID, name, servingDescription, totalServings }`
+
+App-shell additions (already implemented — consume, never redeclare):
+- `AppState.unitSystem: UnitSystem` (`enum UnitSystem { case metric, imperial }` +displayName)
+- `AppState.accentTheme: AccentTheme` (`enum AccentTheme { case volt, tangerine, earth, jewel }` +displayName)
+- `DashboardWidgetKind.goalsTracker`
+- `WorkoutLog.totalVolumeKg: Double` (init gains `totalVolumeKg: Double = 0` last param)
+
+### v2 file ownership (single writer per file)
+
+| Bucket | Owns / may edit |
+|---|---|
+| U1 | `OnboardingSteps.swift`, `OnboardingFlowView.swift`, `ProfileEditorView.swift`, `YouView.swift`, new `BodyMapView.swift`, new `Units.swift` |
+| U2 | `NutritionView.swift`, `FoodSearchView.swift`, `ManualFoodEntryView.swift`, `AddFoodSheet.swift`, new `HandPortionGuide.swift`, new `MealPrepView.swift` |
+| U3 | `TrainingView.swift`, `SessionPlayerView.swift`, `ExerciseAnimationView.swift`, `ExerciseDetailView.swift`, new `CoachingView.swift`, new `MuscleMapView.swift` |
+| U4 | `MTTheme.swift`, `DashboardWidgets.swift`, `TodayView.swift`, `DashboardEditSheet.swift`, `SettingsView.swift`, `HealthKitService.swift`, `MetabolicApp.swift`, new `GoalsProgressWidget.swift` |
+
+New cross-bucket API (owner → consumers):
+- U1 `enum Units { static func weightString(kg: Double, system: UnitSystem) -> String;
+  static func heightString(cm: Double, system: UnitSystem) -> String;
+  static func kg(fromPounds: Double) -> Double; static func pounds(fromKg: Double) -> Double }`
+- U1 `struct BodyMapView: View { init(selectedAreas: Binding<Set<MuscleGroup>>, customFlags: Binding<[String]>) }`
+- U3 `struct MuscleMapView: View { init(highlighted: [MuscleGroup]) }` — front/back mini diagram
+- U4 `HealthKitService.readRestingHeartRate() async -> Double?` (U1's YouView displays it)
+- U4 `MTTheme.volt`/`voltDim` resolve from `AccentTheme` (reads UserDefaults "mt.accent");
+  `MetabolicApp` gets `.id(appState.accentTheme)` on the root Group so theme switches re-render
+
 ## Conventions
 
 - Every Swift file in the app target starts with `import SwiftUI` (plus what it needs) and

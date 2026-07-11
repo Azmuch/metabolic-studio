@@ -37,6 +37,7 @@ public enum NutritionEngine {
         case .maintain: goalAdjustment = 0
         case .gainMuscle: goalAdjustment = 0.12
         case .improveEndurance: goalAdjustment = 0.05
+        case .improveMobility: goalAdjustment = 0
         }
 
         var calories = (tdeeValue * (1 + goalAdjustment)).rounded()
@@ -50,11 +51,15 @@ public enum NutritionEngine {
         case .maintain: proteinPerKg = 1.6
         case .gainMuscle: proteinPerKg = 2.0
         case .improveEndurance: proteinPerKg = 1.6
+        case .improveMobility: proteinPerKg = 1.6
         }
-        let proteinG = (proteinPerKg * p.weightKg).rounded()
 
-        let fatG = (0.27 * calories / 9).rounded()
-        let carbsG = max(0, ((calories - proteinG * 4 - fatG * 9) / 4).rounded())
+        // User-set macro overrides win; carbs re-balance to the remaining calories
+        // unless carbs themselves were overridden.
+        let proteinG = p.customProteinG.map(Double.init) ?? (proteinPerKg * p.weightKg).rounded()
+        let fatG = p.customFatG.map(Double.init) ?? (0.27 * calories / 9).rounded()
+        let carbsG = p.customCarbsG.map(Double.init)
+            ?? max(0, ((calories - proteinG * 4 - fatG * 9) / 4).rounded())
 
         let waterRaw = (35 * p.weightKg / 50).rounded() * 50
         let waterML = min(max(waterRaw, 1500), 4000)

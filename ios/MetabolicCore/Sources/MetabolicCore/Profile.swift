@@ -5,7 +5,7 @@ public enum BiologicalSex: String, Codable, CaseIterable, Sendable {
 }
 
 public enum FitnessGoal: String, Codable, CaseIterable, Sendable {
-    case loseFat, maintain, gainMuscle, improveEndurance
+    case loseFat, maintain, gainMuscle, improveEndurance, improveMobility
 
     public var displayName: String {
         switch self {
@@ -13,6 +13,7 @@ public enum FitnessGoal: String, Codable, CaseIterable, Sendable {
         case .maintain: return "Maintain"
         case .gainMuscle: return "Gain Muscle"
         case .improveEndurance: return "Improve Endurance"
+        case .improveMobility: return "Flexibility & Mobility"
         }
     }
 }
@@ -71,14 +72,14 @@ public enum Equipment: String, Codable, CaseIterable, Sendable {
 
     public var symbolName: String {
         switch self {
-        case .none: return "figure.strengthtraining.functional"
-        case .dumbbells: return "dumbbell"
+        case .none: return "figure.core.training"
+        case .dumbbells: return "dumbbell.fill"
         case .resistanceBands: return "figure.flexibility"
-        case .kettlebell: return "figure.strengthtraining.traditional"
+        case .kettlebell: return "figure.strengthtraining.functional"
         case .barbell: return "figure.strengthtraining.traditional"
-        case .pullUpBar: return "figure.pullups"
-        case .bench: return "chair"
-        case .fullGym: return "building.2"
+        case .pullUpBar: return "figure.climbing"
+        case .bench: return "figure.cross.training"
+        case .fullGym: return "building.2.fill"
         }
     }
 }
@@ -100,6 +101,19 @@ public enum InjuryFlag: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// Which half of the schedule the user chose to pin; the app recommends the other half
+/// via `ScheduleRecommender`.
+public enum ScheduleAnchor: String, Codable, CaseIterable, Sendable {
+    case daysPerWeek, sessionLength
+
+    public var displayName: String {
+        switch self {
+        case .daysPerWeek: return "Days per Week"
+        case .sessionLength: return "Session Length"
+        }
+    }
+}
+
 public struct FitnessProfile: Codable, Equatable, Sendable {
     public var age: Int
     public var sex: BiologicalSex
@@ -113,12 +127,32 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
     public var workoutDaysPerWeek: Int   // 2...6
     public var sessionMinutes: Int       // 15...90
 
+    // v2 fields — all decode with defaults so v1 persisted profiles keep loading.
+    /// Muscle groups the user wants to strengthen / firm up / prioritize.
+    public var focusAreas: Set<MuscleGroup>
+    /// Free-text body areas (incl. deep muscle/tissue) flagged on the body map.
+    public var customFlags: [String]
+    /// Adds physical-therapy style warm-up and cooldown blocks to every session.
+    public var includeMobilityWork: Bool
+    /// Free-text equipment the user owns beyond the standard list (informational).
+    public var customEquipment: [String]
+    /// Optional user-set macro targets that override the computed ones.
+    public var customProteinG: Int?
+    public var customCarbsG: Int?
+    public var customFatG: Int?
+    /// Which schedule dimension the user pinned (the other is recommended).
+    public var scheduleAnchor: ScheduleAnchor
+
     public init(age: Int = 30, sex: BiologicalSex = .male, heightCm: Double = 175,
                 weightKg: Double = 75, goal: FitnessGoal = .maintain,
                 activityLevel: ActivityLevel = .moderate,
                 experience: ExperienceLevel = .beginner,
                 equipment: Set<Equipment> = [.none], injuries: Set<InjuryFlag> = [],
-                workoutDaysPerWeek: Int = 3, sessionMinutes: Int = 30) {
+                workoutDaysPerWeek: Int = 3, sessionMinutes: Int = 30,
+                focusAreas: Set<MuscleGroup> = [], customFlags: [String] = [],
+                includeMobilityWork: Bool = false, customEquipment: [String] = [],
+                customProteinG: Int? = nil, customCarbsG: Int? = nil, customFatG: Int? = nil,
+                scheduleAnchor: ScheduleAnchor = .daysPerWeek) {
         self.age = age
         self.sex = sex
         self.heightCm = heightCm
@@ -130,6 +164,37 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         self.injuries = injuries
         self.workoutDaysPerWeek = workoutDaysPerWeek
         self.sessionMinutes = sessionMinutes
+        self.focusAreas = focusAreas
+        self.customFlags = customFlags
+        self.includeMobilityWork = includeMobilityWork
+        self.customEquipment = customEquipment
+        self.customProteinG = customProteinG
+        self.customCarbsG = customCarbsG
+        self.customFatG = customFatG
+        self.scheduleAnchor = scheduleAnchor
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        age = try c.decode(Int.self, forKey: .age)
+        sex = try c.decode(BiologicalSex.self, forKey: .sex)
+        heightCm = try c.decode(Double.self, forKey: .heightCm)
+        weightKg = try c.decode(Double.self, forKey: .weightKg)
+        goal = try c.decode(FitnessGoal.self, forKey: .goal)
+        activityLevel = try c.decode(ActivityLevel.self, forKey: .activityLevel)
+        experience = try c.decode(ExperienceLevel.self, forKey: .experience)
+        equipment = try c.decode(Set<Equipment>.self, forKey: .equipment)
+        injuries = try c.decode(Set<InjuryFlag>.self, forKey: .injuries)
+        workoutDaysPerWeek = try c.decode(Int.self, forKey: .workoutDaysPerWeek)
+        sessionMinutes = try c.decode(Int.self, forKey: .sessionMinutes)
+        focusAreas = try c.decodeIfPresent(Set<MuscleGroup>.self, forKey: .focusAreas) ?? []
+        customFlags = try c.decodeIfPresent([String].self, forKey: .customFlags) ?? []
+        includeMobilityWork = try c.decodeIfPresent(Bool.self, forKey: .includeMobilityWork) ?? false
+        customEquipment = try c.decodeIfPresent([String].self, forKey: .customEquipment) ?? []
+        customProteinG = try c.decodeIfPresent(Int.self, forKey: .customProteinG)
+        customCarbsG = try c.decodeIfPresent(Int.self, forKey: .customCarbsG)
+        customFatG = try c.decodeIfPresent(Int.self, forKey: .customFatG)
+        scheduleAnchor = try c.decodeIfPresent(ScheduleAnchor.self, forKey: .scheduleAnchor) ?? .daysPerWeek
     }
 
     public static let `default` = FitnessProfile()

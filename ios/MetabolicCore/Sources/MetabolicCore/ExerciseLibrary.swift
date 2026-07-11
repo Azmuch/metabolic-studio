@@ -336,5 +336,140 @@ public enum ExerciseLibrary {
             ],
             keyframes: ExercisePoses.pullUp(), secondsPerCycle: 3.0
         ),
+
+        // MARK: Mobility / physical-therapy block (v2)
+
+        Exercise(
+            id: "catCow", name: "Cat-Cow",
+            muscleGroups: [.back, .core],
+            equipment: [.none], contraindications: [.wrist],
+            met: 2.5, kind: .timed(seconds: 40),
+            instructions: [
+                "On all fours, wrists under shoulders.",
+                "Inhale: drop the belly, lift your gaze.",
+                "Exhale: round the spine, tuck the chin.",
+            ],
+            keyframes: MobilityPoses.catCow(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "childsPose", name: "Child's Pose",
+            muscleGroups: [.back],
+            equipment: [.none], contraindications: [.knee],
+            met: 2.0, kind: .timed(seconds: 40),
+            instructions: [
+                "Kneel and sit back toward your heels.",
+                "Walk your hands long, forehead down.",
+                "Breathe into your back for the full hold.",
+            ],
+            keyframes: MobilityPoses.childsPose(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "hipFlexorStretch", name: "Hip Flexor Stretch",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee],
+            met: 2.5, kind: .timed(seconds: 30),
+            instructions: [
+                "Half-kneel with your front foot planted.",
+                "Tuck your pelvis and shift gently forward.",
+                "Feel the front of the rear hip open — switch sides.",
+            ],
+            keyframes: MobilityPoses.hipFlexorStretch(), secondsPerCycle: 3.5, category: .mobility
+        ),
+        Exercise(
+            id: "hamstringStretch", name: "Hamstring Stretch",
+            muscleGroups: [.hamstrings, .back],
+            equipment: [.none], contraindications: [.lowerBack],
+            met: 2.5, kind: .timed(seconds: 30),
+            instructions: [
+                "Soft knees, hinge at the hips with a flat back.",
+                "Slide your hands toward your shins.",
+                "Stop at a strong stretch, never pain.",
+            ],
+            keyframes: MobilityPoses.standingHamstringStretch(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "shoulderCircles", name: "Shoulder Circles",
+            muscleGroups: [.shoulders],
+            equipment: [.none], contraindications: [],
+            met: 2.5, kind: .timed(seconds: 30),
+            instructions: [
+                "Stand tall, arms relaxed and long.",
+                "Sweep both arms in slow, growing circles.",
+                "Reverse direction halfway through.",
+            ],
+            keyframes: MobilityPoses.shoulderCircles(), secondsPerCycle: 2.5, category: .mobility
+        ),
+        Exercise(
+            id: "ankleCircles", name: "Ankle Circles",
+            muscleGroups: [.calves],
+            equipment: [.none], contraindications: [],
+            met: 2.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Lift one knee to hip height.",
+                "Draw slow circles with your foot.",
+                "Both directions, then switch legs.",
+            ],
+            keyframes: MobilityPoses.ankleCircles(), secondsPerCycle: 2.0, category: .mobility
+        ),
+        Exercise(
+            id: "thoracicRotation", name: "Thoracic Rotation",
+            muscleGroups: [.back, .core],
+            equipment: [.none], contraindications: [.wrist],
+            met: 2.5, kind: .timed(seconds: 30),
+            instructions: [
+                "From all fours, hand behind your head or reaching.",
+                "Rotate your chest open toward the ceiling.",
+                "Follow your hand with your eyes — switch sides.",
+            ],
+            keyframes: MobilityPoses.thoracicRotation(), secondsPerCycle: 3.0, category: .mobility
+        ),
+        Exercise(
+            id: "figureFourStretch", name: "Figure-4 Glute Stretch",
+            muscleGroups: [.glutes],
+            equipment: [.none], contraindications: [.hip],
+            met: 2.0, kind: .timed(seconds: 30),
+            instructions: [
+                "On your back, cross one ankle over the other knee.",
+                "Pull the supporting thigh gently toward you.",
+                "Keep your head down and breathe — switch sides.",
+            ],
+            keyframes: MobilityPoses.figureFourStretch(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "calfStretch", name: "Calf Stretch",
+            muscleGroups: [.calves],
+            equipment: [.none], contraindications: [],
+            met: 2.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Hands on a wall, one leg stepped back.",
+                "Press the rear heel into the floor.",
+                "Lean in until the calf lengthens — switch sides.",
+            ],
+            keyframes: MobilityPoses.standingCalfStretch(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "worldsGreatestStretch", name: "World's Greatest Stretch",
+            muscleGroups: [.fullBody],
+            equipment: [.none], contraindications: [.knee, .hip, .wrist],
+            met: 3.0, kind: .timed(seconds: 40),
+            instructions: [
+                "Step into a deep lunge, inside hand planted.",
+                "Rotate and reach the free arm to the sky.",
+                "Hold, return, and flow to the other side.",
+            ],
+            keyframes: MobilityPoses.worldsGreatestStretch(), secondsPerCycle: 4.0, category: .mobility
+        ),
+        Exercise(
+            id: "neckRelease", name: "Neck Release",
+            muscleGroups: [.shoulders],
+            equipment: [.none], contraindications: [],
+            met: 2.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Sit or stand tall, shoulders heavy.",
+                "Tilt one ear toward the shoulder.",
+                "Hold, breathe, and roll gently to the other side.",
+            ],
+            keyframes: MobilityPoses.neckRelease(), secondsPerCycle: 5.0, category: .mobility
+        ),
     ]
 }

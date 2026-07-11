@@ -56,6 +56,19 @@ public enum MuscleGroup: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// Distinguishes strength work from physical-therapy style mobility/stretch moves,
+/// which the plan generator uses for warm-up and cooldown blocks.
+public enum ExerciseCategory: String, Codable, CaseIterable, Sendable {
+    case strength, mobility
+
+    public var displayName: String {
+        switch self {
+        case .strength: return "Strength"
+        case .mobility: return "Mobility"
+        }
+    }
+}
+
 public struct Exercise: Identifiable, Codable, Equatable, Sendable {
     public var id: String            // stable slug, e.g. "squat"
     public var name: String
@@ -67,10 +80,12 @@ public struct Exercise: Identifiable, Codable, Equatable, Sendable {
     public var instructions: [String]          // 3–4 short cues
     public var keyframes: [Pose]               // ≥2; animation loops through them
     public var secondsPerCycle: Double         // one full rep-cycle duration
+    public var category: ExerciseCategory
 
     public init(id: String, name: String, muscleGroups: [MuscleGroup], equipment: Set<Equipment>,
                 contraindications: Set<InjuryFlag>, met: Double, kind: ExerciseKind,
-                instructions: [String], keyframes: [Pose], secondsPerCycle: Double) {
+                instructions: [String], keyframes: [Pose], secondsPerCycle: Double,
+                category: ExerciseCategory = .strength) {
         self.id = id
         self.name = name
         self.muscleGroups = muscleGroups
@@ -81,5 +96,6 @@ public struct Exercise: Identifiable, Codable, Equatable, Sendable {
         self.instructions = instructions
         self.keyframes = keyframes
         self.secondsPerCycle = secondsPerCycle
+        self.category = category
     }
 }

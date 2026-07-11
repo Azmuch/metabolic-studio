@@ -32,8 +32,8 @@ public enum WorkoutPlanGenerator {
             return WorkoutPlan(date: date, focus: .rest, title: "Rest & Recover", items: [], estimatedMinutes: 0)
         }
 
-        let pool = ExerciseLibrary.available(equipment: p.equipment, injuries: p.injuries)
-            .filter { matches(focus: focus, exercise: $0) }
+        let available = ExerciseLibrary.available(equipment: p.equipment, injuries: p.injuries)
+        let pool = available.filter { $0.category == .strength && matches(focus: focus, exercise: $0) }
 
         guard !pool.isEmpty else {
             return WorkoutPlan(date: date, focus: focus, title: "Mobility & Recovery", items: [], estimatedMinutes: 0)
@@ -49,8 +49,16 @@ public enum WorkoutPlanGenerator {
         }
         count = min(max(3, min(8, count)), pool.count)
 
-        var candidates = pool
+        // Focus areas get priority: up to half the slots fill from focus-matching moves first.
         var selected: [Exercise] = []
+        if !p.focusAreas.isEmpty {
+            var focusCandidates = pool.filter { !p.focusAreas.isDisjoint(with: $0.muscleGroups) }
+            let focusSlots = min((count + 1) / 2, focusCandidates.count)
+            while selected.count < focusSlots, !focusCandidates.isEmpty {
+                selected.append(focusCandidates.remove(at: rng.int(in: 0...(focusCandidates.count - 1))))
+            }
+        }
+        var candidates = pool.filter { candidate in !selected.contains { $0.id == candidate.id } }
         while selected.count < count, !candidates.isEmpty {
             selected.append(candidates.remove(at: rng.int(in: 0...(candidates.count - 1))))
         }
@@ -69,6 +77,7 @@ public enum WorkoutPlanGenerator {
         case .maintain: (repRange, restSeconds) = (10...12, 60)
         case .gainMuscle: (repRange, restSeconds) = (8...12, 90)
         case .improveEndurance: (repRange, restSeconds) = (15...20, 40)
+        case .improveMobility: (repRange, restSeconds) = (12...15, 45)
         }
         let timedRange: ClosedRange<Int> =
             (p.goal == .loseFat || p.goal == .improveEndurance) ? 40...60 : 30...45
@@ -93,11 +102,37 @@ public enum WorkoutPlanGenerator {
                                kind: resolved, restSeconds: restSeconds)
         }
 
+        // PT-style warm-up and cooldown blocks (opt-in, always on for the mobility goal).
+        var allItems = items
+        if p.includeMobilityWork || p.goal == .improveMobility {
+            let mobilityPool = available.filter { $0.category == .mobility }
+            let warmup = pickMobility(2, from: mobilityPool, excluding: [], rng: &rng)
+            let cooldown = pickMobility(2, from: mobilityPool,
+                                        excluding: Set(warmup.map(\.id)), rng: &rng)
+            let asBlockItem: (Exercise) -> WorkoutItem = { exercise in
+                WorkoutItem(id: exercise.id, exercise: exercise, sets: 1,
+                            kind: .timed(seconds: 35), restSeconds: 15)
+            }
+            allItems = warmup.map(asBlockItem) + allItems + cooldown.map(asBlockItem)
+            workSecondsTotal += (warmup.count + cooldown.count) * 50
+        }
+
         let minutes = 5 + Int((Double(workSecondsTotal) / 60).rounded())
         let flavors = ["Builder", "Circuit", "Session", "Burner"]
         let title = "\(focus.displayName) \(rng.pick(flavors) ?? "Session")"
 
-        return WorkoutPlan(date: date, focus: focus, title: title, items: items, estimatedMinutes: minutes)
+        return WorkoutPlan(date: date, focus: focus, title: title, items: allItems, estimatedMinutes: minutes)
+    }
+
+    private static func pickMobility(_ count: Int, from pool: [Exercise],
+                                     excluding: Set<String>,
+                                     rng: inout SeededRandom) -> [Exercise] {
+        var candidates = pool.filter { !excluding.contains($0.id) }
+        var picked: [Exercise] = []
+        while picked.count < count, !candidates.isEmpty {
+            picked.append(candidates.remove(at: rng.int(in: 0...(candidates.count - 1))))
+        }
+        return picked
     }
 
     // MARK: - Internals

@@ -14,7 +14,7 @@ struct DashboardWidgetItem: Codable, Equatable, Identifiable {
 }
 
 enum DashboardWidgetKind: String, Codable, CaseIterable {
-    case calorieRing, macros, water, todayWorkout, streak, weightTrend, scanShortcut
+    case calorieRing, macros, water, todayWorkout, streak, weightTrend, scanShortcut, goalsTracker
 
     var title: String {
         switch self {
@@ -25,6 +25,7 @@ enum DashboardWidgetKind: String, Codable, CaseIterable {
         case .streak: return "Streak"
         case .weightTrend: return "Weight Trend"
         case .scanShortcut: return "Scan"
+        case .goalsTracker: return "Goals"
         }
     }
 
@@ -37,6 +38,33 @@ enum DashboardWidgetKind: String, Codable, CaseIterable {
         case .streak: return "flame"
         case .weightTrend: return "chart.line.uptrend.xyaxis"
         case .scanShortcut: return "barcode.viewfinder"
+        case .goalsTracker: return "target"
+        }
+    }
+}
+
+/// Measurement system for body metrics (weight/height display only — storage stays metric).
+enum UnitSystem: String, Codable, CaseIterable {
+    case metric, imperial
+
+    var displayName: String {
+        switch self {
+        case .metric: return "Metric (kg, cm)"
+        case .imperial: return "US (lb, ft/in)"
+        }
+    }
+}
+
+/// Selectable accent palette; `MTTheme` resolves these to concrete colors.
+enum AccentTheme: String, Codable, CaseIterable {
+    case volt, tangerine, earth, jewel
+
+    var displayName: String {
+        switch self {
+        case .volt: return "Volt Lime"
+        case .tangerine: return "Tangerine"
+        case .earth: return "Earth Tone"
+        case .jewel: return "Jewel Teal"
         }
     }
 }
@@ -66,6 +94,14 @@ final class AppState {
         didSet { UserDefaults.standard.set(demoMode, forKey: Keys.demo) }
     }
 
+    var unitSystem: UnitSystem {
+        didSet { UserDefaults.standard.set(unitSystem.rawValue, forKey: Keys.units) }
+    }
+
+    var accentTheme: AccentTheme {
+        didSet { UserDefaults.standard.set(accentTheme.rawValue, forKey: Keys.accent) }
+    }
+
     var selectedTab: AppTab = .today
 
     init() {
@@ -74,9 +110,17 @@ final class AppState {
         profile = loadedProfile
         targets = NutritionEngine.targets(for: loadedProfile)
         hasCompletedOnboarding = defaults.bool(forKey: Keys.onboarded)
-        dashboardLayout = Self.load([DashboardWidgetItem].self, key: Keys.dashboardLayout)
+        var layout = Self.load([DashboardWidgetItem].self, key: Keys.dashboardLayout)
             ?? DashboardWidgetKind.allCases.map { DashboardWidgetItem(kind: $0, isVisible: true) }
+        // Widgets added in updates appear (visible) at the end of previously saved layouts.
+        let missingKinds = DashboardWidgetKind.allCases.filter { kind in
+            !layout.contains { $0.kind == kind }
+        }
+        layout.append(contentsOf: missingKinds.map { DashboardWidgetItem(kind: $0, isVisible: true) })
+        dashboardLayout = layout
         demoMode = defaults.object(forKey: Keys.demo) != nil ? defaults.bool(forKey: Keys.demo) : true
+        unitSystem = defaults.string(forKey: Keys.units).flatMap(UnitSystem.init(rawValue:)) ?? .metric
+        accentTheme = defaults.string(forKey: Keys.accent).flatMap(AccentTheme.init(rawValue:)) ?? .volt
     }
 
     func completeOnboarding(with profile: FitnessProfile) {
@@ -89,6 +133,8 @@ final class AppState {
         static let onboarded = "mt.onboarded"
         static let dashboardLayout = "mt.dashboard.layout"
         static let demo = "mt.demo"
+        static let units = "mt.units"
+        static let accent = "mt.accent"
     }
 
     private static func save<T: Encodable>(_ value: T, key: String) {

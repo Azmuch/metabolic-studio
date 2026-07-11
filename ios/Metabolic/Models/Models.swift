@@ -74,6 +74,8 @@ final class WorkoutLog {
     var minutes: Int
     var calories: Int
     var completedExerciseIDs: [String]
+    /// Total lifted volume (Σ sets × reps × load in kg) for hypertrophy tracking.
+    var totalVolumeKg: Double = 0
 
     init(
         date: Date,
@@ -81,7 +83,8 @@ final class WorkoutLog {
         focus: DayFocus,
         minutes: Int,
         calories: Int,
-        completedExerciseIDs: [String] = []
+        completedExerciseIDs: [String] = [],
+        totalVolumeKg: Double = 0
     ) {
         self.date = date
         self.title = title
@@ -89,6 +92,7 @@ final class WorkoutLog {
         self.minutes = minutes
         self.calories = calories
         self.completedExerciseIDs = completedExerciseIDs
+        self.totalVolumeKg = totalVolumeKg
     }
 
     var focus: DayFocus {
