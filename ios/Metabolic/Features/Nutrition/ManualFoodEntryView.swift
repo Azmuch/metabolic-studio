@@ -20,8 +20,11 @@ struct ManualFoodEntryView: View {
     @State private var showScaleSheet = false
     @FocusState private var nameFocused: Bool
 
-    init(mealType: MealType) {
+    /// `prefillName` seeds the name field — used when `FoodSearchView` hands off a query
+    /// that matched nothing in either database.
+    init(mealType: MealType, prefillName: String = "") {
         self.mealType = mealType
+        _name = State(initialValue: prefillName)
     }
 
     private var calories: Double? { Double(caloriesText) }

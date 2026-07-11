@@ -16,6 +16,8 @@ struct NutritionView: View {
     @State private var selectedDate: Date = .now
     @State private var addFoodMealType: MealType?
     @State private var showWaterDetail = false
+    @State private var showMealPrep = false
+    @State private var showScaleSheet = false
 
     private var calendar: Calendar { .current }
 
@@ -53,6 +55,10 @@ struct NutritionView: View {
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 0, trailing: 20))
                     summaryCard
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 0, trailing: 20))
+                    mealPrepCard
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 0, trailing: 20))
@@ -96,8 +102,22 @@ struct NutritionView: View {
             .scrollContentBackground(.hidden)
             .background(MTTheme.bg)
             .navigationTitle("Nutrition")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Haptics.tap()
+                        showScaleSheet = true
+                    } label: {
+                        Image(systemName: "scalemass.fill")
+                    }
+                    .foregroundStyle(MTTheme.volt)
+                }
+            }
             .navigationDestination(isPresented: $showWaterDetail) {
                 WaterDetailView()
+            }
+            .navigationDestination(isPresented: $showMealPrep) {
+                MealPrepView()
             }
             .sheet(isPresented: Binding(
                 get: { addFoodMealType != nil },
@@ -106,6 +126,9 @@ struct NutritionView: View {
                 if let addFoodMealType {
                     AddFoodSheet(mealType: addFoodMealType)
                 }
+            }
+            .sheet(isPresented: $showScaleSheet) {
+                SmartScaleSheet()
             }
         }
     }
@@ -211,6 +234,42 @@ struct NutritionView: View {
             MTProgressBar(progress: target > 0 ? Double(value) / Double(target) : 0, tint: tint)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Meal Prep entry
+
+    private var mealPrepCard: some View {
+        Button {
+            Haptics.tap()
+            showMealPrep = true
+        } label: {
+            MTCard {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
+                        Image(systemName: "takeoutbag.and.cup.and.straw.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(MTTheme.volt)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Meal Prep")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(MTTheme.textPrimary)
+                        Text("Auto-plan your week and shop once.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textSecondary)
+                    }
+
+                    Spacer(minLength: 0)
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(MTTheme.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Meal sections

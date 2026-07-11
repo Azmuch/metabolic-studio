@@ -2,10 +2,13 @@ import SwiftUI
 import SwiftData
 import MetabolicCore
 
-/// Search tab of `AddFoodSheet`: instant results from the local seed database, plus a
-/// debounced OpenFoodFacts lookup. Tapping a result opens a portion sheet before logging.
+/// Search tab of `AddFoodSheet`: instant, token-aware results from the local seed database,
+/// plus a debounced OpenFoodFacts lookup. Tapping a result opens a portion sheet before
+/// logging. When both sources come up empty for a real query, offers to hand the typed
+/// name off to Manual entry via `onCreateCustom`.
 struct FoodSearchView: View {
     let mealType: MealType
+    var onCreateCustom: (String) -> Void
 
     @Environment(\.modelContext) private var modelContext
     @Environment(HealthKitService.self) private var healthKit
@@ -14,19 +17,58 @@ struct FoodSearchView: View {
     @State private var query = ""
     @State private var offFoods: [FoodItem] = []
     @State private var isSearchingOFF = false
+    @State private var offFailed = false
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedFood: FoodItem?
     @FocusState private var isFocused: Bool
 
-    init(mealType: MealType) {
+    init(mealType: MealType, onCreateCustom: @escaping (String) -> Void = { _ in }) {
         self.mealType = mealType
+        self.onCreateCustom = onCreateCustom
     }
 
     private var trimmedQuery: String { query.trimmingCharacters(in: .whitespacesAndNewlines) }
 
+    /// Merges `FoodDatabase.search`'s substring match with a token-aware pass so partial,
+    /// reordered, or abbreviated words ("chick br", "greek yog", "rice brown") still hit —
+    /// every query token must prefix/contain some word in the item's name + brand. Runs
+    /// synchronously on every keystroke; no debounce for local results.
     private var localResults: [FoodItem] {
         guard !trimmedQuery.isEmpty else { return [] }
-        return FoodDatabase.search(trimmedQuery)
+        let dbResults = FoodDatabase.search(trimmedQuery)
+        let tokenResults = Self.tokenMatches(query: trimmedQuery, in: FoodDatabase.common)
+        var seen = Set<String>()
+        var merged: [FoodItem] = []
+        for item in dbResults + tokenResults where seen.insert(item.id).inserted {
+            merged.append(item)
+        }
+        return merged
+    }
+
+    private static func tokenMatches(query: String, in items: [FoodItem]) -> [FoodItem] {
+        let tokens = query
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            .lowercased()
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map(String.init)
+        guard !tokens.isEmpty else { return [] }
+        return items
+            .filter { item in
+                let words = (item.name + " " + (item.brand ?? ""))
+                    .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+                    .lowercased()
+                    .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+                    .map(String.init)
+                return tokens.allSatisfy { token in words.contains { $0.contains(token) } }
+            }
+            .sorted { $0.name.count < $1.name.count }
+    }
+
+    /// True once the remote lookup has settled (success or failure) with nothing to show —
+    /// the trigger for the "Create" fallback row.
+    private var remoteCameUpEmpty: Bool { !isSearchingOFF && offFoods.isEmpty }
+    private var showCreateRow: Bool {
+        localResults.isEmpty && remoteCameUpEmpty && trimmedQuery.count >= 2
     }
 
     var body: some View {
@@ -44,7 +86,7 @@ struct FoodSearchView: View {
                     }
                 }
 
-                if !trimmedQuery.isEmpty {
+                if !trimmedQuery.isEmpty, isSearchingOFF || offFailed || !offFoods.isEmpty {
                     Section {
                         if isSearchingOFF {
                             HStack {
@@ -55,8 +97,8 @@ struct FoodSearchView: View {
                             }
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
-                        } else if offFoods.isEmpty {
-                            Text("No matches from OpenFoodFacts.")
+                        } else if offFailed {
+                            Text("Couldn't reach OpenFoodFacts")
                                 .font(.system(size: 13))
                                 .foregroundStyle(MTTheme.textTertiary)
                                 .listRowBackground(Color.clear)
@@ -69,7 +111,15 @@ struct FoodSearchView: View {
                     } header: {
                         sectionHeader("FROM OPENFOODFACTS")
                     }
-                } else {
+                }
+
+                if showCreateRow {
+                    Section {
+                        createCustomRow
+                    }
+                }
+
+                if trimmedQuery.isEmpty {
                     Section {
                         Text("Search the food library or OpenFoodFacts to add an item.")
                             .font(.system(size: 13))
@@ -89,16 +139,24 @@ struct FoodSearchView: View {
             let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else {
                 offFoods = []
+                offFailed = false
                 isSearchingOFF = false
                 return
             }
             searchTask = Task {
                 isSearchingOFF = true
-                try? await Task.sleep(nanoseconds: 400_000_000)
+                offFailed = false
+                try? await Task.sleep(nanoseconds: 350_000_000)
                 guard !Task.isCancelled else { return }
-                let results = (try? await OpenFoodFactsClient().searchFoods(query: trimmed)) ?? []
-                guard !Task.isCancelled else { return }
-                offFoods = results
+                do {
+                    let results = try await OpenFoodFactsClient().searchFoods(query: trimmed)
+                    guard !Task.isCancelled else { return }
+                    offFoods = results
+                } catch {
+                    guard !Task.isCancelled else { return }
+                    offFoods = []
+                    offFailed = true
+                }
                 isSearchingOFF = false
             }
         }
@@ -109,6 +167,34 @@ struct FoodSearchView: View {
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
+    }
+
+    private var createCustomRow: some View {
+        Button {
+            Haptics.tap()
+            onCreateCustom(trimmedQuery)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(MTTheme.volt)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Create \"\(trimmedQuery)\"")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("Not in either database — add it manually.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(MTTheme.textTertiary)
+            }
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(MTTheme.voltDim)
     }
 
     private var searchField: some View {

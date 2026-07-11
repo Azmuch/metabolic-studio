@@ -2,12 +2,15 @@ import SwiftUI
 import MetabolicCore
 
 /// Add-food flow presented from a meal section's "+" button: search / manual entry / AI
-/// photo, switched by a segmented control.
+/// photo, switched by a segmented control. Also the entry point for the hand-portion
+/// estimator, available from every tab via the header toolbar.
 struct AddFoodSheet: View {
     let mealType: MealType
 
     @Environment(\.dismiss) private var dismiss
     @State private var mode: Mode = .search
+    @State private var manualPrefillName: String = ""
+    @State private var showHandGuide = false
 
     private enum Mode: String, CaseIterable {
         case search = "Search"
@@ -36,18 +39,38 @@ struct AddFoodSheet: View {
 
                 Group {
                     switch mode {
-                    case .search: FoodSearchView(mealType: mealType)
-                    case .manual: ManualFoodEntryView(mealType: mealType)
-                    case .photo: MealPhotoView(mealType: mealType)
+                    case .search:
+                        FoodSearchView(mealType: mealType) { typedName in
+                            manualPrefillName = typedName
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                mode = .manual
+                            }
+                        }
+                    case .manual:
+                        ManualFoodEntryView(mealType: mealType, prefillName: manualPrefillName)
+                    case .photo:
+                        MealPhotoView(mealType: mealType)
                     }
                 }
             }
             .background(MTTheme.bg)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        Haptics.tap()
+                        showHandGuide = true
+                    } label: {
+                        Label("Hand portions", systemImage: "hand.raised.fill")
+                    }
+                    .foregroundStyle(MTTheme.volt)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") { dismiss() }
                         .foregroundStyle(MTTheme.textPrimary)
                 }
+            }
+            .sheet(isPresented: $showHandGuide) {
+                HandPortionGuide(mealType: mealType)
             }
         }
         .presentationDetents([.large])
