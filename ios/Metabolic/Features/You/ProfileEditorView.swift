@@ -27,6 +27,7 @@ struct ProfileEditorView: View {
                 goalSection
                 lifestyleSection
                 healthSection
+                dietSection
                 equipmentSection
                 scheduleSection
                 macrosSection
@@ -36,7 +37,7 @@ struct ProfileEditorView: View {
             .padding(.vertical, 12)
         }
         .scrollIndicators(.hidden)
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
         .navigationTitle("Edit Profile")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -199,6 +200,27 @@ struct ProfileEditorView: View {
             }
             .tint(MTTheme.volt)
             .padding(.top, 8)
+        }
+    }
+
+    private var dietSection: some View {
+        section("Diet") {
+            ForEach(DietaryPreference.allCases, id: \.self) { preference in
+                selectableRow(title: preference.displayName,
+                              isSelected: draft.dietaryPreference == preference) {
+                    draft.dietaryPreference = preference
+                }
+            }
+            sectionLabel("ALLERGIES")
+                .padding(.top, 6)
+            FlowChips(items: FoodAllergen.allCases.map { ($0.displayName, draft.allergies.contains($0)) }) { index in
+                let allergen = FoodAllergen.allCases[index]
+                if draft.allergies.contains(allergen) { draft.allergies.remove(allergen) }
+                else { draft.allergies.insert(allergen) }
+            }
+            Text("Meal-prep plans strictly exclude flagged foods.")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
         }
     }
 

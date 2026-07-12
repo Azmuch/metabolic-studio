@@ -132,7 +132,7 @@ struct FoodSearchView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .onAppear { isFocused = true }
         .onChange(of: query) { _, newValue in
             searchTask?.cancel()
@@ -376,7 +376,7 @@ private struct FoodPortionSheet: View {
             }
         }
         .padding(20)
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .sheet(isPresented: $showScale) {
             SmartScaleSheet { grams in
                 guard let basis = servingGrams, basis > 0 else { return }

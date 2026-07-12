@@ -1,14 +1,55 @@
 import SwiftUI
 import UIKit
 
-/// Metabolic design tokens — near-monochrome surfaces, one signature "Volt" accent,
-/// oversized rounded numerals. Dark-first, fully adaptive to light mode.
-enum MTTheme {
-    // MARK: - Adaptive surfaces
+/// Live theme state. `@Observable` is the key mechanism: any view whose body touches
+/// `MTTheme.volt` / `.bg` / etc. transitively reads these tracked properties, so changing
+/// the accent or background style re-renders every themed view in place — no identity
+/// resets, navigation stacks stay intact.
+@Observable
+final class ThemeStore {
+    static let shared = ThemeStore()
 
-    static let bg = adaptive(dark: 0x0B0B0C, light: 0xF6F6F4)
-    static let surface = adaptive(dark: 0x151517, light: 0xFFFFFF)
-    static let surface2 = adaptive(dark: 0x1E1E21, light: 0xEFEFEC)
+    var accent: AccentTheme
+    var backgroundStyle: BackgroundStyle
+    /// Bumped whenever the wallpaper image file changes so photo backgrounds reload.
+    var wallpaperVersion = 0
+
+    private init() {
+        accent = UserDefaults.standard.string(forKey: "mt.accent")
+            .flatMap(AccentTheme.init(rawValue:)) ?? .volt
+        backgroundStyle = UserDefaults.standard.string(forKey: "mt.background")
+            .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
+    }
+
+    /// On-disk location of the user's wallpaper photo (present only when one is set).
+    static var wallpaperURL: URL {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent("wallpaper.jpg")
+    }
+
+    var hasWallpaper: Bool {
+        _ = wallpaperVersion   // register observation so setters refresh readers
+        return FileManager.default.fileExists(atPath: Self.wallpaperURL.path)
+    }
+}
+
+/// Metabolic design tokens — near-monochrome surfaces, one signature accent,
+/// oversized rounded numerals. Dark-first, fully adaptive to light mode.
+/// All dynamic tokens resolve through `ThemeStore.shared`, so theme changes
+/// propagate live to every view that uses them.
+enum MTTheme {
+    // MARK: - Adaptive surfaces (accent-tinted when the background style calls for it)
+
+    static var bg: Color {
+        surfaceColor(dark: 0x0B0B0C, light: 0xF6F6F4, tint: 0.12, lightTint: 0.10)
+    }
+    static var surface: Color {
+        surfaceColor(dark: 0x151517, light: 0xFFFFFF, tint: 0.07, lightTint: 0.04)
+    }
+    static var surface2: Color {
+        surfaceColor(dark: 0x1E1E21, light: 0xEFEFEC, tint: 0.12, lightTint: 0.10)
+    }
     static let stroke = adaptive(dark: 0xFFFFFF, light: 0x000000, darkAlpha: 0.08, lightAlpha: 0.08)
 
     // MARK: - Adaptive text
@@ -17,23 +58,21 @@ enum MTTheme {
     static let textSecondary = adaptive(dark: 0xFFFFFF, light: 0x0B0B0C, darkAlpha: 0.6, lightAlpha: 0.6)
     static let textTertiary = adaptive(dark: 0xFFFFFF, light: 0x0B0B0C, darkAlpha: 0.35, lightAlpha: 0.35)
 
-    // MARK: - Accent & semantic colors (same in both appearances)
+    // MARK: - Accent & semantic colors
 
-    /// Resolves from the user's selected `AccentTheme` (persisted in UserDefaults "mt.accent").
-    /// Every screen keeps using `MTTheme.volt` / `voltDim` — only the underlying color changes.
-    static var volt: Color { accent(for: currentAccent) }
-    static var voltDim: Color { accent(for: currentAccent).opacity(0.18) }
+    static var volt: Color { Color(uiColor: accentUIColor(for: ThemeStore.shared.accent)) }
+    static var voltDim: Color { volt.opacity(0.18) }
 
-    private static var currentAccent: AccentTheme {
-        UserDefaults.standard.string(forKey: "mt.accent").flatMap(AccentTheme.init(rawValue:)) ?? .volt
+    static func accentColor(for theme: AccentTheme) -> Color {
+        Color(uiColor: accentUIColor(for: theme))
     }
 
-    private static func accent(for theme: AccentTheme) -> Color {
+    private static func accentUIColor(for theme: AccentTheme) -> UIColor {
         switch theme {
-        case .volt: return Color(hex: 0xC8F542)
-        case .tangerine: return Color(hex: 0xFF9F45)
-        case .earth: return Color(hex: 0xC9A57B)
-        case .jewel: return Color(hex: 0x45D6C6)
+        case .volt: return UIColor(hex: 0xC8F542)
+        case .tangerine: return UIColor(hex: 0xFF9F45)
+        case .earth: return UIColor(hex: 0xC9A57B)
+        case .jewel: return UIColor(hex: 0x45D6C6)
         }
     }
 
@@ -59,7 +98,25 @@ enum MTTheme {
 
     // MARK: - Helpers
 
-    private static func adaptive(dark: UInt32, light: UInt32, darkAlpha: Double = 1, lightAlpha: Double = 1) -> Color {
+    /// Neutral base, or the base gently mixed toward the accent for the tinted /
+    /// glass / photo background styles.
+    private static func surfaceColor(dark: UInt32, light: UInt32,
+                                     tint: CGFloat, lightTint: CGFloat) -> Color {
+        let style = ThemeStore.shared.backgroundStyle
+        let accent = accentUIColor(for: ThemeStore.shared.accent)
+        let tinted = style != .classic
+        return Color(uiColor: UIColor { traits in
+            let base = traits.userInterfaceStyle == .dark
+                ? UIColor(hex: dark)
+                : UIColor(hex: light)
+            guard tinted else { return base }
+            let fraction = traits.userInterfaceStyle == .dark ? tint : lightTint
+            return base.mixed(with: accent, fraction: fraction)
+        })
+    }
+
+    private static func adaptive(dark: UInt32, light: UInt32,
+                                 darkAlpha: Double = 1, lightAlpha: Double = 1) -> Color {
         Color(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark
                 ? UIColor(hex: dark, alpha: darkAlpha)
@@ -87,6 +144,20 @@ fileprivate extension UIColor {
             blue: CGFloat(hex & 0xFF) / 255,
             alpha: CGFloat(alpha)
         )
+    }
+
+    /// Per-channel blend toward `other` — keeps the neutral's lightness while
+    /// borrowing the accent's hue at low fractions.
+    func mixed(with other: UIColor, fraction: CGFloat) -> UIColor {
+        var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
+        var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
+        getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+        other.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+        let t = max(0, min(1, fraction))
+        return UIColor(red: r1 + (r2 - r1) * t,
+                       green: g1 + (g2 - g1) * t,
+                       blue: b1 + (b2 - b1) * t,
+                       alpha: a1)
     }
 }
 

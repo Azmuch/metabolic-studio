@@ -61,7 +61,7 @@ struct CoachingView: View {
             .padding(.top, 12)
             .padding(.bottom, 32)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .navigationTitle("Coaching")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(item: $playingSession) { session in

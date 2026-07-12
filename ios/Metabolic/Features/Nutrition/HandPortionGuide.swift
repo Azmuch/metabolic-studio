@@ -67,7 +67,7 @@ struct HandPortionGuide: View {
                 }
                 .padding(20)
             }
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") { dismiss() }

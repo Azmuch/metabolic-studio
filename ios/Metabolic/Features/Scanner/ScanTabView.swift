@@ -92,7 +92,7 @@ struct ScanTabView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .navigationTitle("Scan")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

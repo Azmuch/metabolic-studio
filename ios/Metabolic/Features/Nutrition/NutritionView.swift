@@ -100,7 +100,7 @@ struct NutritionView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .navigationTitle("Nutrition")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -109,6 +109,12 @@ struct NutritionView: View {
                         showScaleSheet = true
                     } label: {
                         Image(systemName: "scalemass.fill")
+                            .symbolEffect(.pulse)
+                            .phaseAnimator([false, true]) { content, breathe in
+                                content.scaleEffect(breathe ? 1.1 : 1.0)
+                            } animation: { _ in
+                                .easeInOut(duration: 1.1)
+                            }
                     }
                     .foregroundStyle(MTTheme.volt)
                 }

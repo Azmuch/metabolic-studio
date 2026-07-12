@@ -26,7 +26,7 @@ struct OnboardingFlowView: View {
             }
             .animation(.spring(response: 0.45, dampingFraction: 0.8), value: step)
         }
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
     }
 
     private var header: some View {

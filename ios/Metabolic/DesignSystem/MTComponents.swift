@@ -4,6 +4,9 @@ import MetabolicCore
 // MARK: - MTCard
 
 /// Surface card: radius 24, 1px stroke, 20pt internal padding.
+/// Background adapts to `ThemeStore.shared.backgroundStyle`: classic/tinted keep the
+/// opaque themed surface; glass/photo go translucent so the backdrop shows through,
+/// preferring the system Liquid Glass treatment on iOS 26+.
 struct MTCard<Content: View>: View {
     private let content: Content
 
@@ -11,16 +14,38 @@ struct MTCard<Content: View>: View {
         self.content = content()
     }
 
+    private var translucent: Bool {
+        switch ThemeStore.shared.backgroundStyle {
+        case .classic, .tinted: return false
+        case .glass, .photo: return true
+        }
+    }
+
     var body: some View {
-        content
-            .padding(20)
-            .frame(maxWidth: .infinity)
-            .background(MTTheme.surface)
-            .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
-                    .stroke(MTTheme.stroke, lineWidth: 1)
-            )
+        let shape = RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
+        Group {
+            if translucent {
+                if #available(iOS 26.0, *) {
+                    content
+                        .padding(20)
+                        .frame(maxWidth: .infinity)
+                        .glassEffect(.regular, in: shape)
+                        .overlay(shape.stroke(MTTheme.stroke, lineWidth: 1))
+                } else {
+                    content
+                        .padding(20)
+                        .frame(maxWidth: .infinity)
+                        .background(.ultraThinMaterial, in: shape)
+                        .overlay(shape.stroke(MTTheme.stroke, lineWidth: 1))
+                }
+            } else {
+                content
+                    .padding(20)
+                    .frame(maxWidth: .infinity)
+                    .background(MTTheme.surface, in: shape)
+                    .overlay(shape.stroke(MTTheme.stroke, lineWidth: 1))
+            }
+        }
     }
 }
 

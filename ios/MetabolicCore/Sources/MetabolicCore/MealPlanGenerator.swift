@@ -71,10 +71,12 @@ public enum MealPlanGenerator {
         (.breakfast, 0.25), (.lunch, 0.30), (.dinner, 0.35), (.snack, 0.10),
     ]
 
-    // Component pools reference seed FoodDatabase ids.
+    // Component pools reference seed FoodDatabase ids. Legumes are included so plant-based
+    // preferences keep meaningful protein variety after filtering.
     private static let proteinPool = [
         "chicken-breast", "salmon", "tuna-canned", "ground-beef", "turkey-breast",
         "tofu-firm", "egg", "greek-yogurt", "cottage-cheese", "shrimp", "tempeh",
+        "lentils", "black-beans", "chickpeas",
     ]
     private static let carbPool = [
         "brown-rice", "white-rice", "quinoa", "oatmeal", "pasta", "sweet-potato",
@@ -95,14 +97,36 @@ public enum MealPlanGenerator {
     public static func weeklyPlan(targets: NutritionTargets, profile: FitnessProfile,
                                   weekSeed: UInt64) -> [MealPlanDay] {
         var rng = SeededRandom(seed: weekSeed ^ 0x6D65616C70726570)
+        // Diet style and allergies are hard constraints, resolved once up front.
+        let pools = FilteredPools(
+            proteins: compatible(proteinPool, profile: profile),
+            carbs: compatible(carbPool, profile: profile),
+            vegFruits: compatible(vegFruitPool, profile: profile),
+            fats: compatible(fatPool, profile: profile),
+            snacks: compatible(snackPool, profile: profile))
         return (0..<7).map { dayIndex in
             let meals = mealBudgets.map { mealType, share in
                 buildMeal(type: mealType,
                           calorieBudget: Double(targets.calories) * share,
                           proteinBudget: Double(targets.proteinG) * share,
-                          rng: &rng)
+                          pools: pools, rng: &rng)
             }
             return MealPlanDay(dayIndex: dayIndex, meals: meals)
+        }
+    }
+
+    private struct FilteredPools {
+        let proteins: [String]
+        let carbs: [String]
+        let vegFruits: [String]
+        let fats: [String]
+        let snacks: [String]
+    }
+
+    private static func compatible(_ ids: [String], profile: FitnessProfile) -> [String] {
+        ids.filter { id in
+            guard let item = food(id) else { return false }
+            return item.isCompatible(with: profile.dietaryPreference, allergies: profile.allergies)
         }
     }
 
@@ -129,9 +153,10 @@ public enum MealPlanGenerator {
     // MARK: - Meal assembly
 
     private static func buildMeal(type: MealType, calorieBudget: Double,
-                                  proteinBudget: Double, rng: inout SeededRandom) -> PlannedMeal {
+                                  proteinBudget: Double, pools: FilteredPools,
+                                  rng: inout SeededRandom) -> PlannedMeal {
         if type == .snack {
-            guard let snack = food(rng.pick(snackPool)) else {
+            guard let snack = food(rng.pick(pools.snacks)) else {
                 return PlannedMeal(mealType: type, items: [])
             }
             let servings = clampServings(calorieBudget / snack.calories)
@@ -139,10 +164,10 @@ public enum MealPlanGenerator {
                                items: [PlannedMealItem(food: snack, servings: servings)])
         }
 
-        guard let protein = food(rng.pick(proteinPool)),
-              let carb = food(rng.pick(carbPool)),
-              let vegFruit = food(rng.pick(vegFruitPool)),
-              let fat = food(rng.pick(fatPool)) else {
+        guard let protein = food(rng.pick(pools.proteins)),
+              let carb = food(rng.pick(pools.carbs)),
+              let vegFruit = food(rng.pick(pools.vegFruits)),
+              let fat = food(rng.pick(pools.fats)) else {
             return PlannedMeal(mealType: type, items: [])
         }
 

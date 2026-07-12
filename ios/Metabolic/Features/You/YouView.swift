@@ -29,7 +29,7 @@ struct YouView: View {
                 .padding(.vertical, 12)
             }
             .scrollIndicators(.hidden)
-            .background(MTTheme.bg.ignoresSafeArea())
+            .background(MTBackground().ignoresSafeArea())
             .navigationTitle("You")
             .sheet(isPresented: $showWeightSheet) { WeightLogSheet() }
             .sheet(isPresented: $showPaywall) { PaywallView() }
@@ -251,7 +251,7 @@ private struct WeightLogSheet: View {
             Spacer()
         }
         .padding(.top, 12)
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
         .presentationDetents([.height(280)])
         .onAppear { focused = true }
     }

@@ -104,9 +104,31 @@ keyframes, interpolated with smoothstep easing in a `TimelineView`-driven `Canva
 - **Accent themes** (Volt Lime / Tangerine / Earth / Jewel), **goals progress widget**,
   resting **heart-rate** from Apple Health, improved food search with custom-food fallback
 
-Roadmap (needs assets/backend): true 3D body map + 3D muscle-highlighted exercise
-figures (rigged USDZ + SceneKit), live trainer streaming backend, vendor-specific
-scale protocols.
+## v3 highlights
+
+- **Live theming without navigation resets** — accent switching now re-renders in place
+  (observable `ThemeStore`), so you can compare themes without leaving Settings
+- **Background styles**: Classic · Tinted (neutrals washed toward your accent) ·
+  **Liquid Glass** (translucent cards over drifting accent light; uses the system
+  glass treatment on iOS 26+) · **Photo** (your own wallpaper behind translucent cards)
+- **Dietary preferences & allergies** — asked before the first meal plan is built
+  (vegetarian/vegan/pescatarian + 7 allergens); plans strictly exclude flagged foods;
+  editable in Edit Profile → Diet and from the Meal Prep toolbar
+- **Anatomy heroes** — Higgsfield-generated écorché illustrations with activated
+  muscles highlighted, crossfading into breathing loops in Exercise Detail and the
+  session player; highlight color follows your accent theme. Run
+  `bash ios/tools/fetch_anatomy_assets.sh` once (then commit) to bundle the artwork —
+  until then the vector figures render as fallback. Front/back anatomy references
+  appear in the body map once fetched.
+- Animated attention cues on the hand-portions and smart-scale icons
+
+Roadmap (needs assets/backend):
+- **Rigged 3D exercise figure** — the target end-state for illustrations: a rigged
+  androgynous USDZ base mesh with male/female morph targets, one skeletal animation
+  clip per exercise id, and per-muscle-group materials tintable to the accent theme,
+  rendered with SceneKit. `AnatomyHeroView` is already the swappable slot
+  (3D → anatomy stills → vector fallback), so the model drops in without UI rework.
+- Live trainer streaming backend; vendor-specific scale protocols.
 
 ## Subscription tiers
 

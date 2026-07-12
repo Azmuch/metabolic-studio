@@ -18,7 +18,7 @@ struct TodayView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 32)
             }
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .scrollIndicators(.hidden)
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showEditSheet) {

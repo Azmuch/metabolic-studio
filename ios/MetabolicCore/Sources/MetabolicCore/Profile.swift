@@ -101,6 +101,35 @@ public enum InjuryFlag: String, Codable, CaseIterable, Sendable {
     }
 }
 
+public enum DietaryPreference: String, Codable, CaseIterable, Sendable {
+    case none, vegetarian, vegan, pescatarian
+
+    public var displayName: String {
+        switch self {
+        case .none: return "No Preference"
+        case .vegetarian: return "Vegetarian"
+        case .vegan: return "Vegan"
+        case .pescatarian: return "Pescatarian"
+        }
+    }
+}
+
+public enum FoodAllergen: String, Codable, CaseIterable, Sendable {
+    case dairy, gluten, nuts, eggs, soy, fish, shellfish
+
+    public var displayName: String {
+        switch self {
+        case .dairy: return "Dairy"
+        case .gluten: return "Gluten"
+        case .nuts: return "Nuts & Peanuts"
+        case .eggs: return "Eggs"
+        case .soy: return "Soy"
+        case .fish: return "Fish"
+        case .shellfish: return "Shellfish"
+        }
+    }
+}
+
 /// Which half of the schedule the user chose to pin; the app recommends the other half
 /// via `ScheduleRecommender`.
 public enum ScheduleAnchor: String, Codable, CaseIterable, Sendable {
@@ -142,6 +171,10 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
     public var customFatG: Int?
     /// Which schedule dimension the user pinned (the other is recommended).
     public var scheduleAnchor: ScheduleAnchor
+    /// Diet style honored by the meal-prep planner.
+    public var dietaryPreference: DietaryPreference
+    /// Allergens strictly excluded from generated meal plans.
+    public var allergies: Set<FoodAllergen>
 
     public init(age: Int = 30, sex: BiologicalSex = .male, heightCm: Double = 175,
                 weightKg: Double = 75, goal: FitnessGoal = .maintain,
@@ -152,7 +185,9 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
                 focusAreas: Set<MuscleGroup> = [], customFlags: [String] = [],
                 includeMobilityWork: Bool = false, customEquipment: [String] = [],
                 customProteinG: Int? = nil, customCarbsG: Int? = nil, customFatG: Int? = nil,
-                scheduleAnchor: ScheduleAnchor = .daysPerWeek) {
+                scheduleAnchor: ScheduleAnchor = .daysPerWeek,
+                dietaryPreference: DietaryPreference = .none,
+                allergies: Set<FoodAllergen> = []) {
         self.age = age
         self.sex = sex
         self.heightCm = heightCm
@@ -172,6 +207,8 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         self.customCarbsG = customCarbsG
         self.customFatG = customFatG
         self.scheduleAnchor = scheduleAnchor
+        self.dietaryPreference = dietaryPreference
+        self.allergies = allergies
     }
 
     public init(from decoder: Decoder) throws {
@@ -195,6 +232,8 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         customCarbsG = try c.decodeIfPresent(Int.self, forKey: .customCarbsG)
         customFatG = try c.decodeIfPresent(Int.self, forKey: .customFatG)
         scheduleAnchor = try c.decodeIfPresent(ScheduleAnchor.self, forKey: .scheduleAnchor) ?? .daysPerWeek
+        dietaryPreference = try c.decodeIfPresent(DietaryPreference.self, forKey: .dietaryPreference) ?? .none
+        allergies = try c.decodeIfPresent(Set<FoodAllergen>.self, forKey: .allergies) ?? []
     }
 
     public static let `default` = FitnessProfile()

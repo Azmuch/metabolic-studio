@@ -32,7 +32,7 @@ struct WaterDetailView: View {
             .padding(.top, 12)
             .padding(.bottom, 32)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .navigationTitle("Water")
         .navigationBarTitleDisplayMode(.inline)
     }

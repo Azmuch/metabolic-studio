@@ -34,18 +34,16 @@ struct ExerciseDetailView: View {
             .padding(.top, 20)
             .padding(.bottom, 32)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - Hero
 
     private var heroCard: some View {
-        MTCard {
-            ExerciseAnimationView(exercise: exercise)
-                .frame(height: 260)
-                .frame(maxWidth: .infinity)
-        }
+        AnatomyHeroView(exercise: exercise)
+            .frame(height: 300)
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - Muscle map

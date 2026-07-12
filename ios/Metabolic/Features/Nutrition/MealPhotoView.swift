@@ -57,7 +57,7 @@ struct MealPhotoView: View {
                 pickerState
             }
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .sheet(isPresented: $showPaywall) { PaywallView() }
         .sheet(isPresented: $showCamera) {
             CameraPicker { image in pickedImage = image }

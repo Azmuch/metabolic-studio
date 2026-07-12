@@ -27,6 +27,8 @@ struct BodyMapView: View {
 
                 diagrams
 
+                anatomyReference
+
                 customSection
 
                 disclaimer
@@ -34,7 +36,42 @@ struct BodyMapView: View {
             .padding(20)
         }
         .scrollIndicators(.hidden)
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
+    }
+
+    /// Detailed écorché reference figures (bundled by `ios/tools/fetch_anatomy_assets.sh`);
+    /// hidden gracefully until the assets are fetched and committed.
+    @ViewBuilder
+    private var anatomyReference: some View {
+        if let front = UIImage(named: "anatomy.body.front"),
+           let back = UIImage(named: "anatomy.body.back") {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("ANATOMY REFERENCE")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                HStack(spacing: 12) {
+                    anatomyImage(front, caption: "Front")
+                    anatomyImage(back, caption: "Back")
+                }
+            }
+        }
+    }
+
+    private func anatomyImage(_ image: UIImage, caption: String) -> some View {
+        VStack(spacing: 6) {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .background(Color(red: 0.965, green: 0.965, blue: 0.957))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(MTTheme.stroke, lineWidth: 1))
+            Text(caption)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Diagrams

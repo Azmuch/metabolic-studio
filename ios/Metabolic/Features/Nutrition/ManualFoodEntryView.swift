@@ -70,6 +70,7 @@ struct ManualFoodEntryView: View {
                                 showScaleSheet = true
                             } label: {
                                 Image(systemName: "scalemass.fill")
+                                    .symbolEffect(.pulse)
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundStyle(MTTheme.volt)
                                     .frame(width: 30, height: 30)
@@ -88,7 +89,7 @@ struct ManualFoodEntryView: View {
             }
             .padding(20)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .onAppear { nameFocused = true }
         .sheet(isPresented: $showScaleSheet) {
             SmartScaleSheet { grams in

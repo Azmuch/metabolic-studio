@@ -158,7 +158,7 @@ struct SessionPlayerView: View {
 
     private var centerSection: some View {
         VStack(spacing: 16) {
-            ExerciseAnimationView(exercise: currentItem.exercise)
+            AnatomyHeroView(exercise: currentItem.exercise)
                 .frame(width: 300, height: 300)
             VStack(spacing: 6) {
                 Text("SET \(currentSet) OF \(currentItem.sets)")

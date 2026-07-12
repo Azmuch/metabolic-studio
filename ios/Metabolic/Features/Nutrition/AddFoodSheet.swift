@@ -53,7 +53,7 @@ struct AddFoodSheet: View {
                     }
                 }
             }
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -61,6 +61,12 @@ struct AddFoodSheet: View {
                         showHandGuide = true
                     } label: {
                         Label("Hand portions", systemImage: "hand.raised.fill")
+                            .symbolEffect(.pulse)
+                            .phaseAnimator([false, true]) { content, breathe in
+                                content.scaleEffect(breathe ? 1.1 : 1.0)
+                            } animation: { _ in
+                                .easeInOut(duration: 1.1)
+                            }
                     }
                     .foregroundStyle(MTTheme.volt)
                 }

@@ -69,6 +69,32 @@ enum AccentTheme: String, Codable, CaseIterable {
     }
 }
 
+/// How the app's canvas is painted behind the cards.
+enum BackgroundStyle: String, Codable, CaseIterable {
+    case classic     // neutral, as shipped
+    case tinted      // neutrals gently mixed toward the accent
+    case glass       // liquid-glass: translucent cards over an accent-washed backdrop
+    case photo       // user wallpaper behind translucent cards
+
+    var displayName: String {
+        switch self {
+        case .classic: return "Classic"
+        case .tinted: return "Tinted"
+        case .glass: return "Liquid Glass"
+        case .photo: return "Photo"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .classic: return "circle.lefthalf.filled"
+        case .tinted: return "drop.halffull"
+        case .glass: return "sparkles.rectangle.stack"
+        case .photo: return "photo.fill"
+        }
+    }
+}
+
 /// App-wide observable state: fitness profile, computed nutrition targets, onboarding flag,
 /// dashboard layout, and demo-mode flag. All persisted as JSON in `UserDefaults`.
 @Observable
@@ -99,10 +125,31 @@ final class AppState {
     }
 
     var accentTheme: AccentTheme {
-        didSet { UserDefaults.standard.set(accentTheme.rawValue, forKey: Keys.accent) }
+        didSet {
+            UserDefaults.standard.set(accentTheme.rawValue, forKey: Keys.accent)
+            ThemeStore.shared.accent = accentTheme
+        }
+    }
+
+    var backgroundStyle: BackgroundStyle {
+        didSet {
+            UserDefaults.standard.set(backgroundStyle.rawValue, forKey: Keys.background)
+            ThemeStore.shared.backgroundStyle = backgroundStyle
+        }
     }
 
     var selectedTab: AppTab = .today
+
+    /// Saves the user's wallpaper photo (JPEG data) and notifies themed views.
+    func setWallpaper(_ data: Data) {
+        try? data.write(to: ThemeStore.wallpaperURL, options: .atomic)
+        ThemeStore.shared.wallpaperVersion += 1
+    }
+
+    func clearWallpaper() {
+        try? FileManager.default.removeItem(at: ThemeStore.wallpaperURL)
+        ThemeStore.shared.wallpaperVersion += 1
+    }
 
     init() {
         let defaults = UserDefaults.standard
@@ -121,6 +168,8 @@ final class AppState {
         demoMode = defaults.object(forKey: Keys.demo) != nil ? defaults.bool(forKey: Keys.demo) : true
         unitSystem = defaults.string(forKey: Keys.units).flatMap(UnitSystem.init(rawValue:)) ?? .metric
         accentTheme = defaults.string(forKey: Keys.accent).flatMap(AccentTheme.init(rawValue:)) ?? .volt
+        backgroundStyle = defaults.string(forKey: Keys.background)
+            .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
     }
 
     func completeOnboarding(with profile: FitnessProfile) {
@@ -135,6 +184,7 @@ final class AppState {
         static let demo = "mt.demo"
         static let units = "mt.units"
         static let accent = "mt.accent"
+        static let background = "mt.background"
     }
 
     private static func save<T: Encodable>(_ value: T, key: String) {

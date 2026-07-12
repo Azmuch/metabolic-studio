@@ -37,7 +37,7 @@ struct SmartScaleSheet: View {
         }
         .padding(.top, 12)
         .padding(.bottom, 24)
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .onAppear {

@@ -2,6 +2,10 @@ import SwiftUI
 import SwiftData
 import MetabolicCore
 
+/// UserDefaults key gating the one-time diet-preferences prompt; shared by `MealPrepView`
+/// and `DietPreferencesSheet` below.
+private let mealPrepDietPromptedKey = "mt.mealprep.dietPrompted"
+
 /// Weekly meal-prep planner: a deterministic 7-day plan from `MealPlanGenerator`, seeded by
 /// the ISO calendar week plus a stored "regenerate" offset. Per-meal logging inserts each
 /// planned item as its own `FoodEntry`, and an aggregated grocery list supports tap-to-check.
@@ -16,6 +20,7 @@ struct MealPrepView: View {
     @State private var checkedGroceries: Set<String> = []
     @State private var loggedMealKeys: Set<String> = []
     @State private var showGroceryList = true
+    @State private var showDietPrefs = false
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -52,6 +57,7 @@ struct MealPrepView: View {
                         }
                     }
                     dayTotalsFooter(day)
+                    dietSummaryCaption
                 }
 
                 groceryListSection
@@ -60,10 +66,19 @@ struct MealPrepView: View {
             .padding(.top, 12)
             .padding(.bottom, 32)
         }
-        .background(MTTheme.bg)
+        .background(MTBackground())
         .navigationTitle("Meal Prep")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    Haptics.tap()
+                    showDietPrefs = true
+                } label: {
+                    Image(systemName: "fork.knife.circle")
+                }
+                .foregroundStyle(MTTheme.volt)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     regenerate()
@@ -74,7 +89,31 @@ struct MealPrepView: View {
             }
         }
         .onAppear {
-            if week.isEmpty { loadWeek() }
+            // Ask about allergies & preferences before the first plan is built.
+            if !UserDefaults.standard.bool(forKey: mealPrepDietPromptedKey) {
+                showDietPrefs = true
+            } else if week.isEmpty {
+                loadWeek()
+            }
+        }
+        .sheet(isPresented: $showDietPrefs) {
+            DietPreferencesSheet {
+                loadWeek()
+            }
+        }
+    }
+
+    /// Quiet summary of the rules the plan honors, shown under the day totals.
+    @ViewBuilder
+    private var dietSummaryCaption: some View {
+        let p = appState.profile
+        if p.dietaryPreference != .none || !p.allergies.isEmpty {
+            let allergyText = p.allergies.isEmpty ? ""
+                : " · avoiding: " + p.allergies.map(\.displayName).sorted().joined(separator: ", ")
+            Text((p.dietaryPreference == .none ? "Custom" : p.dietaryPreference.displayName) + allergyText)
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
@@ -365,5 +404,116 @@ struct MealPrepView: View {
                 for: [FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self, ScanRecord.self],
                 inMemory: true
             )
+    }
+}
+
+// MARK: - Diet preferences gate
+
+/// Asked once before the first meal plan is built (and reopenable from the toolbar):
+/// diet style + allergies, written straight onto the fitness profile so the whole
+/// planning engine honors them.
+struct DietPreferencesSheet: View {
+    var onSaved: () -> Void
+
+    @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var preference: DietaryPreference = .none
+    @State private var allergies: Set<FoodAllergen> = []
+    @State private var loaded = false
+
+    private let columns = [GridItem(.adaptive(minimum: 110), spacing: 8)]
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                MTSheetHeader(title: "Your food rules")
+
+                Text("We'll build every plan around this.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(MTTheme.textSecondary)
+
+                MTCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("DIET STYLE")
+                            .font(.system(size: 11, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(MTTheme.textTertiary)
+                        ForEach(DietaryPreference.allCases, id: \.self) { option in
+                            Button {
+                                Haptics.tap()
+                                preference = option
+                            } label: {
+                                HStack {
+                                    Text(option.displayName)
+                                        .font(.system(size: 15,
+                                                      weight: preference == option ? .semibold : .regular))
+                                        .foregroundStyle(MTTheme.textPrimary)
+                                    Spacer()
+                                    Image(systemName: preference == option
+                                          ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(preference == option
+                                                         ? MTTheme.volt : MTTheme.textTertiary)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                MTCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("ALLERGIES")
+                            .font(.system(size: 11, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(MTTheme.textTertiary)
+                        LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
+                            ForEach(FoodAllergen.allCases, id: \.self) { allergen in
+                                Button {
+                                    Haptics.tap()
+                                    if allergies.contains(allergen) {
+                                        allergies.remove(allergen)
+                                    } else {
+                                        allergies.insert(allergen)
+                                    }
+                                } label: {
+                                    MTChip(text: allergen.displayName,
+                                           isActive: allergies.contains(allergen))
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        Text("Flagged foods are strictly excluded from generated plans.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textTertiary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                MTPrimaryButton(title: "Build my plan", systemImage: "sparkles") {
+                    var profile = appState.profile
+                    profile.dietaryPreference = preference
+                    profile.allergies = allergies
+                    appState.profile = profile
+                    UserDefaults.standard.set(true, forKey: mealPrepDietPromptedKey)
+                    Haptics.success()
+                    onSaved()
+                    dismiss()
+                }
+            }
+            .padding(20)
+        }
+        .background(MTBackground().ignoresSafeArea())
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .onAppear {
+            guard !loaded else { return }
+            preference = appState.profile.dietaryPreference
+            allergies = appState.profile.allergies
+            loaded = true
+        }
     }
 }

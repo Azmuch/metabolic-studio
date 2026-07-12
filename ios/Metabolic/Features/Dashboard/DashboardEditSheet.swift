@@ -16,7 +16,7 @@ struct DashboardEditSheet: View {
                     locked
                 }
             }
-            .background(MTTheme.bg)
+            .background(MTBackground())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

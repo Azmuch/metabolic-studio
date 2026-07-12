@@ -48,7 +48,7 @@ struct PaywallView: View {
             .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
-        .background(MTTheme.bg.ignoresSafeArea())
+        .background(MTBackground().ignoresSafeArea())
         .overlay(alignment: .topTrailing) {
             Button {
                 dismiss()
