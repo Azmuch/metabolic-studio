@@ -1,8 +1,25 @@
 import SwiftUI
 import StoreKit
 
+/// Errors surfaced by `SubscriptionManager` so the paywall can show *why* a purchase
+/// failed instead of silently doing nothing.
+enum SubscriptionError: LocalizedError {
+    case productsUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .productsUnavailable:
+            return "Store products haven't loaded. Check that the StoreKit configuration "
+                + "is attached to the scheme (Scheme → Run → Options), or that the "
+                + "App Store is reachable, then try again."
+        }
+    }
+}
+
 /// StoreKit 2-backed subscription manager. Loads store products, listens for transaction
 /// updates, and resolves the user's current entitlement into a `SubscriptionTier`.
+/// Main-actor isolated: `tier`/`products` drive SwiftUI, so all mutations land on main.
+@MainActor
 @Observable
 final class SubscriptionManager {
     static let plusMonthlyID = "com.metabolicstudio.metabolic.plus.monthly"
@@ -52,7 +69,9 @@ final class SubscriptionManager {
     }
 
     func purchase(productID: String) async throws {
-        guard let product = product(id: productID) else { return }
+        guard let product = product(id: productID) else {
+            throw SubscriptionError.productsUnavailable
+        }
 
         let result = try await product.purchase()
         switch result {

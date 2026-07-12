@@ -10,6 +10,7 @@ struct PaywallView: View {
 
     @State private var yearly = true
     @State private var purchasingID: String?
+    @State private var purchaseError: String?
 
     private enum ProductIDs {
         static let plusMonthly = "com.metabolicstudio.metabolic.plus.monthly"
@@ -60,6 +61,17 @@ struct PaywallView: View {
                     .background(MTTheme.surface2, in: Circle())
             }
             .padding(16)
+        }
+        .alert(
+            "Purchase failed",
+            isPresented: Binding(
+                get: { purchaseError != nil },
+                set: { if !$0 { purchaseError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(purchaseError ?? "Unknown error.")
         }
     }
 
@@ -238,6 +250,7 @@ struct PaywallView: View {
                 }
             } catch {
                 Haptics.warning()
+                purchaseError = error.localizedDescription
             }
         }
     }
