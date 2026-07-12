@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,24 +15,8 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AB0000000000000000000003 /* Metabolic */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = Metabolic;
-			sourceTree = "<group>";
-		};
-		AB0000000000000000000013 /* Config */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = Config;
-			sourceTree = "<group>";
-		};
+		AB0000000000000000000003 /* Metabolic */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Metabolic; sourceTree = "<group>"; };
+		AB0000000000000000000013 /* Config */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Config; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,7 +102,6 @@
 			packageReferences = (
 				AB0000000000000000000012 /* XCLocalSwiftPackageReference "MetabolicCore" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = AB0000000000000000000006 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
