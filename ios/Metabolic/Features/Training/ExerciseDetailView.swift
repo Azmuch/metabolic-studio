@@ -16,7 +16,6 @@ struct ExerciseDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 heroCard
-                muscleMapCard
 
                 if hasFlaggedInjury {
                     warningBanner
@@ -48,17 +47,6 @@ struct ExerciseDetailView: View {
 
     // MARK: - Muscle map
 
-    private var muscleMapCard: some View {
-        MTCard {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("MUSCLES ACTIVATED")
-                    .font(.system(size: 11, weight: .semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
-                MuscleMapView(highlighted: exercise.muscleGroups)
-            }
-        }
-    }
 
     // MARK: - Injury warning
 
