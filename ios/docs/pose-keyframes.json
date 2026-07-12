@@ -1,0 +1,4626 @@
+{
+ "ankleCircles": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.49,
+     0.18
+    ],
+    "hip": [
+     0.49,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.46,
+     0.4
+    ],
+    "leftKnee": [
+     0.48,
+     0.68
+    ],
+    "leftShoulder": [
+     0.47,
+     0.29
+    ],
+    "leftWrist": [
+     0.45,
+     0.5
+    ],
+    "neck": [
+     0.49,
+     0.28
+    ],
+    "rightAnkle": [
+     0.6,
+     0.68
+    ],
+    "rightElbow": [
+     0.52,
+     0.4
+    ],
+    "rightKnee": [
+     0.56,
+     0.55
+    ],
+    "rightShoulder": [
+     0.51,
+     0.29
+    ],
+    "rightWrist": [
+     0.53,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.49,
+     0.18
+    ],
+    "hip": [
+     0.49,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.46,
+     0.4
+    ],
+    "leftKnee": [
+     0.48,
+     0.68
+    ],
+    "leftShoulder": [
+     0.47,
+     0.29
+    ],
+    "leftWrist": [
+     0.45,
+     0.5
+    ],
+    "neck": [
+     0.49,
+     0.28
+    ],
+    "rightAnkle": [
+     0.64,
+     0.72
+    ],
+    "rightElbow": [
+     0.52,
+     0.4
+    ],
+    "rightKnee": [
+     0.56,
+     0.55
+    ],
+    "rightShoulder": [
+     0.51,
+     0.29
+    ],
+    "rightWrist": [
+     0.53,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.49,
+     0.18
+    ],
+    "hip": [
+     0.49,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.46,
+     0.4
+    ],
+    "leftKnee": [
+     0.48,
+     0.68
+    ],
+    "leftShoulder": [
+     0.47,
+     0.29
+    ],
+    "leftWrist": [
+     0.45,
+     0.5
+    ],
+    "neck": [
+     0.49,
+     0.28
+    ],
+    "rightAnkle": [
+     0.58,
+     0.74
+    ],
+    "rightElbow": [
+     0.52,
+     0.4
+    ],
+    "rightKnee": [
+     0.56,
+     0.55
+    ],
+    "rightShoulder": [
+     0.51,
+     0.29
+    ],
+    "rightWrist": [
+     0.53,
+     0.5
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "calves"
+  ],
+  "secondsPerCycle": 2.0
+ },
+ "bandPullApart": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.44,
+     0.29
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.42,
+     0.29
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.56,
+     0.29
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.58,
+     0.29
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.32,
+     0.29
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.22,
+     0.29
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.68,
+     0.29
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.78,
+     0.29
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "shoulders",
+   "back"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "bandRow": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.44,
+     0.36
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.36,
+     0.38
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.56,
+     0.36
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.64,
+     0.38
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.4,
+     0.34
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.42,
+     0.38
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.6,
+     0.34
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.58,
+     0.38
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "arms"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "birdDog": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.3,
+     0.45
+    ],
+    "hip": [
+     0.58,
+     0.55
+    ],
+    "leftAnkle": [
+     0.63,
+     0.7
+    ],
+    "leftElbow": [
+     0.41,
+     0.6
+    ],
+    "leftKnee": [
+     0.58,
+     0.68
+    ],
+    "leftShoulder": [
+     0.41,
+     0.495
+    ],
+    "leftWrist": [
+     0.41,
+     0.71
+    ],
+    "neck": [
+     0.4,
+     0.48
+    ],
+    "rightAnkle": [
+     0.63,
+     0.67
+    ],
+    "rightElbow": [
+     0.41,
+     0.57
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.41,
+     0.465
+    ],
+    "rightWrist": [
+     0.41,
+     0.68
+    ]
+   },
+   {
+    "head": [
+     0.28,
+     0.42
+    ],
+    "hip": [
+     0.58,
+     0.55
+    ],
+    "leftAnkle": [
+     0.85,
+     0.6
+    ],
+    "leftElbow": [
+     0.39,
+     0.57
+    ],
+    "leftKnee": [
+     0.72,
+     0.62
+    ],
+    "leftShoulder": [
+     0.39,
+     0.465
+    ],
+    "leftWrist": [
+     0.39,
+     0.68
+    ],
+    "neck": [
+     0.38,
+     0.45
+    ],
+    "rightAnkle": [
+     0.63,
+     0.67
+    ],
+    "rightElbow": [
+     0.3,
+     0.4
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.39,
+     0.435
+    ],
+    "rightWrist": [
+     0.2,
+     0.38
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "core",
+   "back"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "burpee": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.54,
+     0.35
+    ],
+    "hip": [
+     0.47,
+     0.6
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.55,
+     0.55
+    ],
+    "leftKnee": [
+     0.53,
+     0.68
+    ],
+    "leftShoulder": [
+     0.5,
+     0.43
+    ],
+    "leftWrist": [
+     0.58,
+     0.68
+    ],
+    "neck": [
+     0.52,
+     0.42
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.58,
+     0.56
+    ],
+    "rightKnee": [
+     0.55,
+     0.69
+    ],
+    "rightShoulder": [
+     0.54,
+     0.43
+    ],
+    "rightWrist": [
+     0.6,
+     0.69
+    ]
+   },
+   {
+    "head": [
+     0.24,
+     0.58
+    ],
+    "hip": [
+     0.56,
+     0.6
+    ],
+    "leftAnkle": [
+     0.87,
+     0.63
+    ],
+    "leftElbow": [
+     0.34,
+     0.7
+    ],
+    "leftKnee": [
+     0.72,
+     0.615
+    ],
+    "leftShoulder": [
+     0.34,
+     0.6
+    ],
+    "leftWrist": [
+     0.34,
+     0.81
+    ],
+    "neck": [
+     0.33,
+     0.585
+    ],
+    "rightAnkle": [
+     0.87,
+     0.62
+    ],
+    "rightElbow": [
+     0.34,
+     0.68
+    ],
+    "rightKnee": [
+     0.72,
+     0.605
+    ],
+    "rightShoulder": [
+     0.34,
+     0.57
+    ],
+    "rightWrist": [
+     0.34,
+     0.79
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.1
+    ],
+    "hip": [
+     0.5,
+     0.44
+    ],
+    "leftAnkle": [
+     0.48,
+     0.76
+    ],
+    "leftElbow": [
+     0.42,
+     0.1
+    ],
+    "leftKnee": [
+     0.49,
+     0.6
+    ],
+    "leftShoulder": [
+     0.47,
+     0.21
+    ],
+    "leftWrist": [
+     0.38,
+     0.02
+    ],
+    "neck": [
+     0.5,
+     0.2
+    ],
+    "rightAnkle": [
+     0.52,
+     0.76
+    ],
+    "rightElbow": [
+     0.58,
+     0.1
+    ],
+    "rightKnee": [
+     0.51,
+     0.6
+    ],
+    "rightShoulder": [
+     0.53,
+     0.21
+    ],
+    "rightWrist": [
+     0.62,
+     0.02
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "fullBody",
+   "cardio"
+  ],
+  "secondsPerCycle": 3.5
+ },
+ "calfRaise": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.17
+    ],
+    "hip": [
+     0.5,
+     0.51
+    ],
+    "leftAnkle": [
+     0.48,
+     0.815
+    ],
+    "leftElbow": [
+     0.47,
+     0.39
+    ],
+    "leftKnee": [
+     0.49,
+     0.665
+    ],
+    "leftShoulder": [
+     0.48,
+     0.28
+    ],
+    "leftWrist": [
+     0.46,
+     0.49
+    ],
+    "neck": [
+     0.5,
+     0.27
+    ],
+    "rightAnkle": [
+     0.52,
+     0.815
+    ],
+    "rightElbow": [
+     0.53,
+     0.39
+    ],
+    "rightKnee": [
+     0.51,
+     0.665
+    ],
+    "rightShoulder": [
+     0.52,
+     0.28
+    ],
+    "rightWrist": [
+     0.54,
+     0.49
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "calves"
+  ],
+  "secondsPerCycle": 2.0
+ },
+ "calfStretch": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.42,
+     0.22
+    ],
+    "hip": [
+     0.4,
+     0.55
+    ],
+    "leftAnkle": [
+     0.26,
+     0.85
+    ],
+    "leftElbow": [
+     0.53,
+     0.36
+    ],
+    "leftKnee": [
+     0.34,
+     0.7
+    ],
+    "leftShoulder": [
+     0.43,
+     0.33
+    ],
+    "leftWrist": [
+     0.62,
+     0.38
+    ],
+    "neck": [
+     0.44,
+     0.32
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.55,
+     0.36
+    ],
+    "rightKnee": [
+     0.5,
+     0.7
+    ],
+    "rightShoulder": [
+     0.45,
+     0.33
+    ],
+    "rightWrist": [
+     0.64,
+     0.38
+    ]
+   },
+   {
+    "head": [
+     0.44,
+     0.23
+    ],
+    "hip": [
+     0.42,
+     0.56
+    ],
+    "leftAnkle": [
+     0.26,
+     0.85
+    ],
+    "leftElbow": [
+     0.55,
+     0.37
+    ],
+    "leftKnee": [
+     0.35,
+     0.7
+    ],
+    "leftShoulder": [
+     0.45,
+     0.34
+    ],
+    "leftWrist": [
+     0.64,
+     0.39
+    ],
+    "neck": [
+     0.46,
+     0.33
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.57,
+     0.37
+    ],
+    "rightKnee": [
+     0.51,
+     0.7
+    ],
+    "rightShoulder": [
+     0.47,
+     0.34
+    ],
+    "rightWrist": [
+     0.66,
+     0.39
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "calves"
+  ],
+  "secondsPerCycle": 4.0
+ },
+ "catCow": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.28,
+     0.4
+    ],
+    "hip": [
+     0.58,
+     0.53
+    ],
+    "leftAnkle": [
+     0.64,
+     0.7
+    ],
+    "leftElbow": [
+     0.4,
+     0.59
+    ],
+    "leftKnee": [
+     0.58,
+     0.67
+    ],
+    "leftShoulder": [
+     0.4,
+     0.485
+    ],
+    "leftWrist": [
+     0.4,
+     0.71
+    ],
+    "neck": [
+     0.39,
+     0.47
+    ],
+    "rightAnkle": [
+     0.64,
+     0.68
+    ],
+    "rightElbow": [
+     0.4,
+     0.57
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.4,
+     0.455
+    ],
+    "rightWrist": [
+     0.4,
+     0.69
+    ]
+   },
+   {
+    "head": [
+     0.33,
+     0.53
+    ],
+    "hip": [
+     0.58,
+     0.51
+    ],
+    "leftAnkle": [
+     0.64,
+     0.7
+    ],
+    "leftElbow": [
+     0.41,
+     0.58
+    ],
+    "leftKnee": [
+     0.58,
+     0.67
+    ],
+    "leftShoulder": [
+     0.42,
+     0.455
+    ],
+    "leftWrist": [
+     0.4,
+     0.71
+    ],
+    "neck": [
+     0.41,
+     0.44
+    ],
+    "rightAnkle": [
+     0.64,
+     0.68
+    ],
+    "rightElbow": [
+     0.41,
+     0.56
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.42,
+     0.425
+    ],
+    "rightWrist": [
+     0.4,
+     0.69
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "core"
+  ],
+  "secondsPerCycle": 4.0
+ },
+ "childsPose": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.3,
+     0.62
+    ],
+    "hip": [
+     0.58,
+     0.62
+    ],
+    "leftAnkle": [
+     0.72,
+     0.8
+    ],
+    "leftElbow": [
+     0.28,
+     0.64
+    ],
+    "leftKnee": [
+     0.61,
+     0.78
+    ],
+    "leftShoulder": [
+     0.39,
+     0.595
+    ],
+    "leftWrist": [
+     0.18,
+     0.68
+    ],
+    "neck": [
+     0.38,
+     0.58
+    ],
+    "rightAnkle": [
+     0.72,
+     0.78
+    ],
+    "rightElbow": [
+     0.28,
+     0.62
+    ],
+    "rightKnee": [
+     0.61,
+     0.76
+    ],
+    "rightShoulder": [
+     0.39,
+     0.565
+    ],
+    "rightWrist": [
+     0.18,
+     0.66
+    ]
+   },
+   {
+    "head": [
+     0.3,
+     0.63
+    ],
+    "hip": [
+     0.58,
+     0.62
+    ],
+    "leftAnkle": [
+     0.72,
+     0.8
+    ],
+    "leftElbow": [
+     0.28,
+     0.65
+    ],
+    "leftKnee": [
+     0.61,
+     0.78
+    ],
+    "leftShoulder": [
+     0.39,
+     0.605
+    ],
+    "leftWrist": [
+     0.18,
+     0.68
+    ],
+    "neck": [
+     0.38,
+     0.59
+    ],
+    "rightAnkle": [
+     0.72,
+     0.78
+    ],
+    "rightElbow": [
+     0.28,
+     0.63
+    ],
+    "rightKnee": [
+     0.61,
+     0.76
+    ],
+    "rightShoulder": [
+     0.39,
+     0.575
+    ],
+    "rightWrist": [
+     0.18,
+     0.66
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back"
+  ],
+  "secondsPerCycle": 4.0
+ },
+ "dbCurl": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.44,
+     0.3
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.56,
+     0.3
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "arms"
+  ],
+  "secondsPerCycle": 2.0
+ },
+ "dbRomanianDeadlift": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.62,
+     0.34
+    ],
+    "hip": [
+     0.42,
+     0.54
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.56,
+     0.54
+    ],
+    "leftKnee": [
+     0.47,
+     0.69
+    ],
+    "leftShoulder": [
+     0.54,
+     0.41
+    ],
+    "leftWrist": [
+     0.57,
+     0.66
+    ],
+    "neck": [
+     0.56,
+     0.4
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.6,
+     0.54
+    ],
+    "rightKnee": [
+     0.49,
+     0.69
+    ],
+    "rightShoulder": [
+     0.58,
+     0.41
+    ],
+    "rightWrist": [
+     0.61,
+     0.66
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "hamstrings",
+   "glutes",
+   "back"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "dbRow": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.24,
+     0.38
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.5,
+     0.84
+    ],
+    "leftElbow": [
+     0.35,
+     0.55
+    ],
+    "leftKnee": [
+     0.52,
+     0.68
+    ],
+    "leftShoulder": [
+     0.34,
+     0.44
+    ],
+    "leftWrist": [
+     0.36,
+     0.66
+    ],
+    "neck": [
+     0.32,
+     0.42
+    ],
+    "rightAnkle": [
+     0.54,
+     0.84
+    ],
+    "rightElbow": [
+     0.35,
+     0.52
+    ],
+    "rightKnee": [
+     0.54,
+     0.68
+    ],
+    "rightShoulder": [
+     0.34,
+     0.41
+    ],
+    "rightWrist": [
+     0.36,
+     0.63
+    ]
+   },
+   {
+    "head": [
+     0.24,
+     0.38
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.5,
+     0.84
+    ],
+    "leftElbow": [
+     0.44,
+     0.46
+    ],
+    "leftKnee": [
+     0.52,
+     0.68
+    ],
+    "leftShoulder": [
+     0.34,
+     0.44
+    ],
+    "leftWrist": [
+     0.4,
+     0.5
+    ],
+    "neck": [
+     0.32,
+     0.42
+    ],
+    "rightAnkle": [
+     0.54,
+     0.84
+    ],
+    "rightElbow": [
+     0.44,
+     0.43
+    ],
+    "rightKnee": [
+     0.54,
+     0.68
+    ],
+    "rightShoulder": [
+     0.34,
+     0.41
+    ],
+    "rightWrist": [
+     0.4,
+     0.47
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "arms"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "dbShoulderPress": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.44,
+     0.34
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.44,
+     0.24
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.56,
+     0.34
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.56,
+     0.24
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.42,
+     0.2
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.4,
+     0.08
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.58,
+     0.2
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.6,
+     0.08
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "shoulders",
+   "arms"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "deadBug": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.6
+    ],
+    "hip": [
+     0.5,
+     0.6
+    ],
+    "leftAnkle": [
+     0.63,
+     0.47
+    ],
+    "leftElbow": [
+     0.31,
+     0.475
+    ],
+    "leftKnee": [
+     0.5,
+     0.47
+    ],
+    "leftShoulder": [
+     0.31,
+     0.585
+    ],
+    "leftWrist": [
+     0.31,
+     0.37
+    ],
+    "neck": [
+     0.3,
+     0.6
+    ],
+    "rightAnkle": [
+     0.63,
+     0.49
+    ],
+    "rightElbow": [
+     0.31,
+     0.505
+    ],
+    "rightKnee": [
+     0.5,
+     0.49
+    ],
+    "rightShoulder": [
+     0.31,
+     0.615
+    ],
+    "rightWrist": [
+     0.31,
+     0.4
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.6
+    ],
+    "hip": [
+     0.5,
+     0.6
+    ],
+    "leftAnkle": [
+     0.63,
+     0.47
+    ],
+    "leftElbow": [
+     0.31,
+     0.475
+    ],
+    "leftKnee": [
+     0.5,
+     0.47
+    ],
+    "leftShoulder": [
+     0.31,
+     0.585
+    ],
+    "leftWrist": [
+     0.31,
+     0.37
+    ],
+    "neck": [
+     0.3,
+     0.6
+    ],
+    "rightAnkle": [
+     0.85,
+     0.6
+    ],
+    "rightElbow": [
+     0.18,
+     0.55
+    ],
+    "rightKnee": [
+     0.68,
+     0.58
+    ],
+    "rightShoulder": [
+     0.31,
+     0.615
+    ],
+    "rightWrist": [
+     0.1,
+     0.58
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "core"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "figureFourStretch": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.62
+    ],
+    "hip": [
+     0.5,
+     0.62
+    ],
+    "leftAnkle": [
+     0.6,
+     0.6
+    ],
+    "leftElbow": [
+     0.42,
+     0.54
+    ],
+    "leftKnee": [
+     0.6,
+     0.48
+    ],
+    "leftShoulder": [
+     0.31,
+     0.605
+    ],
+    "leftWrist": [
+     0.52,
+     0.48
+    ],
+    "neck": [
+     0.3,
+     0.62
+    ],
+    "rightAnkle": [
+     0.64,
+     0.48
+    ],
+    "rightElbow": [
+     0.42,
+     0.57
+    ],
+    "rightKnee": [
+     0.54,
+     0.44
+    ],
+    "rightShoulder": [
+     0.31,
+     0.635
+    ],
+    "rightWrist": [
+     0.52,
+     0.51
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.62
+    ],
+    "hip": [
+     0.5,
+     0.62
+    ],
+    "leftAnkle": [
+     0.58,
+     0.59
+    ],
+    "leftElbow": [
+     0.41,
+     0.53
+    ],
+    "leftKnee": [
+     0.58,
+     0.47
+    ],
+    "leftShoulder": [
+     0.31,
+     0.605
+    ],
+    "leftWrist": [
+     0.5,
+     0.46
+    ],
+    "neck": [
+     0.3,
+     0.62
+    ],
+    "rightAnkle": [
+     0.62,
+     0.47
+    ],
+    "rightElbow": [
+     0.41,
+     0.56
+    ],
+    "rightKnee": [
+     0.52,
+     0.43
+    ],
+    "rightShoulder": [
+     0.31,
+     0.635
+    ],
+    "rightWrist": [
+     0.5,
+     0.49
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "glutes"
+  ],
+  "secondsPerCycle": 4.0
+ },
+ "gluteBridge": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.6
+    ],
+    "hip": [
+     0.5,
+     0.65
+    ],
+    "leftAnkle": [
+     0.68,
+     0.65
+    ],
+    "leftElbow": [
+     0.31,
+     0.6
+    ],
+    "leftKnee": [
+     0.62,
+     0.53
+    ],
+    "leftShoulder": [
+     0.31,
+     0.585
+    ],
+    "leftWrist": [
+     0.31,
+     0.6
+    ],
+    "neck": [
+     0.3,
+     0.6
+    ],
+    "rightAnkle": [
+     0.68,
+     0.67
+    ],
+    "rightElbow": [
+     0.31,
+     0.62
+    ],
+    "rightKnee": [
+     0.62,
+     0.55
+    ],
+    "rightShoulder": [
+     0.31,
+     0.615
+    ],
+    "rightWrist": [
+     0.31,
+     0.62
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.6
+    ],
+    "hip": [
+     0.5,
+     0.57
+    ],
+    "leftAnkle": [
+     0.68,
+     0.65
+    ],
+    "leftElbow": [
+     0.31,
+     0.6
+    ],
+    "leftKnee": [
+     0.62,
+     0.53
+    ],
+    "leftShoulder": [
+     0.31,
+     0.585
+    ],
+    "leftWrist": [
+     0.31,
+     0.6
+    ],
+    "neck": [
+     0.3,
+     0.6
+    ],
+    "rightAnkle": [
+     0.68,
+     0.67
+    ],
+    "rightElbow": [
+     0.31,
+     0.62
+    ],
+    "rightKnee": [
+     0.62,
+     0.55
+    ],
+    "rightShoulder": [
+     0.31,
+     0.615
+    ],
+    "rightWrist": [
+     0.31,
+     0.62
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "glutes",
+   "hamstrings"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "gobletSquat": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.46,
+     0.38
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.48,
+     0.44
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.54,
+     0.38
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.52,
+     0.44
+    ]
+   },
+   {
+    "head": [
+     0.51,
+     0.33
+    ],
+    "hip": [
+     0.48,
+     0.64
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.48,
+     0.52
+    ],
+    "leftKnee": [
+     0.53,
+     0.7
+    ],
+    "leftShoulder": [
+     0.49,
+     0.43
+    ],
+    "leftWrist": [
+     0.49,
+     0.58
+    ],
+    "neck": [
+     0.51,
+     0.42
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.54,
+     0.52
+    ],
+    "rightKnee": [
+     0.56,
+     0.71
+    ],
+    "rightShoulder": [
+     0.53,
+     0.43
+    ],
+    "rightWrist": [
+     0.53,
+     0.58
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "quads",
+   "glutes"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "hamstringStretch": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.63,
+     0.36
+    ],
+    "hip": [
+     0.42,
+     0.54
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.57,
+     0.54
+    ],
+    "leftKnee": [
+     0.46,
+     0.69
+    ],
+    "leftShoulder": [
+     0.55,
+     0.43
+    ],
+    "leftWrist": [
+     0.57,
+     0.66
+    ],
+    "neck": [
+     0.57,
+     0.42
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.6,
+     0.54
+    ],
+    "rightKnee": [
+     0.48,
+     0.69
+    ],
+    "rightShoulder": [
+     0.59,
+     0.43
+    ],
+    "rightWrist": [
+     0.59,
+     0.66
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "hamstrings",
+   "back"
+  ],
+  "secondsPerCycle": 4.0
+ },
+ "highKnees": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.51,
+     0.17
+    ],
+    "hip": [
+     0.51,
+     0.51
+    ],
+    "leftAnkle": [
+     0.49,
+     0.84
+    ],
+    "leftElbow": [
+     0.48,
+     0.38
+    ],
+    "leftKnee": [
+     0.5,
+     0.67
+    ],
+    "leftShoulder": [
+     0.49,
+     0.28
+    ],
+    "leftWrist": [
+     0.47,
+     0.47
+    ],
+    "neck": [
+     0.51,
+     0.27
+    ],
+    "rightAnkle": [
+     0.6,
+     0.55
+    ],
+    "rightElbow": [
+     0.58,
+     0.32
+    ],
+    "rightKnee": [
+     0.58,
+     0.4
+    ],
+    "rightShoulder": [
+     0.53,
+     0.28
+    ],
+    "rightWrist": [
+     0.62,
+     0.24
+    ]
+   },
+   {
+    "head": [
+     0.51,
+     0.17
+    ],
+    "hip": [
+     0.51,
+     0.51
+    ],
+    "leftAnkle": [
+     0.42,
+     0.55
+    ],
+    "leftElbow": [
+     0.44,
+     0.32
+    ],
+    "leftKnee": [
+     0.44,
+     0.4
+    ],
+    "leftShoulder": [
+     0.49,
+     0.28
+    ],
+    "leftWrist": [
+     0.4,
+     0.24
+    ],
+    "neck": [
+     0.51,
+     0.27
+    ],
+    "rightAnkle": [
+     0.53,
+     0.84
+    ],
+    "rightElbow": [
+     0.54,
+     0.38
+    ],
+    "rightKnee": [
+     0.52,
+     0.67
+    ],
+    "rightShoulder": [
+     0.53,
+     0.28
+    ],
+    "rightWrist": [
+     0.55,
+     0.47
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "cardio"
+  ],
+  "secondsPerCycle": 0.8
+ },
+ "hipFlexorStretch": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.48,
+     0.24
+    ],
+    "hip": [
+     0.47,
+     0.58
+    ],
+    "leftAnkle": [
+     0.26,
+     0.86
+    ],
+    "leftElbow": [
+     0.45,
+     0.46
+    ],
+    "leftKnee": [
+     0.38,
+     0.84
+    ],
+    "leftShoulder": [
+     0.46,
+     0.35
+    ],
+    "leftWrist": [
+     0.44,
+     0.55
+    ],
+    "neck": [
+     0.48,
+     0.34
+    ],
+    "rightAnkle": [
+     0.6,
+     0.86
+    ],
+    "rightElbow": [
+     0.51,
+     0.46
+    ],
+    "rightKnee": [
+     0.6,
+     0.7
+    ],
+    "rightShoulder": [
+     0.5,
+     0.35
+    ],
+    "rightWrist": [
+     0.52,
+     0.55
+    ]
+   },
+   {
+    "head": [
+     0.52,
+     0.24
+    ],
+    "hip": [
+     0.51,
+     0.58
+    ],
+    "leftAnkle": [
+     0.26,
+     0.86
+    ],
+    "leftElbow": [
+     0.49,
+     0.46
+    ],
+    "leftKnee": [
+     0.38,
+     0.84
+    ],
+    "leftShoulder": [
+     0.5,
+     0.35
+    ],
+    "leftWrist": [
+     0.48,
+     0.55
+    ],
+    "neck": [
+     0.52,
+     0.34
+    ],
+    "rightAnkle": [
+     0.6,
+     0.86
+    ],
+    "rightElbow": [
+     0.55,
+     0.46
+    ],
+    "rightKnee": [
+     0.62,
+     0.7
+    ],
+    "rightShoulder": [
+     0.54,
+     0.35
+    ],
+    "rightWrist": [
+     0.56,
+     0.55
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "quads",
+   "glutes"
+  ],
+  "secondsPerCycle": 3.5
+ },
+ "jumpingJack": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.47,
+     0.84
+    ],
+    "leftElbow": [
+     0.4,
+     0.42
+    ],
+    "leftKnee": [
+     0.47,
+     0.68
+    ],
+    "leftShoulder": [
+     0.42,
+     0.3
+    ],
+    "leftWrist": [
+     0.39,
+     0.53
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.53,
+     0.84
+    ],
+    "rightElbow": [
+     0.6,
+     0.42
+    ],
+    "rightKnee": [
+     0.53,
+     0.68
+    ],
+    "rightShoulder": [
+     0.58,
+     0.3
+    ],
+    "rightWrist": [
+     0.61,
+     0.53
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.16
+    ],
+    "hip": [
+     0.5,
+     0.5
+    ],
+    "leftAnkle": [
+     0.32,
+     0.84
+    ],
+    "leftElbow": [
+     0.3,
+     0.16
+    ],
+    "leftKnee": [
+     0.38,
+     0.67
+    ],
+    "leftShoulder": [
+     0.42,
+     0.28
+    ],
+    "leftWrist": [
+     0.24,
+     0.06
+    ],
+    "neck": [
+     0.5,
+     0.26
+    ],
+    "rightAnkle": [
+     0.68,
+     0.84
+    ],
+    "rightElbow": [
+     0.7,
+     0.16
+    ],
+    "rightKnee": [
+     0.62,
+     0.67
+    ],
+    "rightShoulder": [
+     0.58,
+     0.28
+    ],
+    "rightWrist": [
+     0.76,
+     0.06
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "cardio",
+   "fullBody"
+  ],
+  "secondsPerCycle": 1.0
+ },
+ "kbSwing": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.62,
+     0.36
+    ],
+    "hip": [
+     0.42,
+     0.56
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.56,
+     0.54
+    ],
+    "leftKnee": [
+     0.48,
+     0.69
+    ],
+    "leftShoulder": [
+     0.54,
+     0.43
+    ],
+    "leftWrist": [
+     0.55,
+     0.66
+    ],
+    "neck": [
+     0.56,
+     0.42
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.6,
+     0.54
+    ],
+    "rightKnee": [
+     0.5,
+     0.69
+    ],
+    "rightShoulder": [
+     0.58,
+     0.43
+    ],
+    "rightWrist": [
+     0.59,
+     0.66
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.5
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.46,
+     0.38
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.47,
+     0.42
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.54,
+     0.38
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.53,
+     0.42
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "glutes",
+   "hamstrings",
+   "cardio"
+  ],
+  "secondsPerCycle": 1.5
+ },
+ "kneePushUp": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.24,
+     0.6
+    ],
+    "hip": [
+     0.52,
+     0.62
+    ],
+    "leftAnkle": [
+     0.58,
+     0.78
+    ],
+    "leftElbow": [
+     0.34,
+     0.72
+    ],
+    "leftKnee": [
+     0.62,
+     0.83
+    ],
+    "leftShoulder": [
+     0.34,
+     0.62
+    ],
+    "leftWrist": [
+     0.34,
+     0.83
+    ],
+    "neck": [
+     0.33,
+     0.605
+    ],
+    "rightAnkle": [
+     0.58,
+     0.77
+    ],
+    "rightElbow": [
+     0.34,
+     0.7
+    ],
+    "rightKnee": [
+     0.62,
+     0.82
+    ],
+    "rightShoulder": [
+     0.34,
+     0.59
+    ],
+    "rightWrist": [
+     0.34,
+     0.81
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.66
+    ],
+    "hip": [
+     0.5,
+     0.68
+    ],
+    "leftAnkle": [
+     0.58,
+     0.78
+    ],
+    "leftElbow": [
+     0.39,
+     0.7
+    ],
+    "leftKnee": [
+     0.62,
+     0.83
+    ],
+    "leftShoulder": [
+     0.32,
+     0.68
+    ],
+    "leftWrist": [
+     0.34,
+     0.83
+    ],
+    "neck": [
+     0.31,
+     0.665
+    ],
+    "rightAnkle": [
+     0.58,
+     0.77
+    ],
+    "rightElbow": [
+     0.39,
+     0.68
+    ],
+    "rightKnee": [
+     0.62,
+     0.82
+    ],
+    "rightShoulder": [
+     0.32,
+     0.65
+    ],
+    "rightWrist": [
+     0.34,
+     0.81
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "chest",
+   "arms"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "lateralRaise": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.34,
+     0.28
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.24,
+     0.29
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.66,
+     0.28
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.76,
+     0.29
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "shoulders"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "lunge": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.16
+    ],
+    "hip": [
+     0.5,
+     0.5
+    ],
+    "leftAnkle": [
+     0.4,
+     0.82
+    ],
+    "leftElbow": [
+     0.47,
+     0.36
+    ],
+    "leftKnee": [
+     0.44,
+     0.65
+    ],
+    "leftShoulder": [
+     0.48,
+     0.27
+    ],
+    "leftWrist": [
+     0.46,
+     0.46
+    ],
+    "neck": [
+     0.5,
+     0.26
+    ],
+    "rightAnkle": [
+     0.6,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.36
+    ],
+    "rightKnee": [
+     0.56,
+     0.66
+    ],
+    "rightShoulder": [
+     0.52,
+     0.27
+    ],
+    "rightWrist": [
+     0.54,
+     0.46
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.24
+    ],
+    "hip": [
+     0.5,
+     0.58
+    ],
+    "leftAnkle": [
+     0.4,
+     0.85
+    ],
+    "leftElbow": [
+     0.47,
+     0.45
+    ],
+    "leftKnee": [
+     0.4,
+     0.72
+    ],
+    "leftShoulder": [
+     0.48,
+     0.35
+    ],
+    "leftWrist": [
+     0.46,
+     0.55
+    ],
+    "neck": [
+     0.5,
+     0.34
+    ],
+    "rightAnkle": [
+     0.62,
+     0.88
+    ],
+    "rightElbow": [
+     0.53,
+     0.45
+    ],
+    "rightKnee": [
+     0.58,
+     0.76
+    ],
+    "rightShoulder": [
+     0.52,
+     0.35
+    ],
+    "rightWrist": [
+     0.54,
+     0.55
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "quads",
+   "glutes"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "mountainClimber": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.59
+    ],
+    "hip": [
+     0.55,
+     0.61
+    ],
+    "leftAnkle": [
+     0.85,
+     0.64
+    ],
+    "leftElbow": [
+     0.33,
+     0.71
+    ],
+    "leftKnee": [
+     0.7,
+     0.625
+    ],
+    "leftShoulder": [
+     0.33,
+     0.61
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.32,
+     0.595
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.33,
+     0.69
+    ],
+    "rightKnee": [
+     0.7,
+     0.615
+    ],
+    "rightShoulder": [
+     0.33,
+     0.58
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.59
+    ],
+    "hip": [
+     0.53,
+     0.6
+    ],
+    "leftAnkle": [
+     0.35,
+     0.72
+    ],
+    "leftElbow": [
+     0.33,
+     0.71
+    ],
+    "leftKnee": [
+     0.4,
+     0.62
+    ],
+    "leftShoulder": [
+     0.33,
+     0.61
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.32,
+     0.595
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.33,
+     0.69
+    ],
+    "rightKnee": [
+     0.7,
+     0.615
+    ],
+    "rightShoulder": [
+     0.33,
+     0.58
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "core",
+   "cardio"
+  ],
+  "secondsPerCycle": 1.0
+ },
+ "neckRelease": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.47,
+     0.19
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.53,
+     0.19
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "shoulders"
+  ],
+  "secondsPerCycle": 5.0
+ },
+ "plank": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.59
+    ],
+    "hip": [
+     0.55,
+     0.61
+    ],
+    "leftAnkle": [
+     0.85,
+     0.64
+    ],
+    "leftElbow": [
+     0.33,
+     0.71
+    ],
+    "leftKnee": [
+     0.7,
+     0.625
+    ],
+    "leftShoulder": [
+     0.33,
+     0.61
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.32,
+     0.595
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.33,
+     0.69
+    ],
+    "rightKnee": [
+     0.7,
+     0.615
+    ],
+    "rightShoulder": [
+     0.33,
+     0.58
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   },
+   {
+    "head": [
+     0.22,
+     0.595
+    ],
+    "hip": [
+     0.55,
+     0.615
+    ],
+    "leftAnkle": [
+     0.85,
+     0.64
+    ],
+    "leftElbow": [
+     0.33,
+     0.715
+    ],
+    "leftKnee": [
+     0.7,
+     0.63
+    ],
+    "leftShoulder": [
+     0.33,
+     0.615
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.32,
+     0.6
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.33,
+     0.695
+    ],
+    "rightKnee": [
+     0.7,
+     0.62
+    ],
+    "rightShoulder": [
+     0.33,
+     0.585
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "core"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "pullUp": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.3
+    ],
+    "hip": [
+     0.5,
+     0.58
+    ],
+    "leftAnkle": [
+     0.48,
+     0.9
+    ],
+    "leftElbow": [
+     0.42,
+     0.28
+    ],
+    "leftKnee": [
+     0.49,
+     0.74
+    ],
+    "leftShoulder": [
+     0.46,
+     0.39
+    ],
+    "leftWrist": [
+     0.4,
+     0.16
+    ],
+    "neck": [
+     0.5,
+     0.38
+    ],
+    "rightAnkle": [
+     0.52,
+     0.9
+    ],
+    "rightElbow": [
+     0.58,
+     0.28
+    ],
+    "rightKnee": [
+     0.51,
+     0.74
+    ],
+    "rightShoulder": [
+     0.54,
+     0.39
+    ],
+    "rightWrist": [
+     0.6,
+     0.16
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.44
+    ],
+    "leftAnkle": [
+     0.48,
+     0.76
+    ],
+    "leftElbow": [
+     0.4,
+     0.24
+    ],
+    "leftKnee": [
+     0.49,
+     0.6
+    ],
+    "leftShoulder": [
+     0.46,
+     0.25
+    ],
+    "leftWrist": [
+     0.4,
+     0.16
+    ],
+    "neck": [
+     0.5,
+     0.24
+    ],
+    "rightAnkle": [
+     0.52,
+     0.76
+    ],
+    "rightElbow": [
+     0.6,
+     0.24
+    ],
+    "rightKnee": [
+     0.51,
+     0.6
+    ],
+    "rightShoulder": [
+     0.54,
+     0.25
+    ],
+    "rightWrist": [
+     0.6,
+     0.16
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "arms"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "pushUp": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.22,
+     0.59
+    ],
+    "hip": [
+     0.55,
+     0.61
+    ],
+    "leftAnkle": [
+     0.85,
+     0.64
+    ],
+    "leftElbow": [
+     0.33,
+     0.71
+    ],
+    "leftKnee": [
+     0.7,
+     0.625
+    ],
+    "leftShoulder": [
+     0.33,
+     0.61
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.32,
+     0.595
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.33,
+     0.69
+    ],
+    "rightKnee": [
+     0.7,
+     0.615
+    ],
+    "rightShoulder": [
+     0.33,
+     0.58
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   },
+   {
+    "head": [
+     0.2,
+     0.65
+    ],
+    "hip": [
+     0.53,
+     0.65
+    ],
+    "leftAnkle": [
+     0.85,
+     0.64
+    ],
+    "leftElbow": [
+     0.38,
+     0.69
+    ],
+    "leftKnee": [
+     0.69,
+     0.645
+    ],
+    "leftShoulder": [
+     0.31,
+     0.67
+    ],
+    "leftWrist": [
+     0.33,
+     0.82
+    ],
+    "neck": [
+     0.3,
+     0.655
+    ],
+    "rightAnkle": [
+     0.85,
+     0.63
+    ],
+    "rightElbow": [
+     0.38,
+     0.67
+    ],
+    "rightKnee": [
+     0.69,
+     0.635
+    ],
+    "rightShoulder": [
+     0.31,
+     0.64
+    ],
+    "rightWrist": [
+     0.33,
+     0.8
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "chest",
+   "arms",
+   "core"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "shoulderCircles": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.45,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.43,
+     0.49
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.55,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.57,
+     0.49
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.42,
+     0.36
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.28
+    ],
+    "leftWrist": [
+     0.38,
+     0.4
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.58,
+     0.36
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.28
+    ],
+    "rightWrist": [
+     0.62,
+     0.4
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.45,
+     0.32
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.285
+    ],
+    "leftWrist": [
+     0.44,
+     0.24
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.55,
+     0.32
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.285
+    ],
+    "rightWrist": [
+     0.56,
+     0.24
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "shoulders"
+  ],
+  "secondsPerCycle": 2.5
+ },
+ "sidePlank": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.3,
+     0.35
+    ],
+    "hip": [
+     0.5,
+     0.55
+    ],
+    "leftAnkle": [
+     0.74,
+     0.8
+    ],
+    "leftElbow": [
+     0.4,
+     0.55
+    ],
+    "leftKnee": [
+     0.62,
+     0.68
+    ],
+    "leftShoulder": [
+     0.37,
+     0.44
+    ],
+    "leftWrist": [
+     0.42,
+     0.65
+    ],
+    "neck": [
+     0.36,
+     0.42
+    ],
+    "rightAnkle": [
+     0.75,
+     0.79
+    ],
+    "rightElbow": [
+     0.34,
+     0.3
+    ],
+    "rightKnee": [
+     0.63,
+     0.67
+    ],
+    "rightShoulder": [
+     0.38,
+     0.42
+    ],
+    "rightWrist": [
+     0.32,
+     0.18
+    ]
+   },
+   {
+    "head": [
+     0.3,
+     0.36
+    ],
+    "hip": [
+     0.5,
+     0.56
+    ],
+    "leftAnkle": [
+     0.74,
+     0.8
+    ],
+    "leftElbow": [
+     0.4,
+     0.56
+    ],
+    "leftKnee": [
+     0.62,
+     0.69
+    ],
+    "leftShoulder": [
+     0.37,
+     0.45
+    ],
+    "leftWrist": [
+     0.42,
+     0.66
+    ],
+    "neck": [
+     0.36,
+     0.43
+    ],
+    "rightAnkle": [
+     0.75,
+     0.79
+    ],
+    "rightElbow": [
+     0.34,
+     0.31
+    ],
+    "rightKnee": [
+     0.63,
+     0.68
+    ],
+    "rightShoulder": [
+     0.38,
+     0.43
+    ],
+    "rightWrist": [
+     0.32,
+     0.19
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "core"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "squat": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.18
+    ],
+    "hip": [
+     0.5,
+     0.52
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.47,
+     0.4
+    ],
+    "leftKnee": [
+     0.49,
+     0.68
+    ],
+    "leftShoulder": [
+     0.48,
+     0.29
+    ],
+    "leftWrist": [
+     0.46,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.28
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.53,
+     0.4
+    ],
+    "rightKnee": [
+     0.51,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.29
+    ],
+    "rightWrist": [
+     0.54,
+     0.5
+    ]
+   },
+   {
+    "head": [
+     0.56,
+     0.31
+    ],
+    "hip": [
+     0.45,
+     0.63
+    ],
+    "leftAnkle": [
+     0.48,
+     0.84
+    ],
+    "leftElbow": [
+     0.63,
+     0.42
+    ],
+    "leftKnee": [
+     0.55,
+     0.7
+    ],
+    "leftShoulder": [
+     0.51,
+     0.41
+    ],
+    "leftWrist": [
+     0.74,
+     0.41
+    ],
+    "neck": [
+     0.53,
+     0.4
+    ],
+    "rightAnkle": [
+     0.52,
+     0.84
+    ],
+    "rightElbow": [
+     0.65,
+     0.43
+    ],
+    "rightKnee": [
+     0.57,
+     0.71
+    ],
+    "rightShoulder": [
+     0.55,
+     0.41
+    ],
+    "rightWrist": [
+     0.76,
+     0.42
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "quads",
+   "glutes"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "superman": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.2,
+     0.6
+    ],
+    "hip": [
+     0.55,
+     0.62
+    ],
+    "leftAnkle": [
+     0.85,
+     0.65
+    ],
+    "leftElbow": [
+     0.16,
+     0.6
+    ],
+    "leftKnee": [
+     0.7,
+     0.635
+    ],
+    "leftShoulder": [
+     0.31,
+     0.62
+    ],
+    "leftWrist": [
+     0.04,
+     0.6
+    ],
+    "neck": [
+     0.3,
+     0.605
+    ],
+    "rightAnkle": [
+     0.85,
+     0.64
+    ],
+    "rightElbow": [
+     0.16,
+     0.57
+    ],
+    "rightKnee": [
+     0.7,
+     0.625
+    ],
+    "rightShoulder": [
+     0.31,
+     0.59
+    ],
+    "rightWrist": [
+     0.04,
+     0.57
+    ]
+   },
+   {
+    "head": [
+     0.18,
+     0.53
+    ],
+    "hip": [
+     0.55,
+     0.6
+    ],
+    "leftAnkle": [
+     0.87,
+     0.56
+    ],
+    "leftElbow": [
+     0.14,
+     0.5
+    ],
+    "leftKnee": [
+     0.71,
+     0.585
+    ],
+    "leftShoulder": [
+     0.3,
+     0.58
+    ],
+    "leftWrist": [
+     0.02,
+     0.44
+    ],
+    "neck": [
+     0.29,
+     0.565
+    ],
+    "rightAnkle": [
+     0.87,
+     0.55
+    ],
+    "rightElbow": [
+     0.14,
+     0.47
+    ],
+    "rightKnee": [
+     0.71,
+     0.575
+    ],
+    "rightShoulder": [
+     0.3,
+     0.55
+    ],
+    "rightWrist": [
+     0.02,
+     0.41
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "glutes"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "thoracicRotation": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.3,
+     0.46
+    ],
+    "hip": [
+     0.58,
+     0.55
+    ],
+    "leftAnkle": [
+     0.63,
+     0.7
+    ],
+    "leftElbow": [
+     0.41,
+     0.6
+    ],
+    "leftKnee": [
+     0.58,
+     0.68
+    ],
+    "leftShoulder": [
+     0.41,
+     0.495
+    ],
+    "leftWrist": [
+     0.41,
+     0.71
+    ],
+    "neck": [
+     0.4,
+     0.48
+    ],
+    "rightAnkle": [
+     0.63,
+     0.67
+    ],
+    "rightElbow": [
+     0.45,
+     0.55
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.41,
+     0.465
+    ],
+    "rightWrist": [
+     0.48,
+     0.62
+    ]
+   },
+   {
+    "head": [
+     0.31,
+     0.42
+    ],
+    "hip": [
+     0.58,
+     0.55
+    ],
+    "leftAnkle": [
+     0.63,
+     0.7
+    ],
+    "leftElbow": [
+     0.41,
+     0.59
+    ],
+    "leftKnee": [
+     0.58,
+     0.68
+    ],
+    "leftShoulder": [
+     0.41,
+     0.475
+    ],
+    "leftWrist": [
+     0.41,
+     0.71
+    ],
+    "neck": [
+     0.4,
+     0.46
+    ],
+    "rightAnkle": [
+     0.63,
+     0.67
+    ],
+    "rightElbow": [
+     0.38,
+     0.38
+    ],
+    "rightKnee": [
+     0.58,
+     0.65
+    ],
+    "rightShoulder": [
+     0.41,
+     0.445
+    ],
+    "rightWrist": [
+     0.36,
+     0.27
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "back",
+   "core"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "wallSit": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.28
+    ],
+    "hip": [
+     0.5,
+     0.6
+    ],
+    "leftAnkle": [
+     0.64,
+     0.75
+    ],
+    "leftElbow": [
+     0.47,
+     0.49
+    ],
+    "leftKnee": [
+     0.64,
+     0.6
+    ],
+    "leftShoulder": [
+     0.48,
+     0.39
+    ],
+    "leftWrist": [
+     0.46,
+     0.58
+    ],
+    "neck": [
+     0.5,
+     0.38
+    ],
+    "rightAnkle": [
+     0.66,
+     0.76
+    ],
+    "rightElbow": [
+     0.53,
+     0.49
+    ],
+    "rightKnee": [
+     0.66,
+     0.61
+    ],
+    "rightShoulder": [
+     0.52,
+     0.39
+    ],
+    "rightWrist": [
+     0.54,
+     0.58
+    ]
+   },
+   {
+    "head": [
+     0.5,
+     0.285
+    ],
+    "hip": [
+     0.5,
+     0.605
+    ],
+    "leftAnkle": [
+     0.64,
+     0.75
+    ],
+    "leftElbow": [
+     0.47,
+     0.495
+    ],
+    "leftKnee": [
+     0.64,
+     0.605
+    ],
+    "leftShoulder": [
+     0.48,
+     0.395
+    ],
+    "leftWrist": [
+     0.46,
+     0.585
+    ],
+    "neck": [
+     0.5,
+     0.385
+    ],
+    "rightAnkle": [
+     0.66,
+     0.76
+    ],
+    "rightElbow": [
+     0.53,
+     0.495
+    ],
+    "rightKnee": [
+     0.66,
+     0.615
+    ],
+    "rightShoulder": [
+     0.52,
+     0.395
+    ],
+    "rightWrist": [
+     0.54,
+     0.585
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "quads"
+  ],
+  "secondsPerCycle": 3.0
+ },
+ "worldsGreatestStretch": {
+  "coordinateSpace": "normalized 0-1, y grows downward, side/front view per keyframes",
+  "keyframes": [
+   {
+    "head": [
+     0.5,
+     0.38
+    ],
+    "hip": [
+     0.42,
+     0.6
+    ],
+    "leftAnkle": [
+     0.16,
+     0.82
+    ],
+    "leftElbow": [
+     0.44,
+     0.58
+    ],
+    "leftKnee": [
+     0.28,
+     0.76
+    ],
+    "leftShoulder": [
+     0.48,
+     0.47
+    ],
+    "leftWrist": [
+     0.42,
+     0.7
+    ],
+    "neck": [
+     0.5,
+     0.46
+    ],
+    "rightAnkle": [
+     0.58,
+     0.84
+    ],
+    "rightElbow": [
+     0.56,
+     0.36
+    ],
+    "rightKnee": [
+     0.58,
+     0.68
+    ],
+    "rightShoulder": [
+     0.52,
+     0.47
+    ],
+    "rightWrist": [
+     0.58,
+     0.24
+    ]
+   },
+   {
+    "head": [
+     0.51,
+     0.36
+    ],
+    "hip": [
+     0.42,
+     0.6
+    ],
+    "leftAnkle": [
+     0.16,
+     0.82
+    ],
+    "leftElbow": [
+     0.45,
+     0.56
+    ],
+    "leftKnee": [
+     0.28,
+     0.76
+    ],
+    "leftShoulder": [
+     0.49,
+     0.45
+    ],
+    "leftWrist": [
+     0.43,
+     0.68
+    ],
+    "neck": [
+     0.51,
+     0.44
+    ],
+    "rightAnkle": [
+     0.58,
+     0.84
+    ],
+    "rightElbow": [
+     0.58,
+     0.32
+    ],
+    "rightKnee": [
+     0.58,
+     0.68
+    ],
+    "rightShoulder": [
+     0.53,
+     0.45
+    ],
+    "rightWrist": [
+     0.6,
+     0.18
+    ]
+   }
+  ],
+  "muscleGroups": [
+   "fullBody"
+  ],
+  "secondsPerCycle": 4.0
+ }
+}
