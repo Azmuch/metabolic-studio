@@ -14,7 +14,7 @@ struct SessionPlayerView: View {
 
     @State private var itemIndex = 0
     @State private var currentSet = 1
-    @State private var phase: SessionPhase = .working
+    @State private var phase: SessionPhase = .ready
     @State private var completedExerciseIDs: [String] = []
 
     /// Optional per-set load, remembered per-exercise for the life of this session, plus the
@@ -23,10 +23,11 @@ struct SessionPlayerView: View {
     @State private var loadTextByExercise: [String: String] = [:]
     @State private var volumeKg: Double = 0
 
-    @State private var sessionStart = Date()
-    @State private var phaseStart = Date()
-    @State private var pausedAt: Date?
-    @State private var pausedTotal: TimeInterval = 0
+    @State private var sessionStart = Date()               // re-anchored when Start Workout is tapped
+    @State private var phaseEnd = Date()                    // Date-anchor for timed work / rest countdowns
+    @State private var pausedAt: Date?                      // non-nil while paused
+    @State private var pausedAccumulator: TimeInterval = 0  // total paused time, excluded from elapsed math
+    @State private var remainingAtPause: TimeInterval = 0   // countdown remainder captured on pause
 
     @State private var showEndConfirm = false
     @State private var isSaving = false
@@ -49,14 +50,21 @@ struct SessionPlayerView: View {
                         Spacer(minLength: 0)
                         finishedContent
                         Spacer(minLength: 0)
+                    } else if phase == .ready {
+                        Spacer(minLength: 0)
+                        readyContent
+                        Spacer(minLength: 0)
                     } else {
                         Spacer(minLength: 0)
                         centerSection
                         Spacer(minLength: 0)
                         Group {
-                            if phase == .working {
+                            switch phase {
+                            case .prompting:
+                                promptContent
+                            case .working:
                                 workContent
-                            } else {
+                            default:
                                 restContent
                             }
                         }
@@ -106,7 +114,11 @@ struct SessionPlayerView: View {
             HStack {
                 Button {
                     Haptics.tap()
-                    showEndConfirm = true
+                    if phase == .ready {
+                        dismiss()
+                    } else {
+                        showEndConfirm = true
+                    }
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .semibold))
@@ -127,7 +139,7 @@ struct SessionPlayerView: View {
                 }
             }
 
-            if phase != .finished {
+            if phase != .finished && phase != .ready {
                 progressSegments
             }
         }
@@ -150,8 +162,16 @@ struct SessionPlayerView: View {
     }
 
     private func elapsedString(now: Date) -> String {
-        let total = max(Int(now.timeIntervalSince(sessionStart)), 0)
+        let total = max(Int(activeElapsed(now: now)), 0)
         return String(format: "%02d:%02d", total / 60, total % 60)
+    }
+
+    /// Wall time since Start Workout was tapped, excluding paused stretches.
+    /// Zero until the workout has actually started.
+    private func activeElapsed(now: Date) -> TimeInterval {
+        guard phase != .ready else { return 0 }
+        let pausedSoFar = pausedAccumulator + (pausedAt.map { now.timeIntervalSince($0) } ?? 0)
+        return now.timeIntervalSince(sessionStart) - pausedSoFar
     }
 
     // MARK: - Center section
@@ -176,6 +196,57 @@ struct SessionPlayerView: View {
         }
     }
 
+    // MARK: - Ready state & begin-set prompt
+
+    /// Pre-start overview: nothing runs until "Start Workout" is tapped.
+    private var readyContent: some View {
+        VStack(spacing: 24) {
+            AnatomyHeroView(exercise: currentItem.exercise)
+                .frame(width: 300, height: 300)
+            VStack(spacing: 8) {
+                Text(plan.title)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .multilineTextAlignment(.center)
+                Text("\(plan.items.count) exercises · ~\(plan.estimatedMinutes) min")
+                    .font(.system(size: 15))
+                    .foregroundStyle(MTTheme.textSecondary)
+            }
+            MTPrimaryButton(title: "Start Workout", systemImage: "play.fill") {
+                startWorkout()
+            }
+        }
+    }
+
+    /// Shown before every work phase — reps counting / timed countdowns only start
+    /// once "Begin Set" is tapped.
+    private var promptContent: some View {
+        VStack(spacing: 20) {
+            Text("SET \(currentSet) OF \(currentItem.sets) — READY?")
+                .font(.system(size: 13, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(MTTheme.textSecondary)
+            MTPrimaryButton(title: "Begin Set", systemImage: "play.fill") {
+                beginSet()
+            }
+        }
+    }
+
+    /// Circular pause/resume toggle shown during timed work and rest countdowns.
+    private var pauseButton: some View {
+        Button {
+            togglePause()
+        } label: {
+            Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(MTTheme.textPrimary)
+                .frame(width: 52, height: 52)
+                .background(MTTheme.surface2)
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Work phase
 
     @ViewBuilder
@@ -195,7 +266,7 @@ struct SessionPlayerView: View {
             }
         case .timed:
             TimelineView(.animation) { timeline in
-                let remaining = workRemaining(now: timeline.date)
+                let remaining = phaseRemaining(now: timeline.date)
                 VStack(spacing: 16) {
                     ZStack {
                         MTRing(progress: workProgress(remaining: remaining), lineWidth: 12)
@@ -204,11 +275,7 @@ struct SessionPlayerView: View {
                             .font(MTTheme.numberFont(size: 44))
                             .foregroundStyle(MTTheme.textPrimary)
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture { togglePause() }
-                    Text(isPaused ? "Paused — tap to resume" : "Tap to pause")
-                        .font(.system(size: 13))
-                        .foregroundStyle(MTTheme.textSecondary)
+                    pauseButton
                 }
             }
         }
@@ -253,11 +320,11 @@ struct SessionPlayerView: View {
         return appState.unitSystem == .imperial ? Units.kg(fromPounds: value) : value
     }
 
-    private func workRemaining(now: Date) -> Double {
-        guard case .timed(let seconds) = currentItem.kind else { return 0 }
-        let pausedSoFar = pausedTotal + (pausedAt.map { now.timeIntervalSince($0) } ?? 0)
-        let elapsed = now.timeIntervalSince(phaseStart) - pausedSoFar
-        return max(Double(seconds) - elapsed, 0)
+    /// Seconds left on the current countdown (timed work or rest). Anchored on `phaseEnd`;
+    /// while paused it holds steady at `remainingAtPause`.
+    private func phaseRemaining(now: Date) -> Double {
+        if pausedAt != nil { return remainingAtPause }
+        return max(phaseEnd.timeIntervalSince(now), 0)
     }
 
     private func workProgress(remaining: Double) -> Double {
@@ -267,11 +334,16 @@ struct SessionPlayerView: View {
 
     private var isPaused: Bool { pausedAt != nil }
 
+    /// Pause: capture the countdown remainder. Resume: fold the paused stretch into the
+    /// session accumulator and re-anchor the countdown (`phaseEnd = .now + remainingAtPause`).
     private func togglePause() {
+        Haptics.tap()
         if let pausedAt {
-            pausedTotal += Date().timeIntervalSince(pausedAt)
+            pausedAccumulator += Date().timeIntervalSince(pausedAt)
             self.pausedAt = nil
+            phaseEnd = Date().addingTimeInterval(remainingAtPause)
         } else {
+            remainingAtPause = max(phaseEnd.timeIntervalSince(Date()), 0)
             pausedAt = Date()
         }
     }
@@ -280,7 +352,7 @@ struct SessionPlayerView: View {
 
     private var restContent: some View {
         TimelineView(.animation) { timeline in
-            let remaining = restRemaining(now: timeline.date)
+            let remaining = phaseRemaining(now: timeline.date)
             VStack(spacing: 20) {
                 Text("REST")
                     .font(.system(size: 11, weight: .semibold))
@@ -295,9 +367,12 @@ struct SessionPlayerView: View {
                         .foregroundStyle(MTTheme.textPrimary)
                 }
 
-                MTSecondaryButton(title: "Skip", systemImage: "forward.fill") {
-                    Haptics.tap()
-                    advanceAfterRest()
+                HStack(spacing: 12) {
+                    pauseButton
+                    MTSecondaryButton(title: "Skip", systemImage: "forward.fill") {
+                        Haptics.tap()
+                        advanceAfterRest()
+                    }
                 }
 
                 if let nextItem = nextPreviewItem {
@@ -305,11 +380,6 @@ struct SessionPlayerView: View {
                 }
             }
         }
-    }
-
-    private func restRemaining(now: Date) -> Double {
-        let elapsed = now.timeIntervalSince(phaseStart)
-        return max(Double(currentItem.restSeconds) - elapsed, 0)
     }
 
     private func restProgress(remaining: Double) -> Double {
@@ -373,7 +443,7 @@ struct SessionPlayerView: View {
     }
 
     private func elapsedMinutes(now: Date) -> Int {
-        max(Int(now.timeIntervalSince(sessionStart) / 60), 0)
+        max(Int(activeElapsed(now: now) / 60), 0)
     }
 
     private func statsGrid(minutes: Int) -> some View {
@@ -444,14 +514,39 @@ struct SessionPlayerView: View {
 
     // MARK: - State machine
 
-    private func resetPhaseAnchor() {
-        phaseStart = Date()
-        pausedTotal = 0
+    /// Folds any in-flight pause into the session accumulator and clears countdown pause
+    /// state. Call before every phase transition so pauses never leak across phases.
+    private func endPauseIfNeeded() {
+        if let pausedAt {
+            pausedAccumulator += Date().timeIntervalSince(pausedAt)
+            self.pausedAt = nil
+        }
+        remainingAtPause = 0
+    }
+
+    /// "Start Workout" tapped on the ready screen — this is the moment timing begins.
+    private func startWorkout() {
+        Haptics.success()
+        sessionStart = Date()
+        pausedAccumulator = 0
         pausedAt = nil
+        phase = .prompting
+    }
+
+    /// "Begin Set" tapped on the set prompt — only now does the work phase (and any
+    /// timed countdown) actually start.
+    private func beginSet() {
+        Haptics.tap()
+        endPauseIfNeeded()
+        if case .timed(let seconds) = currentItem.kind {
+            phaseEnd = Date().addingTimeInterval(Double(seconds))
+        }
+        phase = .working
     }
 
     private func completeSet() {
         Haptics.success()
+        endPauseIfNeeded()
         if case .reps(let n) = currentItem.kind, showsLoadField {
             volumeKg += Double(n) * currentLoadKg
         }
@@ -462,28 +557,32 @@ struct SessionPlayerView: View {
             phase = .finished
         } else {
             phase = .resting
-            resetPhaseAnchor()
+            phaseEnd = Date().addingTimeInterval(Double(currentItem.restSeconds))
         }
     }
 
+    /// Rest over (or skipped): advance set/exercise counters and land on the next
+    /// begin-set prompt — work never auto-starts.
     private func advanceAfterRest() {
+        endPauseIfNeeded()
         if currentSet < currentItem.sets {
             currentSet += 1
         } else {
             itemIndex += 1
             currentSet = 1
         }
-        phase = .working
-        resetPhaseAnchor()
+        phase = .prompting
     }
 
     private func runPhaseWatcher() async {
         guard !plan.items.isEmpty else { return }
         switch phase {
+        case .ready, .prompting, .finished:
+            return
         case .working:
             guard case .timed = currentItem.kind else { return }
             while !Task.isCancelled {
-                if workRemaining(now: Date()) <= 0 {
+                if !isPaused, phaseRemaining(now: Date()) <= 0 {
                     completeSet()
                     return
                 }
@@ -491,14 +590,12 @@ struct SessionPlayerView: View {
             }
         case .resting:
             while !Task.isCancelled {
-                if restRemaining(now: Date()) <= 0 {
+                if !isPaused, phaseRemaining(now: Date()) <= 0 {
                     advanceAfterRest()
                     return
                 }
                 try? await Task.sleep(nanoseconds: 100_000_000)
             }
-        case .finished:
-            return
         }
     }
 
@@ -506,7 +603,7 @@ struct SessionPlayerView: View {
 
     private func saveAndFinish() async {
         isSaving = true
-        let minutes = max(Int(Date().timeIntervalSince(sessionStart) / 60), 0)
+        let minutes = max(Int(activeElapsed(now: Date()) / 60), 0)
         let calories = estimatedFinishCalories(minutes: minutes)
         let log = WorkoutLog(
             date: sessionStart,
@@ -524,9 +621,10 @@ struct SessionPlayerView: View {
     }
 }
 
-/// Where the player currently is within a set: doing the work, resting between sets, or done.
+/// Where the player currently is: pre-start overview, awaiting a "Begin Set" tap,
+/// doing the work, resting between sets, or done.
 fileprivate enum SessionPhase {
-    case working, resting, finished
+    case ready, prompting, working, resting, finished
 }
 
 #Preview {
