@@ -119,3 +119,39 @@ New file `Metabolic/Features/Training/Anatomy3DHero.swift`:
 - Design tokens only via `MTTheme`/DS components; screen backgrounds via `MTBackground()`.
 - Never rename contract types (SPEC §4, INTERFACES tables, v2/v3 addenda).
 - `python3 ios/tools/verify_swift.py --strict` must print OK before every commit.
+
+---
+
+## Task 5 — Build the rigged model via Blender MCP (hybrid path, local Mac only)
+
+Prereqs on the Mac: Blender installed; BlenderMCP addon (github.com/ahujasid/blender-mcp)
+installed and connected; `claude mcp add blender -- uvx blender-mcp` registered.
+
+Approach — do NOT model a human from scratch. Hybrid pipeline:
+
+1. **Base mesh:** import a permissively-licensed rigged humanoid — first choice:
+   Blender Studio "Human Base Meshes" bundle (CC0). Reduce to ~20k tris (Decimate).
+   Record the license/source in `ios/docs/ASSET-CREDITS.md`.
+2. **Materials:** create material slots named exactly `body, chest, back, shoulders,
+   arms, core, quads, hamstrings, glutes, calves` (MuscleGroup raw values) and assign
+   faces per region (approximate regions are fine for v1 — the emission tint reads as
+   a glow, not a medical diagram). Base: porcelain-gray PBR, roughness ~0.6.
+3. **Female morph:** add a shape key named `female` (scale hips/chest/shoulder widths —
+   subtle is better than caricature).
+4. **Animation clips:** one Blender Action per exercise, **named by exercise id**.
+   Seed the poses from the app's own keyframe data — every exercise's 13-joint
+   normalized keyframes live in `ios/MetabolicCore/Sources/MetabolicCore/ExercisePoses.swift`
+   and `MobilityPoses.swift` (joints: head, neck, L/R shoulder/elbow/wrist, hip,
+   L/R knee/ankle; x,y in [0,1], y down). Map to rig bones via IK targets on wrists/
+   ankles + hip/head positioning, keyframe A/B(/C) poses, loop with cycle duration =
+   `secondsPerCycle`. Start with 5 clips: squat, pushUp, plank, lunge, kbSwing.
+5. **Export:** glTF (.glb) with animations → convert to USDZ with Apple Reality
+   Converter (drag-and-drop) → verify clip names survived (Xcode can inspect USDZ) →
+   drop at `ios/Metabolic/Anatomy3D/BodyRig.usdz`, commit, and implement Task 3's
+   `Anatomy3DHero` against it.
+6. **Iterate visually:** BlenderMCP can screenshot the viewport — check each pose against
+   the bundled 2D anatomy stills for silhouette agreement before exporting.
+
+Quality note: this yields a solid v1 (clean, stylized, correctly animated). If the
+end goal is the premium écorché look of the 2D stills, commission the mesh per Task 3's
+spec and keep the Blender-scripted animation clips — clips transfer to any humanoid rig.
