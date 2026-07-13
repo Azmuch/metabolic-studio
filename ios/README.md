@@ -122,13 +122,27 @@ keyframes, interpolated with smoothstep easing in a `TimelineView`-driven `Canva
   appear in the body map once fetched.
 - Animated attention cues on the hand-portions and smart-scale icons
 
+## v4 highlights
+
+- **Session player: explicit Start, pause, and Begin-Set prompts** — the player opens on a
+  Ready screen (plan title, exercise count, est. minutes, hero, big Start button); each set is
+  confirmed with Begin Set; timed holds and rests have a circular pause/resume that re-anchors
+  the countdown and freezes the elapsed clock (paused time is excluded).
+- **Seedance video exercise hero** — the hero now resolves a pre-rendered écorché **video clip**
+  per exercise (one slow rep, prime movers glowing green, seamless 4s loop) via
+  `ExerciseClipStore` (bundled → cached → remote-download). Gapless `AVPlayerLooper` playback,
+  muted, and tied to the session player's phase/pause. Drop `{exerciseId}.mp4` files into
+  `Metabolic/ExerciseClips/` (and fill `exercise-clips.json` for remote clips); until then the
+  anatomy-still / vector figures render as fallback. Generation recipe:
+  `docs/SEEDANCE-PROMPT-KIT.md`; integration spec: `docs/HANDOFF-Claude-Code-Seedance.md`.
+
 Roadmap (needs assets/backend):
-- **Rigged 3D exercise figure** — the target end-state for illustrations: a rigged
-  androgynous USDZ base mesh with male/female morph targets, one skeletal animation
-  clip per exercise id, and per-muscle-group materials tintable to the accent theme,
-  rendered with SceneKit. `AnatomyHeroView` is already the swappable slot
-  (3D → anatomy stills → vector fallback), so the model drops in without UI rework.
+- Content-team generation of the full Seedance clip library (one per exercise id), CDN hosting
+  + "download all for offline" toggle.
 - Live trainer streaming backend; vendor-specific scale protocols.
+
+The earlier real-time **3D/SceneKit figure** roadmap item is superseded by the Seedance video
+hero (`AnatomyHeroView` remains the single swappable slot: video → anatomy still → vector).
 
 ## Subscription tiers
 

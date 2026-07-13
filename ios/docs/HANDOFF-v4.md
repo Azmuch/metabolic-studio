@@ -41,10 +41,17 @@ Root-cause checklist, in order:
    shows all, scan limit lifts. Then Debug → StoreKit → Manage Transactions: refund it →
    tier returns to Free. Repeat for Pro (CSV export + Coaching Live unlock).
 
-## Task 2 — Session player: explicit start, pause, and set prompts
+## Task 2 — Session player: explicit start, pause, and set prompts — DONE
 
-File: `Metabolic/Features/Training/SessionPlayerView.swift`. Current behavior starts
-timing immediately. Desired flow:
+Implemented in `Metabolic/Features/Training/SessionPlayerView.swift` (do not redo — pull
+latest before touching this file). Delivered: a `.ready` Start screen (plan title, exercise
+count, est. minutes, first exercise hero, big "Start Workout" button; the elapsed clock only
+starts on tap via `sessionStart = .now`); a `.setReady` "Begin Set" prompt before every work
+phase, including after rests; a circular pause/resume button (pause.fill ↔ play.fill) on the
+timed-work and rest countdowns with Date-anchored re-anchoring (`phasePausedTotal`/`pausedAt`)
+and a session-clock freeze (`sessionPausedTotal`, frozen at `sessionEnd` on finish); Start =
+`.success()` haptic, begin-set/pause/resume = `.tap()`. `SessionPlayerView(plan:)` signature
+and the WorkoutLog + HealthKit save flow are unchanged. Original spec kept below for reference:
 
 1. **Ready state (new, before anything runs):** plan title, exercise count, est. minutes,
    the first exercise's hero, and one big `MTPrimaryButton("Start Workout", systemImage:
@@ -62,7 +69,12 @@ timing immediately. Desired flow:
 4. Haptics: `.success()` on Start, `.tap()` on pause/resume/begin-set. Keep every
    existing signature (`SessionPlayerView(plan:)`) and the WorkoutLog save flow intact.
 
-## Task 3 — Dynamic 3D exercise model (the big feature)
+## Task 3 — Dynamic 3D exercise model (the big feature) — SUPERSEDED
+
+Superseded by the Seedance video hero (see `HANDOFF-Claude-Code-Seedance.md`). The real-time
+3D/SceneKit path was never built and is not used at runtime; the app integration for video
+clips is done. Original 3D spec kept below for reference only. Task 5 (Blender) is likewise
+superseded for the hero.
 
 ### What to build in code (can be done now, before the asset exists)
 

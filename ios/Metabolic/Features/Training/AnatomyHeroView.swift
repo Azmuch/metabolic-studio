@@ -3,16 +3,23 @@ import MetabolicCore
 
 /// The exercise hero slot — one visual, layered by best available fidelity:
 ///
-///   1. **3D rigged model** (future): a posable USDZ body with male/female morph targets,
-///      one skeletal clip per exercise id, and accent-tintable muscle materials, rendered
-///      via SceneKit. When that asset lands, add a `Anatomy3DHero` branch at the top of
-///      `body` — nothing else in the app needs to change.
-///   2. **Anatomy stills** (this build): Higgsfield-generated écorché illustrations with
-///      the activated muscles highlighted; two poses crossfade into a breathing loop,
-///      and the baked lime highlight is hue-shifted live to match the user's accent theme.
+///   1. **Seedance video clip** (target look): a pre-rendered 4s seamless loop of the écorché
+///      figure performing one rep with the prime movers glowing green on the exertion phase.
+///      Resolved per-exercise by `ExerciseClipStore` (bundled → cached → remote); the green
+///      highlight is baked into the pixels, so no runtime tinting here. Playback follows the
+///      `isPlaying` flag so the Session Player's pause/phase state can drive it.
+///   2. **Anatomy stills**: Higgsfield-generated écorché illustrations with the activated
+///      muscles highlighted; two poses crossfade into a breathing loop, and the baked lime
+///      highlight is hue-shifted live to match the user's accent theme.
 ///   3. **Vector skeleton** (always available): the original pose-keyframe Canvas figure.
+///
+/// The supplanted 3D/SceneKit hero path is not used at runtime (see the Seedance handoff).
 struct AnatomyHeroView: View {
     let exercise: Exercise
+
+    /// Drives clip playback; the still/vector fallbacks animate continuously and ignore it.
+    /// Detail screens pass `true`; the Session Player pauses the clip in inactive phases.
+    var isPlaying: Bool = true
 
     /// Exercise id → bundled anatomy imageset names (1 = static breathe, 2 = A/B loop).
     /// Populated by `ios/tools/fetch_anatomy_assets.sh`; missing assets fall back cleanly.
@@ -28,8 +35,10 @@ struct AnatomyHeroView: View {
     ]
 
     var body: some View {
-        if let names = Self.assetManifest[exercise.id],
-           let primary = UIImage(named: names[0]) {
+        if let clipURL = ExerciseClipStore.shared.clipURL(for: exercise.id) {
+            ExerciseClipHero(url: clipURL, isPlaying: isPlaying)
+        } else if let names = Self.assetManifest[exercise.id],
+                  let primary = UIImage(named: names[0]) {
             AnatomyImageHero(
                 primary: primary,
                 secondary: names.count > 1 ? UIImage(named: names[1]) : nil)
