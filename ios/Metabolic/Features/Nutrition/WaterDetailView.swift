@@ -62,10 +62,10 @@ struct WaterDetailView: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.6), value: bounce)
 
             VStack(spacing: 4) {
-                Text("\(remainingML) ml")
+                Text(Units.waterAmountString(ml: remainingML, system: appState.unitSystem))
                     .font(MTTheme.numberFont(size: 32))
                     .foregroundStyle(MTTheme.textPrimary)
-                Text("remaining of \(String(format: "%.1f", Double(goalML) / 1000)) L goal")
+                Text("remaining of \(Units.waterGoalString(ml: goalML, system: appState.unitSystem)) goal")
                     .font(.system(size: 13))
                     .foregroundStyle(MTTheme.textSecondary)
             }
@@ -76,11 +76,11 @@ struct WaterDetailView: View {
 
     private var quickAddRow: some View {
         HStack(spacing: 10) {
-            ForEach([150, 250, 500, 750], id: \.self) { amount in
+            ForEach(Units.waterQuickAdds(system: appState.unitSystem), id: \.ml) { preset in
                 Button {
-                    addWater(amount)
+                    addWater(preset.ml)
                 } label: {
-                    Text("+\(amount)ml")
+                    Text("+\(preset.label)")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(MTTheme.textPrimary)
                         .frame(maxWidth: .infinity)
@@ -125,7 +125,7 @@ struct WaterDetailView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(MTTheme.textPrimary)
             Spacer()
-            Text("\(entry.amountML) ml")
+            Text(Units.waterAmountString(ml: entry.amountML, system: appState.unitSystem))
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(MTTheme.textSecondary)
             Button {

@@ -24,6 +24,10 @@ struct AnatomyHeroView: View {
     /// Inset between the figure and the card edge. 0 = edge-to-edge (the full-bleed detail hero).
     var contentInset: CGFloat = 10
 
+    /// Corner radius of the hero card. 0 = square (used when the hero fills the screen as a
+    /// background, e.g. the session player).
+    var cornerRadius: CGFloat = MTTheme.cardRadius
+
     /// Exercise id → bundled anatomy imageset names (1 = static breathe, 2 = A/B loop).
     /// Populated by `ios/tools/fetch_anatomy_assets.sh`; missing assets fall back cleanly.
     static let assetManifest: [String: [String]] = [
@@ -39,13 +43,15 @@ struct AnatomyHeroView: View {
 
     var body: some View {
         if let clipURL = ExerciseClipStore.shared.clipURL(for: exercise.id) {
-            ExerciseClipHero(url: clipURL, isPlaying: isPlaying, contentInset: contentInset)
+            ExerciseClipHero(url: clipURL, isPlaying: isPlaying, contentInset: contentInset,
+                             cornerRadius: cornerRadius)
         } else if let names = Self.assetManifest[exercise.id],
                   let primary = UIImage(named: names[0]) {
             AnatomyImageHero(
                 primary: primary,
                 secondary: names.count > 1 ? UIImage(named: names[1]) : nil,
-                contentInset: contentInset)
+                contentInset: contentInset,
+                cornerRadius: cornerRadius)
         } else {
             ExerciseAnimationView(exercise: exercise)
         }
@@ -60,6 +66,7 @@ private struct AnatomyImageHero: View {
     let primary: UIImage
     let secondary: UIImage?
     var contentInset: CGFloat = 10
+    var cornerRadius: CGFloat = MTTheme.cardRadius
 
     private let cycle: Double = 3.4
 
@@ -73,7 +80,7 @@ private struct AnatomyImageHero: View {
             let breathe = 1.0 + 0.015 * sin(t * 1.6)
 
             ZStack {
-                RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .fill(Color(red: 0.965, green: 0.965, blue: 0.957))
 
                 ZStack {
@@ -93,10 +100,10 @@ private struct AnatomyImageHero: View {
                 .hueRotation(.degrees(accentHueShift))
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
-                .stroke(MTTheme.stroke, lineWidth: 1))
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(MTTheme.stroke, lineWidth: cornerRadius > 0 ? 1 : 0))
     }
 
     /// Baked highlight is Volt lime (hue ≈ 72°); shift it toward the active accent.

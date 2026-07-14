@@ -63,6 +63,15 @@ enum MTTheme {
     static var volt: Color { Color(uiColor: accentUIColor(for: ThemeStore.shared.accent)) }
     static var voltDim: Color { volt.opacity(0.18) }
 
+    /// Deep, near-black scrim subtly biased toward the accent hue — for hero/photo overlays. Far
+    /// darker and more desaturated than `volt`, so white text stays legible and the wash reads
+    /// clean rather than a muddy bright-accent band. Tracks the accent, so overlays coordinate
+    /// with the chosen UI theme.
+    static var heroScrim: Color {
+        Color(uiColor: UIColor.black.mixed(with: accentUIColor(for: ThemeStore.shared.accent),
+                                           fraction: 0.16))
+    }
+
     static func accentColor(for theme: AccentTheme) -> Color {
         Color(uiColor: accentUIColor(for: theme))
     }

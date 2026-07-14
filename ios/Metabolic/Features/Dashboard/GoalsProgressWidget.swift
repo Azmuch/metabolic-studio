@@ -87,7 +87,7 @@ struct GoalsProgressWidget: View {
                             current: drankML,
                             target: Double(appState.targets.waterML),
                             tint: MTTheme.water,
-                            valueText: "\(Int(drankML))/\(appState.targets.waterML)ml"
+                            valueText: "\(Units.waterAmountString(ml: Int(drankML), system: appState.unitSystem)) / \(Units.waterGoalString(ml: appState.targets.waterML, system: appState.unitSystem))"
                         )
                         goalPill(
                             label: "Protein",

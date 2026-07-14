@@ -65,20 +65,22 @@ struct ExerciseClipHero: View {
     var isPlaying: Bool = true
     /// Inset between the video and the card edge. 0 = edge-to-edge fill (used by the detail hero).
     var contentInset: CGFloat = 10
+    /// Card corner radius. 0 = square (full-screen player background).
+    var cornerRadius: CGFloat = MTTheme.cardRadius
 
     @StateObject private var player = LoopPlayer()
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(Color(red: 0.965, green: 0.965, blue: 0.957))
 
             ExerciseVideoLoopView(player: player.queue)
                 .padding(contentInset)
         }
-        .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .stroke(MTTheme.stroke, lineWidth: contentInset > 0 ? 1 : 0))
         .onAppear {
             player.load(url: url)

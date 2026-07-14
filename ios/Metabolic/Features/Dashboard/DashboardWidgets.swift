@@ -145,7 +145,15 @@ struct WaterWidget: View {
     private var progress: Double { targetML > 0 ? Double(totalML) / Double(targetML) : 0 }
 
     private var litersText: String {
-        String(format: "%.2f / %.1f L", Double(totalML) / 1000, Double(targetML) / 1000)
+        "\(Units.waterAmountString(ml: totalML, system: appState.unitSystem)) / \(Units.waterGoalString(ml: targetML, system: appState.unitSystem))"
+    }
+
+    /// A ~one-glass quick add in the user's units.
+    private var quickAdd: (label: String, ml: Int) {
+        switch appState.unitSystem {
+        case .metric: return ("250 ml", 250)
+        case .imperial: return ("8 oz", 237)
+        }
     }
 
     var body: some View {
@@ -173,10 +181,10 @@ struct WaterWidget: View {
                 Button {
                     Haptics.success()
                     withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-                        modelContext.insert(WaterEntry(date: .now, amountML: 250))
+                        modelContext.insert(WaterEntry(date: .now, amountML: quickAdd.ml))
                     }
                 } label: {
-                    Text("+250ml")
+                    Text("+\(quickAdd.label)")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Color.black)
                         .padding(.horizontal, 14)

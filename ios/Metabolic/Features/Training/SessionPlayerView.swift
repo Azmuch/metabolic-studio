@@ -49,26 +49,11 @@ struct SessionPlayerView: View {
 
             if plan.items.isEmpty {
                 emptyPlanContent
+            } else if phase == .finished {
+                finishedContent
+                    .padding(20)
             } else {
-                VStack(spacing: 24) {
-                    topBar
-
-                    switch phase {
-                    case .ready:
-                        readyContent
-                    case .finished:
-                        Spacer(minLength: 0)
-                        finishedContent
-                        Spacer(minLength: 0)
-                    case .setReady, .working, .resting:
-                        Spacer(minLength: 0)
-                        centerSection
-                        Spacer(minLength: 0)
-                        activePhaseContent
-                        Spacer(minLength: 0)
-                    }
-                }
-                .padding(20)
+                playerLayout
             }
         }
         .task(id: taskKey) { await runPhaseWatcher() }
@@ -78,13 +63,79 @@ struct SessionPlayerView: View {
         }
     }
 
+    /// Edge-to-edge: the exercise animation fills the screen behind a frosted top bar; the
+    /// phase-specific controls sit in a pane at the bottom over the themed base.
+    private var playerLayout: some View {
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                heroPane
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                controlPane
+                    .padding(.horizontal, 20)
+                    .padding(.top, 18)
+                    .padding(.bottom, 8)
+            }
+            .ignoresSafeArea(edges: .top)
+
+            topBar
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+        }
+    }
+
+    private var heroPane: some View {
+        AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
+                        contentInset: 0, cornerRadius: 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(heroScrimOverlay)
+            .overlay(alignment: .bottom) { heroLabel }
+    }
+
+    /// Dark top + bottom wash (clear middle) so the frosted top bar and the white hero label stay
+    /// legible over the light studio background of the clip.
+    private var heroScrimOverlay: some View {
+        LinearGradient(
+            colors: [MTTheme.heroScrim.opacity(0.55), .clear, .clear, MTTheme.heroScrim.opacity(0.78)],
+            startPoint: .top, endPoint: .bottom)
+    }
+
+    private var heroLabel: some View {
+        VStack(spacing: 6) {
+            Text(phase == .ready ? "READY" : "SET \(currentSet) OF \(currentItem.sets)")
+                .font(.system(size: 12, weight: .semibold))
+                .tracking(1.4)
+                .foregroundStyle(.white.opacity(0.7))
+            Text(phase == .ready ? plan.title : currentItem.exercise.name)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            if phase == .ready {
+                Text(readySubtitle)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.75))
+            } else if isMobility {
+                MTChip(text: "Mobility", systemImage: "leaf.fill")
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
+        .frame(maxWidth: .infinity)
+    }
+
     @ViewBuilder
-    private var activePhaseContent: some View {
+    private var controlPane: some View {
         switch phase {
-        case .setReady: beginSetContent
-        case .working: workContent
-        case .resting: restContent
-        default: EmptyView()
+        case .ready:
+            MTPrimaryButton(title: "Start Workout", systemImage: "play.fill") { startWorkout() }
+        case .setReady:
+            beginSetContent
+        case .working:
+            workContent
+        case .resting:
+            restContent
+        default:
+            EmptyView()
         }
     }
 
@@ -126,11 +177,10 @@ struct SessionPlayerView: View {
                     showEndConfirm = true
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(MTTheme.textPrimary)
-                        .frame(width: 36, height: 36)
-                        .background(MTTheme.surface2)
-                        .clipShape(Circle())
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 38, height: 38)
+                        .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
 
@@ -139,14 +189,17 @@ struct SessionPlayerView: View {
                 if phase != .ready {
                     TimelineView(.periodic(from: sessionStart, by: 1)) { timeline in
                         Text(elapsedString(now: timeline.date))
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .monospacedDigit()
-                            .foregroundStyle(MTTheme.textSecondary)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(.ultraThinMaterial, in: Capsule())
                     }
                 }
             }
 
-            if phase != .ready && phase != .finished {
+            if phase != .ready {
                 progressSegments
             }
         }
@@ -164,8 +217,8 @@ struct SessionPlayerView: View {
 
     private func segmentColor(for index: Int) -> Color {
         if index < itemIndex { return MTTheme.volt }
-        if index == itemIndex { return MTTheme.volt.opacity(0.35) }
-        return MTTheme.surface2
+        if index == itemIndex { return MTTheme.volt.opacity(0.5) }
+        return Color.white.opacity(0.3)
     }
 
     private func elapsedString(now: Date) -> String {
@@ -181,33 +234,6 @@ struct SessionPlayerView: View {
         return max(reference.timeIntervalSince(sessionStart) - sessionPausedTotal - live, 0)
     }
 
-    // MARK: - Ready screen
-
-    private var readyContent: some View {
-        VStack(spacing: 24) {
-            Spacer(minLength: 0)
-
-            AnatomyHeroView(exercise: currentItem.exercise, isPlaying: true)
-                .frame(width: 280, height: 280)
-
-            VStack(spacing: 8) {
-                Text(plan.title)
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(MTTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                Text(readySubtitle)
-                    .font(.system(size: 15))
-                    .foregroundStyle(MTTheme.textSecondary)
-            }
-
-            Spacer(minLength: 0)
-
-            MTPrimaryButton(title: "Start Workout", systemImage: "play.fill") {
-                startWorkout()
-            }
-        }
-    }
-
     private var readySubtitle: String {
         let count = plan.items.count
         let noun = count == 1 ? "exercise" : "exercises"
@@ -216,30 +242,10 @@ struct SessionPlayerView: View {
 
     // MARK: - Center section
 
-    /// The clip loops while the user is previewing (set-ready) or performing (working) the
-    /// exercise, and freezes during rest or when paused — the "non-active phase" pause rule.
+    /// The clip loops on the Ready hook and while previewing (set-ready) or performing (working),
+    /// and freezes during rest or when paused — the "non-active phase" pause rule.
     private var heroIsPlaying: Bool {
-        !isPaused && (phase == .setReady || phase == .working)
-    }
-
-    private var centerSection: some View {
-        VStack(spacing: 16) {
-            AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying)
-                .frame(width: 300, height: 300)
-            VStack(spacing: 6) {
-                Text("SET \(currentSet) OF \(currentItem.sets)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
-                Text(currentItem.exercise.name)
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(MTTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                if isMobility {
-                    MTChip(text: "Mobility", systemImage: "leaf.fill")
-                }
-            }
-        }
+        !isPaused && (phase == .ready || phase == .setReady || phase == .working)
     }
 
     // MARK: - Begin-set prompt
@@ -275,7 +281,8 @@ struct SessionPlayerView: View {
                 if showsLoadField {
                     loadField
                 }
-                MTPrimaryButton(title: "Complete Set", systemImage: "checkmark") {
+                MTPrimaryButton(title: isLastSetOfLastItem ? "Finish" : "Rest",
+                                systemImage: isLastSetOfLastItem ? "flag.checkered" : "checkmark") {
                     completeSet()
                 }
             }

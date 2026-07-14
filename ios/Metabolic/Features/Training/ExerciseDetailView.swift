@@ -9,7 +9,6 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
 
     @State private var howToExpanded = false
     @State private var level: TrainingLevel = .intermediate
@@ -34,51 +33,31 @@ struct ExerciseDetailView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            ScrollView {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                heroCard
+
                 VStack(alignment: .leading, spacing: 16) {
-                    heroCard
-
-                    VStack(alignment: .leading, spacing: 16) {
-                        if hasFlaggedInjury {
-                            warningBanner
-                        }
-                        infoRow
-                        customizeCard
-                        howToDisclosure
+                    if hasFlaggedInjury {
+                        warningBanner
                     }
-                    .padding(.horizontal, 20)
+                    infoRow
+                    customizeCard
+                    howToDisclosure
                 }
-                .padding(.bottom, 32)
+                .padding(.horizontal, 20)
             }
-            .scrollIndicators(.hidden)
-            .ignoresSafeArea(edges: .top)
-
-            backButton
-                .padding(.leading, 16)
-                .padding(.top, 8)
+            .padding(.bottom, 32)
         }
+        .scrollIndicators(.hidden)
+        .ignoresSafeArea(edges: .top)
         .background(MTBackground().ignoresSafeArea())
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .tint(MTTheme.volt)
         .fullScreenCover(item: $runningPlan) { runnable in
             SessionPlayerView(plan: runnable.plan)
         }
-    }
-
-    private var backButton: some View {
-        Button {
-            Haptics.tap()
-            dismiss()
-        } label: {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(MTTheme.textPrimary)
-                .frame(width: 40, height: 40)
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().stroke(MTTheme.stroke, lineWidth: 0.5))
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Hero (edge-to-edge 9:16, extends under the status bar, name + muscles overlaid)
@@ -87,11 +66,19 @@ struct ExerciseDetailView: View {
         AnatomyHeroView(exercise: exercise, isPlaying: true, contentInset: 0)
             .aspectRatio(9.0 / 16.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
+            .overlay(alignment: .top) { topScrim }
             .overlay(alignment: .bottom) { heroOverlay }
             .clipShape(
                 UnevenRoundedRectangle(
                     topLeadingRadius: 0, bottomLeadingRadius: 28,
                     bottomTrailingRadius: 28, topTrailingRadius: 0, style: .continuous))
+    }
+
+    /// Subtle darkening under the status bar so the transparent-nav-bar back chevron stays legible
+    /// over the light hero top (keeps the native swipe-back gesture intact).
+    private var topScrim: some View {
+        LinearGradient(colors: [.black.opacity(0.28), .clear], startPoint: .top, endPoint: .bottom)
+            .frame(height: 130)
     }
 
     private var heroOverlay: some View {
@@ -101,10 +88,25 @@ struct ExerciseDetailView: View {
                     overlayChip(group.displayName)
                 }
             }
-            Text(exercise.name)
-                .font(.system(size: 30, weight: .bold))
-                .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.35), radius: 8, y: 2)
+            HStack(alignment: .center, spacing: 12) {
+                Text(exercise.name)
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.35), radius: 8, y: 2)
+                Spacer(minLength: 0)
+                Button {
+                    startCustomSession()
+                } label: {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.black)
+                        .frame(width: 56, height: 56)
+                        .background(MTTheme.volt, in: Circle())
+                        .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Start \(exercise.name)")
+            }
         }
         .padding(20)
         .padding(.top, 56)
@@ -112,18 +114,13 @@ struct ExerciseDetailView: View {
         .background(scrim)
     }
 
-    /// A dark scrim (keeps the white text legible) with the user's accent color washed into the
-    /// bottom, so the overlay coordinates with the chosen UI theme. Reading `MTTheme.volt` makes it
-    /// re-render live when the accent changes.
+    /// A single clean gradient into the deep, accent-tinted `heroScrim` — coordinates with the UI
+    /// theme (re-renders live when the accent changes) while staying dark enough for white text and
+    /// reading clean rather than a muddy black + bright-accent mix.
     private var scrim: some View {
-        ZStack {
-            LinearGradient(
-                colors: [.black.opacity(0), .black.opacity(0.32), .black.opacity(0.68)],
-                startPoint: .top, endPoint: .bottom)
-            LinearGradient(
-                colors: [.clear, MTTheme.volt.opacity(0.28)],
-                startPoint: .top, endPoint: .bottom)
-        }
+        LinearGradient(
+            colors: [.clear, MTTheme.heroScrim.opacity(0.38), MTTheme.heroScrim.opacity(0.84)],
+            startPoint: .top, endPoint: .bottom)
     }
 
     private func overlayChip(_ text: String) -> some View {
