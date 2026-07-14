@@ -11,7 +11,8 @@ struct MetabolicApp: App {
     private let modelContainer: ModelContainer = {
         do {
             return try ModelContainer(
-                for: FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self, ScanRecord.self
+                for: FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self,
+                ScanRecord.self, CustomWorkout.self
             )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")

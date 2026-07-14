@@ -7,13 +7,19 @@ import MetabolicCore
 struct TrainingView: View {
     @Environment(AppState.self) private var appState
     @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(\.modelContext) private var modelContext
 
     @Query private var weekLogs: [WorkoutLog]
     @Query private var lastWeekLogs: [WorkoutLog]
+    @Query(sort: \CustomWorkout.createdAt, order: .reverse) private var customWorkouts: [CustomWorkout]
 
     @State private var selectedIndex: Int
     @State private var showSessionPlayer = false
     @State private var showPaywall = false
+    @State private var showBuilder = false
+    @State private var editingWorkout: CustomWorkout?
+    @State private var runningCustomPlan: WorkoutPlan?
+    @State private var showCustomPlayer = false
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -46,6 +52,7 @@ struct TrainingView: View {
 
                     weekSummaryStrip
                     hypertrophyCard
+                    myWorkoutsSection
                     coachingSection
                     librarySection
                 }
@@ -59,8 +66,104 @@ struct TrainingView: View {
             .fullScreenCover(isPresented: $showSessionPlayer) {
                 SessionPlayerView(plan: plan)
             }
+            .fullScreenCover(isPresented: $showCustomPlayer) {
+                if let runningCustomPlan {
+                    SessionPlayerView(plan: runningCustomPlan)
+                }
+            }
+            .sheet(isPresented: $showBuilder) {
+                WorkoutBuilderView()
+            }
+            .sheet(item: $editingWorkout) { workout in
+                WorkoutBuilderView(editing: workout)
+            }
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
+            }
+        }
+    }
+
+    // MARK: - My workouts
+
+    private var myWorkoutsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("MY WORKOUTS")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                Spacer()
+                Button {
+                    Haptics.tap()
+                    showBuilder = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "plus")
+                        Text("Create")
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(MTTheme.volt)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if customWorkouts.isEmpty {
+                Text("Build your own session from any exercises in the library.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(MTTheme.textSecondary)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(customWorkouts) { workout in
+                        customWorkoutCard(workout)
+                    }
+                }
+            }
+        }
+    }
+
+    private func customWorkoutCard(_ workout: CustomWorkout) -> some View {
+        MTCard {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(workout.name)
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("\(workout.items.count) exercises · ~\(workout.estimatedMinutes) min")
+                        .font(.system(size: 13))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+                Spacer(minLength: 0)
+                Button {
+                    Haptics.tap()
+                    editingWorkout = workout
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(MTTheme.textSecondary)
+                        .frame(width: 38, height: 38)
+                        .background(MTTheme.surface2, in: Circle())
+                }
+                .buttonStyle(.plain)
+                Button {
+                    Haptics.tap()
+                    runningCustomPlan = workout.plan()
+                    showCustomPlayer = true
+                } label: {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.black)
+                        .frame(width: 44, height: 44)
+                        .background(MTTheme.volt, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(workout.items.isEmpty)
+            }
+            .contextMenu {
+                Button(role: .destructive) {
+                    modelContext.delete(workout)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
             }
         }
     }
