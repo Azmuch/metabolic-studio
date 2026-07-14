@@ -44,12 +44,6 @@ struct TrainingView: View {
                         planCard
                     }
 
-                    if isSelectedToday && !plan.items.isEmpty {
-                        MTPrimaryButton(title: "Start Workout", systemImage: "play.fill") {
-                            showSessionPlayer = true
-                        }
-                    }
-
                     weekSummaryStrip
                     hypertrophyCard
                     coachingSection
@@ -235,6 +229,18 @@ struct TrainingView: View {
                         text: "~\(plan.estimatedCalories(weightKg: appState.profile.weightKg)) kcal",
                         systemImage: "flame"
                     )
+                }
+
+                VStack(spacing: 6) {
+                    MTPrimaryButton(title: "Start Workout", systemImage: "play.fill",
+                                    isEnabled: isSelectedToday && !plan.items.isEmpty) {
+                        showSessionPlayer = true
+                    }
+                    if !isSelectedToday {
+                        Text("Only today's workout can be started right now.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textTertiary)
+                    }
                 }
 
                 VStack(spacing: 16) {

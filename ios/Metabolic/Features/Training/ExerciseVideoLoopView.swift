@@ -63,6 +63,8 @@ struct ExerciseVideoLoopView: UIViewRepresentable {
 struct ExerciseClipHero: View {
     let url: URL
     var isPlaying: Bool = true
+    /// Inset between the video and the card edge. 0 = edge-to-edge fill (used by the detail hero).
+    var contentInset: CGFloat = 10
 
     @StateObject private var player = LoopPlayer()
 
@@ -72,12 +74,12 @@ struct ExerciseClipHero: View {
                 .fill(Color(red: 0.965, green: 0.965, blue: 0.957))
 
             ExerciseVideoLoopView(player: player.queue)
-                .padding(10)
+                .padding(contentInset)
         }
         .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
-                .stroke(MTTheme.stroke, lineWidth: 1))
+                .stroke(MTTheme.stroke, lineWidth: contentInset > 0 ? 1 : 0))
         .onAppear {
             player.load(url: url)
             if isPlaying { player.play() }

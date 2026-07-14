@@ -21,6 +21,9 @@ struct AnatomyHeroView: View {
     /// Detail screens pass `true`; the Session Player pauses the clip in inactive phases.
     var isPlaying: Bool = true
 
+    /// Inset between the figure and the card edge. 0 = edge-to-edge (the full-bleed detail hero).
+    var contentInset: CGFloat = 10
+
     /// Exercise id → bundled anatomy imageset names (1 = static breathe, 2 = A/B loop).
     /// Populated by `ios/tools/fetch_anatomy_assets.sh`; missing assets fall back cleanly.
     static let assetManifest: [String: [String]] = [
@@ -36,12 +39,13 @@ struct AnatomyHeroView: View {
 
     var body: some View {
         if let clipURL = ExerciseClipStore.shared.clipURL(for: exercise.id) {
-            ExerciseClipHero(url: clipURL, isPlaying: isPlaying)
+            ExerciseClipHero(url: clipURL, isPlaying: isPlaying, contentInset: contentInset)
         } else if let names = Self.assetManifest[exercise.id],
                   let primary = UIImage(named: names[0]) {
             AnatomyImageHero(
                 primary: primary,
-                secondary: names.count > 1 ? UIImage(named: names[1]) : nil)
+                secondary: names.count > 1 ? UIImage(named: names[1]) : nil,
+                contentInset: contentInset)
         } else {
             ExerciseAnimationView(exercise: exercise)
         }
@@ -55,6 +59,7 @@ struct AnatomyHeroView: View {
 private struct AnatomyImageHero: View {
     let primary: UIImage
     let secondary: UIImage?
+    var contentInset: CGFloat = 10
 
     private let cycle: Double = 3.4
 
@@ -83,7 +88,7 @@ private struct AnatomyImageHero: View {
                             .opacity(blend)
                     }
                 }
-                .padding(10)
+                .padding(max(contentInset, 4))
                 .scaleEffect(breathe)
                 .hueRotation(.degrees(accentHueShift))
             }

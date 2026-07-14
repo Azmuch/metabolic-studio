@@ -91,6 +91,14 @@ struct MTChip: View {
     var systemImage: String? = nil
     var isActive: Bool = false
 
+    /// Inactive chips go translucent under glass/photo so they read as glass, not flat gray blocks.
+    private var translucent: Bool {
+        switch ThemeStore.shared.backgroundStyle {
+        case .classic, .tinted: return false
+        case .glass, .photo: return true
+        }
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             if let systemImage {
@@ -103,8 +111,20 @@ struct MTChip: View {
         .foregroundStyle(isActive ? Color.black : MTTheme.textSecondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 7)
-        .background(isActive ? MTTheme.volt : MTTheme.surface2)
-        .clipShape(Capsule())
+        .background(chipBackground)
+    }
+
+    @ViewBuilder
+    private var chipBackground: some View {
+        let shape = Capsule()
+        if isActive {
+            shape.fill(MTTheme.volt)
+        } else if translucent {
+            shape.fill(.ultraThinMaterial)
+                .overlay(shape.stroke(MTTheme.stroke, lineWidth: 0.5))
+        } else {
+            shape.fill(MTTheme.surface2)
+        }
     }
 }
 
@@ -113,10 +133,12 @@ struct MTChip: View {
 struct MTPrimaryButton: View {
     var title: String
     var systemImage: String? = nil
+    var isEnabled: Bool = true
     var action: () -> Void
 
     var body: some View {
         Button {
+            guard isEnabled else { return }
             Haptics.tap()
             action()
         } label: {
@@ -130,11 +152,12 @@ struct MTPrimaryButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .foregroundStyle(Color.black)
-            .background(MTTheme.volt)
+            .foregroundStyle(isEnabled ? Color.black : MTTheme.textTertiary)
+            .background(isEnabled ? MTTheme.volt : MTTheme.surface2)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
     }
 }
 

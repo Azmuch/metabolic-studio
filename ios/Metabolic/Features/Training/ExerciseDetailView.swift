@@ -1,17 +1,36 @@
 import SwiftUI
 import MetabolicCore
 
-/// Exercise detail: a dominant 9:16 animation hero (matching the Seedance clip aspect ratio) with
-/// the exercise name and target muscles overlaid poster-style, a compact info row, and a
-/// pull-down "How to". An injury-flag banner appears when the move is contraindicated.
+/// Exercise detail: a full-bleed 9:16 animation hero with the name + muscles overlaid poster-style,
+/// a compact info row, a **Preview & Customize** block (level + sets/reps/duration/rest → start a
+/// single-exercise session), and a pull-down "How to". An injury-flag banner appears when the move
+/// is contraindicated for the user's profile.
 struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @Environment(AppState.self) private var appState
+
     @State private var howToExpanded = false
+    @State private var level: TrainingLevel = .intermediate
+    @State private var sets: Int
+    @State private var reps: Int
+    @State private var seconds: Int
+    @State private var restSeconds: Int
+    @State private var customPlan: WorkoutPlan?
+    @State private var showPlayer = false
 
     init(exercise: Exercise) {
         self.exercise = exercise
+        switch exercise.kind {
+        case .reps(let n):
+            _reps = State(initialValue: n)
+            _seconds = State(initialValue: 40)
+        case .timed(let s):
+            _seconds = State(initialValue: s)
+            _reps = State(initialValue: 12)
+        }
+        _sets = State(initialValue: 3)
+        _restSeconds = State(initialValue: 45)
     }
 
     var body: some View {
@@ -19,33 +38,37 @@ struct ExerciseDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 heroCard
 
-                if hasFlaggedInjury {
-                    warningBanner
+                VStack(alignment: .leading, spacing: 16) {
+                    if hasFlaggedInjury {
+                        warningBanner
+                    }
+                    infoRow
+                    customizeCard
+                    howToDisclosure
                 }
-
-                infoRow
-                howToDisclosure
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
             .padding(.top, 8)
             .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
         .background(MTBackground())
         .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $showPlayer) {
+            if let customPlan {
+                SessionPlayerView(plan: customPlan)
+            }
+        }
     }
 
-    // MARK: - Hero (9:16, name + muscles overlaid)
+    // MARK: - Hero (edge-to-edge 9:16, name + muscles overlaid)
 
     private var heroCard: some View {
-        AnatomyHeroView(exercise: exercise)
+        AnatomyHeroView(exercise: exercise, isPlaying: true, contentInset: 0)
             .aspectRatio(9.0 / 16.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .overlay(alignment: .bottom) { heroOverlay }
-            .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous)
-                    .stroke(MTTheme.stroke, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private var heroOverlay: some View {
@@ -121,7 +144,6 @@ struct ExerciseDetailView: View {
             HStack(spacing: 8) {
                 MTChip(text: "MET \(String(format: "%.1f", exercise.met))", systemImage: "bolt.fill")
                 MTChip(text: "~\(estimatedCaloriesPer10Min) kcal / 10 min", systemImage: "flame")
-                MTChip(text: prescriptionText, systemImage: "repeat")
             }
         }
     }
@@ -138,11 +160,91 @@ struct ExerciseDetailView: View {
         )
     }
 
-    private var prescriptionText: String {
-        switch exercise.kind {
-        case .reps(let n): return "\(n) reps"
-        case .timed(let seconds): return "\(seconds)s"
+    // MARK: - Preview & customize
+
+    private var isReps: Bool {
+        if case .reps = exercise.kind { return true }
+        return false
+    }
+
+    private var customizeCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("PREVIEW & CUSTOMIZE")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(MTTheme.textTertiary)
+
+            Picker("Level", selection: $level) {
+                ForEach(TrainingLevel.allCases, id: \.self) { lvl in
+                    Text(lvl.displayName).tag(lvl)
+                }
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: level) { _, newValue in applyLevel(newValue) }
+
+            Text("Levels preset your volume — fine-tune anything below.")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
+
+            stepperRow("Sets", value: $sets, range: 1...8)
+            if isReps {
+                stepperRow("Reps", value: $reps, range: 1...50)
+            } else {
+                stepperRow("Seconds", value: $seconds, range: 5...300, step: 5, suffix: "s")
+            }
+            stepperRow("Rest", value: $restSeconds, range: 0...180, step: 5, suffix: "s")
+
+            MTPrimaryButton(title: level == .freestyle ? "Start Freestyle" : "Start Exercise",
+                            systemImage: "play.fill") {
+                startCustomSession()
+            }
         }
+        .padding(16)
+        .background(MTTheme.surface, in: RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+    }
+
+    private func stepperRow(_ label: String, value: Binding<Int>, range: ClosedRange<Int>,
+                            step: Int = 1, suffix: String = "") -> some View {
+        HStack {
+            Text(label)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(MTTheme.textPrimary)
+            Spacer()
+            Text("\(value.wrappedValue)\(suffix)")
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(MTTheme.textSecondary)
+            Stepper("", value: value, in: range, step: step)
+                .labelsHidden()
+                .tint(MTTheme.volt)
+        }
+    }
+
+    private func applyLevel(_ level: TrainingLevel) {
+        switch level {
+        case .beginner: sets = 2; scaleVolume(0.7)
+        case .intermediate: sets = 3; scaleVolume(1.0)
+        case .advanced: sets = 4; scaleVolume(1.3)
+        case .freestyle: sets = 1; scaleVolume(1.0)
+        }
+    }
+
+    private func scaleVolume(_ scale: Double) {
+        switch exercise.kind {
+        case .reps(let base): reps = max(1, Int((Double(base) * scale).rounded()))
+        case .timed(let base): seconds = max(5, Int((Double(base) * scale).rounded()))
+        }
+    }
+
+    private func startCustomSession() {
+        let kind: ExerciseKind = isReps ? .reps(reps) : .timed(seconds: seconds)
+        let item = WorkoutItem(id: exercise.id, exercise: exercise, sets: sets, kind: kind,
+                               restSeconds: restSeconds)
+        let workSeconds = isReps ? sets * reps * 3 : sets * seconds
+        let estimated = max(1, (workSeconds + sets * restSeconds) / 60)
+        customPlan = WorkoutPlan(date: .now, focus: .fullBody, title: exercise.name,
+                                 items: [item], estimatedMinutes: estimated)
+        showPlayer = true
     }
 
     // MARK: - How to (pull-down)
@@ -191,6 +293,21 @@ struct ExerciseDetailView: View {
         }
         .padding(16)
         .background(MTTheme.surface, in: RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+    }
+}
+
+/// Preset difficulty for the single-exercise preview session. Presets scale sets + reps/seconds;
+/// the steppers stay editable. Freestyle is a single self-paced set.
+fileprivate enum TrainingLevel: String, CaseIterable {
+    case beginner, intermediate, advanced, freestyle
+
+    var displayName: String {
+        switch self {
+        case .beginner: return "Beginner"
+        case .intermediate: return "Inter"
+        case .advanced: return "Advanced"
+        case .freestyle: return "Freestyle"
+        }
     }
 }
 
