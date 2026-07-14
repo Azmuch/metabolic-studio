@@ -232,3 +232,130 @@ New (single-level — static holds rarely have a real 3-tier progression; a coup
 Hand this file to the local agent alongside `SEEDANCE-PROMPT-KIT.md`: for each row, fill the
 prompt template's `{EXERCISE}`, `{EXPERT FORM DESCRIPTION}` (add to the kit's form-description
 library as each is authored), `{NEUTRAL POSE}`, and `{TARGET MUSCLES}` from this table.
+
+---
+
+# Add-on discipline sets (E–I)
+
+These five are **class-oriented add-ons**, distinct from the functional-fitness core above.
+Two content types live here, and they must not be conflated:
+
+- **Individual-move clips** (yoga asanas, pilates moves, kickboxing strikes, signature HIIT
+  moves): 4s écorché loops, same pipeline as the core catalog, and they can feed the exercise
+  library. Listed with `clipId`s below.
+- **Full guided sessions** (sun-salutation flows, pilates mat classes, HIIT circuits,
+  kickboxing rounds, every meditation): **10–45 min instructor-led content**, NOT 4s loops.
+  These belong to the Coaching / live-stream shell (`CoachingView`), not `ExerciseLibrary`.
+  A 4s anatomical loop is a *reference*, never a follow-along class — see the critique.
+
+The écorché figure is also the wrong medium for yoga/meditation brand-wise (clinical, not
+calming). For those, plan a warmer human/ambient visual treatment rather than the muscle figure.
+
+## E. Yoga
+
+**Asanas (individual clips):**
+| Level | clipId | Name | Prime target | Neutral pose |
+|---|---|---|---|---|
+| Beginner | `mountainPose` | Mountain Pose (Tadasana) | fullBody | standing tall, arms at sides |
+| Beginner | `downwardDog` | Downward-Facing Dog | shoulders, hamstrings | inverted V, hands + feet on floor |
+| Beginner | `bridgePose` | Bridge Pose | glutes, core | lying on back, knees bent |
+| Beginner | `seatedForwardFold` | Seated Forward Fold | hamstrings, back | seated, legs extended |
+| Intermediate | `warrior1` | Warrior I | quads, glutes | standing, feet split, arms overhead |
+| Intermediate | `warrior2` | Warrior II | quads, glutes | standing, feet wide, arms extended |
+| Intermediate | `warrior3` | Warrior III | glutes, hamstrings, core | standing on one leg, torso + rear leg parallel to floor |
+| Intermediate | `trianglePose` | Triangle Pose | core, hamstrings | standing, feet wide, arms extended |
+| Intermediate | `chairPose` | Chair Pose | quads, glutes | standing, arms overhead |
+| Intermediate | `treePose` | Tree Pose | core, calves | standing on one leg, foot to inner thigh |
+| Advanced | `crowPose` | Crow Pose | shoulders, core, arms | crouched, hands on floor |
+| Advanced | `wheelPose` | Wheel Pose | back, shoulders | lying on back, hands + feet planted |
+| Advanced | `dancerPose` | Dancer's Pose | quads, core | standing on one leg, holding rear foot |
+
+**Flows (classes — session content, not clips):** `sunSalutationA`, `sunSalutationB`,
+`vinyasaFlow`, `yinYoga`, `restorativeYoga`, `powerYoga` — each in beginner/intermediate/advanced
+lengths.
+
+## F. Pilates
+
+**Mat moves (individual clips):**
+| Level | clipId | Name | Prime target | Neutral pose |
+|---|---|---|---|---|
+| Beginner | `pilatesHundred` | The Hundred | core | lying on back, legs at tabletop |
+| Beginner | `pelvicCurl` | Pelvic Curl | glutes, core | lying on back, knees bent |
+| Beginner | `singleLegStretch` | Single-Leg Stretch | core | lying on back, head + shoulders lifted |
+| Beginner | `legCircles` | Leg Circles | core, hip | lying on back, one leg extended up |
+| Intermediate | `rollUp` | Roll-Up | core | lying flat, arms overhead |
+| Intermediate | `crissCross` | Criss-Cross | core | lying on back, hands behind head |
+| Intermediate | `sawStretch` | The Saw | core, hamstrings | seated, legs wide, arms extended |
+| Intermediate | `swanDive` | Swan Dive | back, glutes | lying face down, hands under shoulders |
+| Intermediate | `sidekickSeries` | Side-Kick Series | glutes, core | lying on side, legs stacked |
+| Advanced | `teaser` | The Teaser | core | lying flat, arms overhead |
+| Advanced | `boomerang` | The Boomerang | core | seated, legs crossed + extended |
+| Advanced | `jackknife` | Jackknife | core | lying on back, legs extended up |
+
+**Classes:** `pilatesMatBeginner/Intermediate/Advanced`, `pilatesCore`, `pilatesFullBody`.
+
+## G. HIIT
+
+HIIT is a **format** (work/rest intervals), not a muscle group — most classes reuse the core
+functional catalog on a Tabata/EMOM/AMRAP clock. A few signature moves are net-new clips:
+
+| Level | clipId | Name | Prime target | Neutral pose |
+|---|---|---|---|---|
+| Beginner | `plankJack` | Plank Jack | core, cardio | forearm/high plank |
+| Intermediate | `skaterJump` | Skater Jump | quads, glutes, cardio | athletic stance |
+| Intermediate | `squatThrust` | Squat Thrust (no push-up) | fullBody, cardio | standing |
+| Intermediate | `sprawl` | Sprawl | fullBody, cardio | athletic stance |
+| Advanced | `tuckJump` | Tuck Jump | quads, cardio | standing, knees soft |
+| Advanced | `starJump` | Star Jump | fullBody, cardio | crouched |
+
+**Class templates (session content):** `tabata20x10`, `emom`, `amrap`, `hiit30`, `hiit45` —
+timed circuits assembled from these + the core catalog. Build as a circuit-timer session type.
+
+## H. Kickboxing
+
+**Strikes / kicks (individual clips — new movement family):**
+| Level | clipId | Name | Prime target | Neutral pose |
+|---|---|---|---|---|
+| Beginner | `jab` | Jab | shoulders, arms, core | boxing stance, guard up |
+| Beginner | `cross` | Cross | shoulders, arms, core | boxing stance, guard up |
+| Beginner | `frontKick` | Front (Teep) Kick | quads, core | boxing stance, guard up |
+| Intermediate | `hook` | Hook | shoulders, arms, core | boxing stance, guard up |
+| Intermediate | `uppercut` | Uppercut | shoulders, arms, core | boxing stance, guard up |
+| Intermediate | `roundhouseKick` | Roundhouse Kick | glutes, quads, core | boxing stance, guard up |
+| Intermediate | `kneeStrike` | Knee Strike | quads, core | boxing stance, guard up |
+| Advanced | `sideKick` | Side Kick | glutes, quads, core | boxing stance, guard up |
+| Advanced | `bobAndWeave` | Bob and Weave (defense) | core, quads | boxing stance, guard up |
+| Advanced | `spinningBackKick` | Spinning Back Kick | glutes, core | boxing stance, guard up |
+
+**Classes:** `shadowboxRound`, `kickboxHIIT`, `heavyBagRound` (needs a bag prop in the clip) —
+3-minute rounds, combo-driven.
+
+## I. Meditation & Breathwork (AUDIO / ambient — NOT movement clips)
+
+These have **no Seedance movement clip**. They need guided **audio** (narrator voice + ambient
+bed) plus a calm ambient visual (a slow gradient, breathing orb, or generated nature loop — not
+the écorché figure). Different production pipeline entirely (voice generation + audio, e.g.
+ElevenLabs/Higgsfield audio; the app plays audio with a minimal visual).
+
+| sessionId | Name | Length | Type |
+|---|---|---|---|
+| `boxBreathing` | Box Breathing | 3–5 min | breathwork, animated breathing guide |
+| `478Breathing` | 4-7-8 Breathing | 3–5 min | breathwork, animated breathing guide |
+| `bodyScan` | Body Scan | 10–20 min | guided audio |
+| `focusMeditation` | Focus / Pre-Workout | 5–10 min | guided audio |
+| `sleepMeditation` | Sleep / Wind-Down | 15–30 min | guided audio |
+| `morningMeditation` | Morning Intention | 5–10 min | guided audio |
+| `lovingKindness` | Loving-Kindness | 10–15 min | guided audio |
+| `stressReset` | Stress Reset | 5 min | guided audio |
+
+## Add-on summary
+
+- Yoga: 13 asana clips + 6 flow classes
+- Pilates: 12 mat-move clips + 5 classes
+- HIIT: 6 signature clips + 5 class templates (reuses core catalog)
+- Kickboxing: 10 strike/kick clips + 3 round classes
+- Meditation: 8 audio sessions (no movement clips)
+
+**~41 new movement clips + ~27 guided sessions** on top of the ~77-clip core catalog. The
+guided sessions are the Apple Fitness+-style content and are a fundamentally larger production
+effort than the clips — see the critique before committing to producing them in-house.
