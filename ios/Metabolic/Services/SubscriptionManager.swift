@@ -37,8 +37,17 @@ final class SubscriptionManager {
     /// Loads store products and starts listening for transaction updates, then resolves
     /// the current entitlement tier. Safe to call once at app launch.
     func configure() async {
-        if let fetched = try? await Product.products(for: Self.productIDs) {
+        do {
+            let fetched = try await Product.products(for: Self.productIDs)
             products = fetched.sorted { $0.price < $1.price }
+            if fetched.isEmpty {
+                print("⚠️ StoreKit: 0 products for \(Self.productIDs). Attach Config/Products.storekit "
+                    + "to the scheme: Product → Scheme → Edit Scheme → Run → Options → StoreKit Configuration.")
+            } else {
+                print("✅ StoreKit: loaded \(fetched.count) products.")
+            }
+        } catch {
+            print("⚠️ StoreKit: Product.products failed — \(error)")
         }
 
         Task {
