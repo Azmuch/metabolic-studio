@@ -1,16 +1,19 @@
 import Foundation
 import Observation
 
-/// Resolves the best available exercise-demo video clip for an exercise id, in priority order:
+/// Resolves the best available exercise-demo video clip for an exercise id, honoring the user's
+/// chosen visual **style** ("skin pack"), in priority order:
 ///
-///   1. **Bundled** — `Metabolic/ExerciseClips/{id}.mp4` shipped in the app (instant, offline).
-///   2. **Cached** — a clip previously downloaded to `Caches/ExerciseClips/{id}.mp4`.
-///   3. **Remote** — streamed/downloaded per the bundled manifest (`exercise-clips.json`).
+///   1. **Styled, bundled** — `Metabolic/ExerciseClips/{id}.{style}.mp4`.
+///   2. **Anatomy, bundled** — `Metabolic/ExerciseClips/{id}.mp4` (the shipped écorché pack, which
+///      carries no style suffix). A pack therefore only needs to supply the exercises it restyles;
+///      anything it omits falls back to the anatomy clip rather than to nothing.
+///   3. **Styled / anatomy, cached** — the same two, previously downloaded to `Caches/ExerciseClips`.
+///   4. **Remote** — streamed/downloaded per the bundled manifest (`exercise-clips.json`), styled
+///      key first, then the anatomy key. Returns `nil` for now and downloads in the background; the
+///      hero shows its still/vector fallback until the clip lands, then re-resolves.
 ///
-/// When only a remote clip exists, `clipURL(for:)` kicks off a background download and returns
-/// `nil` for now; the hero shows its still/vector fallback until the download lands, then
-/// re-resolves (SwiftUI observes `downloadedIDs`). When no clip exists at any tier it returns
-/// `nil` and the fallback simply stays — so the app behaves exactly as before until clips ship.
+/// When no clip exists at any tier it returns `nil` and the still/vector fallback simply stays.
 @Observable
 final class ExerciseClipStore {
     static let shared = ExerciseClipStore()
@@ -22,12 +25,17 @@ final class ExerciseClipStore {
         }
         let version: Int
         let baseUrl: String
+        /// Keyed by clip *stem*: `"squat"` for the anatomy pack, `"squat.realistic"` for a style.
         let clips: [String: Entry]
     }
 
-    /// Ids whose clip has just become available in the cache. Reading this inside a view body
-    /// registers an observation dependency, so a hero re-resolves once a download completes.
-    private(set) var downloadedIDs: Set<String> = []
+    /// The active skin pack. Set from `AppState.clipStyle`; reading it inside a view body registers
+    /// an observation dependency, so heroes re-resolve live when the user switches packs.
+    var style: ClipStyle = .ecorche
+
+    /// Clip stems whose file has just become available in the cache (drives re-resolution after a
+    /// download completes). Stems are `"{id}"` or `"{id}.{token}"`.
+    private(set) var downloadedStems: Set<String> = []
 
     private let manifest: Manifest?
     private let cacheDir: URL
@@ -39,10 +47,9 @@ final class ExerciseClipStore {
             .urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("ExerciseClips", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
-        // Seed from whatever is already cached on disk from previous runs.
         if let files = try? FileManager.default.contentsOfDirectory(
             at: cacheDir, includingPropertiesForKeys: nil) {
-            downloadedIDs = Set(
+            downloadedStems = Set(
                 files.filter { $0.pathExtension == "mp4" }
                     .map { $0.deletingPathExtension().lastPathComponent })
         }
@@ -50,16 +57,24 @@ final class ExerciseClipStore {
 
     // MARK: - Resolution
 
-    /// Best local URL for an exercise, or `nil`. Kicks off a background download when only a
-    /// remote clip is available.
+    /// Best local clip URL for an exercise under the active style, or `nil`. Kicks off a background
+    /// download when only a remote clip is available.
     func clipURL(for exerciseID: String) -> URL? {
-        if let bundled = bundledURL(for: exerciseID) { return bundled }
-        // Touch `downloadedIDs` so the caller re-evaluates when a download completes.
-        if downloadedIDs.contains(exerciseID), let cached = cachedURL(for: exerciseID) {
-            return cached
+        let style = self.style   // observed — re-resolves when the pack changes
+        // Styled token first (if any), then the unstyled anatomy fallback.
+        let tokens: [String?] = style.filenameToken.map { [$0, nil] } ?? [nil]
+
+        for token in tokens {
+            if let url = bundledURL(stem: stem(exerciseID, token)) { return url }
         }
-        if manifest?.clips[exerciseID] != nil {
-            startDownload(exerciseID)
+        for token in tokens {
+            let s = stem(exerciseID, token)
+            // Touch `downloadedStems` so the caller re-evaluates when a download lands.
+            if downloadedStems.contains(s), let url = cachedURL(stem: s) { return url }
+        }
+        for token in tokens {
+            let s = stem(exerciseID, token)
+            if manifest?.clips[s] != nil { startDownload(s); break }
         }
         return nil
     }
@@ -68,49 +83,49 @@ final class ExerciseClipStore {
         clipURL(for: exerciseID) != nil
     }
 
-    /// Ids the manifest knows about (used for a "Download all for offline" action).
-    var remoteClipIDs: [String] {
-        manifest.map { Array($0.clips.keys) } ?? []
-    }
-
-    /// Force a clip to be fetched now.
+    /// Force the current style's clip for an exercise to be fetched now (e.g. "Download for offline").
     func download(_ exerciseID: String) {
-        startDownload(exerciseID)
+        startDownload(stem(exerciseID, style.filenameToken))
     }
 
-    // MARK: - Local lookups
+    // MARK: - Naming helpers
 
-    private func bundledURL(for id: String) -> URL? {
+    /// `"squat"` for the anatomy pack (nil token), `"squat.realistic"` for a style token.
+    private func stem(_ id: String, _ token: String?) -> String {
+        token.map { "\(id).\($0)" } ?? id
+    }
+
+    private func bundledURL(stem: String) -> URL? {
         // Cover both flattened and folder-preserving bundling of the synchronized group.
-        Bundle.main.url(forResource: id, withExtension: "mp4", subdirectory: "ExerciseClips")
-            ?? Bundle.main.url(forResource: id, withExtension: "mp4")
+        Bundle.main.url(forResource: stem, withExtension: "mp4", subdirectory: "ExerciseClips")
+            ?? Bundle.main.url(forResource: stem, withExtension: "mp4")
     }
 
-    private func cachedURL(for id: String) -> URL? {
-        let url = cacheDir.appendingPathComponent("\(id).mp4")
+    private func cachedURL(stem: String) -> URL? {
+        let url = cacheDir.appendingPathComponent("\(stem).mp4")
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
 
     // MARK: - Download
 
-    private func startDownload(_ id: String) {
-        guard let manifest, let entry = manifest.clips[id] else { return }
-        guard !inFlight.contains(id), cachedURL(for: id) == nil else { return }
+    private func startDownload(_ stem: String) {
+        guard let manifest, let entry = manifest.clips[stem] else { return }
+        guard !inFlight.contains(stem), cachedURL(stem: stem) == nil else { return }
         guard let base = URL(string: manifest.baseUrl), !manifest.baseUrl.isEmpty else { return }
         let remote = base.appendingPathComponent(entry.file)
-        let dest = cacheDir.appendingPathComponent("\(id).mp4")
-        inFlight.insert(id)
+        let dest = cacheDir.appendingPathComponent("\(stem).mp4")
+        inFlight.insert(stem)
         Task {
             do {
                 let (tmp, _) = try await URLSession.shared.download(from: remote)
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.moveItem(at: tmp, to: dest)
                 await MainActor.run {
-                    self.downloadedIDs.insert(id)
-                    self.inFlight.remove(id)
+                    self.downloadedStems.insert(stem)
+                    self.inFlight.remove(stem)
                 }
             } catch {
-                await MainActor.run { self.inFlight.remove(id) }
+                await MainActor.run { self.inFlight.remove(stem) }
             }
         }
     }

@@ -69,6 +69,41 @@ enum AccentTheme: String, Codable, CaseIterable {
     }
 }
 
+/// Visual style ("skin pack") for the exercise demo clips. The clip resolver looks for
+/// `{clipId}.{token}.mp4` first, falling back to the unstyled `{clipId}.mp4` (the shipped
+/// anatomy clips), so a pack only needs to supply the exercises it restyles.
+enum ClipStyle: String, Codable, CaseIterable {
+    case ecorche      // anatomical muscle figure — the shipped default
+    case realistic    // realistic human
+    case avatar       // stylized 3D-avatar look
+
+    var displayName: String {
+        switch self {
+        case .ecorche: return "Anatomy"
+        case .realistic: return "Realistic"
+        case .avatar: return "Avatar"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .ecorche: return "figure.strengthtraining.functional"
+        case .realistic: return "figure.stand"
+        case .avatar: return "person.crop.circle.fill"
+        }
+    }
+
+    /// Filename token appended before `.mp4`. `.ecorche` is the unstyled shipped clip, so it has
+    /// no token — `{id}.mp4` *is* the anatomy pack and every other pack falls back to it.
+    var filenameToken: String? {
+        switch self {
+        case .ecorche: return nil
+        case .realistic: return "realistic"
+        case .avatar: return "avatar"
+        }
+    }
+}
+
 /// How the app's canvas is painted behind the cards.
 enum BackgroundStyle: String, Codable, CaseIterable {
     case classic     // neutral, as shipped
@@ -138,6 +173,13 @@ final class AppState {
         }
     }
 
+    var clipStyle: ClipStyle {
+        didSet {
+            UserDefaults.standard.set(clipStyle.rawValue, forKey: Keys.clipStyle)
+            ExerciseClipStore.shared.style = clipStyle
+        }
+    }
+
     var selectedTab: AppTab = .today
 
     /// Saves the user's wallpaper photo (JPEG data) and notifies themed views.
@@ -170,6 +212,9 @@ final class AppState {
         accentTheme = defaults.string(forKey: Keys.accent).flatMap(AccentTheme.init(rawValue:)) ?? .volt
         backgroundStyle = defaults.string(forKey: Keys.background)
             .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
+        clipStyle = defaults.string(forKey: Keys.clipStyle).flatMap(ClipStyle.init(rawValue:)) ?? .ecorche
+        // Property observers don't fire during init — apply the loaded pack to the shared store.
+        ExerciseClipStore.shared.style = clipStyle
     }
 
     func completeOnboarding(with profile: FitnessProfile) {
@@ -185,6 +230,7 @@ final class AppState {
         static let units = "mt.units"
         static let accent = "mt.accent"
         static let background = "mt.background"
+        static let clipStyle = "mt.clipStyle"
     }
 
     private static func save<T: Encodable>(_ value: T, key: String) {

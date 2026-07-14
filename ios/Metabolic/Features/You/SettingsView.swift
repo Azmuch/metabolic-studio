@@ -94,6 +94,22 @@ struct SettingsView: View {
                             }
                             .pickerStyle(.segmented)
                         }
+
+                        Divider().overlay(MTTheme.stroke)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Figure style")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            HStack(spacing: 10) {
+                                ForEach(ClipStyle.allCases, id: \.self) { style in
+                                    figureStyleCard(style, selection: $appState.clipStyle)
+                                }
+                            }
+                            Text("Anatomy ships built-in. Other packs fall back to Anatomy for any exercise they don't include yet.")
+                                .font(.system(size: 12))
+                                .foregroundStyle(MTTheme.textTertiary)
+                        }
                     }
                 }
 
@@ -303,6 +319,34 @@ struct SettingsView: View {
     }
 
     private func backgroundCard(_ style: BackgroundStyle, selection: Binding<BackgroundStyle>) -> some View {
+        let selected = selection.wrappedValue == style
+        return Button {
+            Haptics.tap()
+            selection.wrappedValue = style
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: style.symbolName)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(selected ? MTTheme.volt : MTTheme.textSecondary)
+                    .frame(height: 22)
+                Text(style.displayName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(selected ? MTTheme.voltDim : MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: MTTheme.controlRadius)
+                    .stroke(selected ? MTTheme.volt : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func figureStyleCard(_ style: ClipStyle, selection: Binding<ClipStyle>) -> some View {
         let selected = selection.wrappedValue == style
         return Button {
             Haptics.tap()

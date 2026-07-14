@@ -6,6 +6,24 @@ training, calisthenics, endurance/conditioning, and mobility — with beginner/i
 advanced progressions named as distinct movements wherever a real progression exists (not
 every movement needs three levels; single-level items are marked accordingly).
 
+## Style packs / skin packs — filename contract (read before generating)
+
+The app supports multiple visual **styles** for the same exercise, selectable in
+Settings → Appearance → Figure style (`ClipStyle`: `ecorche`, `realistic`, `avatar`, extensible).
+Name files accordingly:
+
+- **Anatomy (écorché) pack = no suffix:** `{clipId}.mp4` (e.g. `squat.mp4`). This is the shipped
+  default and the **universal fallback** — every other pack falls back to it per-exercise.
+- **Any other pack = suffix the style token:** `{clipId}.{style}.mp4`
+  (e.g. `squat.realistic.mp4`, `warrior2.avatar.mp4`).
+
+Because packs fall back to the anatomy clip, a pack only needs to supply the exercises it
+actually restyles. This is exactly how you "limit écorché to certain exercises": generate the
+warm/realistic pack for yoga & mobility (`{id}.realistic.mp4`), leave strength as anatomy-only,
+and a user on the Realistic pack automatically gets realistic yoga + anatomy strength.
+
+Remote (CDN) clips use the same stem as the manifest key: `"squat.realistic": {"file": "..."}`.
+
 ## Conventions
 
 - **`clipId`** is the filename contract: `{clipId}.mp4` in `Metabolic/ExerciseClips/`, and
