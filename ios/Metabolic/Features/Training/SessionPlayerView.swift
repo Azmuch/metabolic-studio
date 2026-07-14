@@ -38,6 +38,8 @@ struct SessionPlayerView: View {
 
     @State private var showEndConfirm = false
     @State private var isSaving = false
+    @State private var celebrate = false
+    @State private var showConfetti = true
 
     init(plan: WorkoutPlan) {
         self.plan = plan
@@ -460,26 +462,74 @@ struct SessionPlayerView: View {
     // MARK: - Finished
 
     private var finishedContent: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 64, weight: .semibold))
-                .foregroundStyle(MTTheme.volt)
-
-            Text("Workout complete")
-                .font(.system(size: 26, weight: .bold))
-                .foregroundStyle(MTTheme.textPrimary)
-
-            statsGrid(minutes: elapsedMinutes(now: Date()))
-
-            if volumeKg > 0 {
-                MTChip(text: volumeSummaryText, systemImage: "scalemass.fill")
+        ZStack {
+            if showConfetti {
+                CelebrationConfetti(colors: [MTTheme.volt, MTTheme.water, MTTheme.protein,
+                                             MTTheme.carbs, MTTheme.success])
+                    .allowsHitTesting(false)
+                    .ignoresSafeArea()
             }
 
-            MTPrimaryButton(title: "Save & Finish", systemImage: "checkmark") {
-                Task { await saveAndFinish() }
+            VStack(spacing: 22) {
+                trophyBadge
+
+                VStack(spacing: 6) {
+                    Text("Workout Complete!")
+                        .font(.system(size: 28, weight: .heavy))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text(motivationalLine)
+                        .font(.system(size: 15))
+                        .foregroundStyle(MTTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                statsGrid(minutes: elapsedMinutes(now: Date()))
+
+                if volumeKg > 0 {
+                    MTChip(text: volumeSummaryText, systemImage: "scalemass.fill")
+                }
+
+                MTPrimaryButton(title: "Save & Finish", systemImage: "checkmark") {
+                    Task { await saveAndFinish() }
+                }
+                .disabled(isSaving)
             }
-            .disabled(isSaving)
         }
+        .onAppear {
+            Haptics.success()
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.5)) {
+                celebrate = true
+            }
+            Task {
+                try? await Task.sleep(for: .seconds(4))
+                showConfetti = false
+            }
+        }
+    }
+
+    private var trophyBadge: some View {
+        ZStack {
+            Circle()
+                .fill(MTTheme.voltDim)
+                .frame(width: 108, height: 108)
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 48, weight: .bold))
+                .foregroundStyle(MTTheme.volt)
+        }
+        .scaleEffect(celebrate ? 1 : 0.3)
+        .rotationEffect(.degrees(celebrate ? 0 : -20))
+        .shadow(color: MTTheme.volt.opacity(0.35), radius: 24)
+    }
+
+    private var motivationalLine: String {
+        let lines = [
+            "Every rep counts. You showed up.",
+            "That's how progress is built.",
+            "Strong work — your body thanks you.",
+            "Consistency beats intensity. Nailed it.",
+            "One more session in the books."
+        ]
+        return lines[completedExerciseIDs.count % lines.count]
     }
 
     private func elapsedMinutes(now: Date) -> Int {
@@ -660,6 +710,78 @@ struct SessionPlayerView: View {
 /// work, resting between sets, or done.
 fileprivate enum SessionPhase {
     case ready, setReady, working, resting, finished
+}
+
+/// Lightweight Canvas confetti for the completion celebration — colored pieces fall from above,
+/// drift, spin, and fade past the bottom. Precomputes random pieces once; draws each frame.
+private struct CelebrationConfetti: View {
+    let colors: [Color]
+    private let pieces: [ConfettiPiece]
+    @State private var start = Date()
+
+    init(colors: [Color], count: Int = 110) {
+        self.colors = colors
+        self.pieces = (0..<count).map { _ in ConfettiPiece.random(colors: colors) }
+    }
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let t = timeline.date.timeIntervalSince(start)
+            Canvas { context, size in
+                for piece in pieces {
+                    let s = piece.state(at: t, height: size.height)
+                    guard s.alpha > 0.01 else { continue }
+                    let progress = min(max((t - piece.delay) / piece.fallDuration, 0), 1)
+                    let x = piece.xFrac * size.width + piece.drift * CGFloat(progress)
+                    context.drawLayer { layer in
+                        layer.opacity = s.alpha
+                        layer.translateBy(x: x, y: s.y)
+                        layer.rotate(by: .degrees(s.rot))
+                        let rect = CGRect(x: -piece.w / 2, y: -piece.h / 2, width: piece.w, height: piece.h)
+                        layer.fill(Path(roundedRect: rect, cornerRadius: 1.5), with: .color(piece.color))
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct ConfettiPiece {
+    let xFrac: CGFloat
+    let delay: Double
+    let fallDuration: Double
+    let drift: CGFloat
+    let rotationSpeed: Double
+    let w: CGFloat
+    let h: CGFloat
+    let color: Color
+    let startY: CGFloat
+
+    static func random(colors: [Color]) -> ConfettiPiece {
+        ConfettiPiece(
+            xFrac: .random(in: 0...1),
+            delay: .random(in: 0...0.7),
+            fallDuration: .random(in: 2.0...3.2),
+            drift: .random(in: -50...50),
+            rotationSpeed: .random(in: -240...240),
+            w: .random(in: 6...10),
+            h: .random(in: 9...15),
+            color: colors.randomElement() ?? .green,
+            startY: .random(in: -160 ... -20)
+        )
+    }
+
+    /// Position/rotation/alpha at elapsed `time`. Falls from `startY` to past the bottom over
+    /// `fallDuration`, fading in the last stretch.
+    func state(at time: Double, height: CGFloat) -> (y: CGFloat, rot: Double, alpha: Double) {
+        let t = time - delay
+        guard t >= 0 else { return (startY, 0, 0) }
+        let p = min(t / fallDuration, 1)
+        let y = startY + (height + 200) * CGFloat(p)
+        let rot = rotationSpeed * t
+        let alpha: Double = p > 0.82 ? Double((1 - p) / 0.18) : 1
+        return (y, rot, alpha)
+    }
 }
 
 #Preview {
