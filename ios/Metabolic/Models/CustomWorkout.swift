@@ -2,6 +2,14 @@ import Foundation
 import SwiftData
 import MetabolicCore
 
+/// Identifiable wrapper so a one-off plan can drive `.fullScreenCover(item:)`, which guarantees the
+/// plan is non-nil when the cover renders — `isPresented` + a separate optional can race to a blank
+/// screen (the cover presents before the plan is assigned).
+struct RunnablePlan: Identifiable {
+    let id = UUID()
+    let plan: WorkoutPlan
+}
+
 /// One configured exercise inside a user-built workout. Stored as JSON on `CustomWorkout` so the
 /// whole item list round-trips as a single value (avoids SwiftData relationship overhead).
 struct CustomWorkoutItem: Codable, Identifiable, Equatable {

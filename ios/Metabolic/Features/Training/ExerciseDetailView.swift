@@ -9,6 +9,7 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
 
     @State private var howToExpanded = false
     @State private var level: TrainingLevel = .intermediate
@@ -16,8 +17,7 @@ struct ExerciseDetailView: View {
     @State private var reps: Int
     @State private var seconds: Int
     @State private var restSeconds: Int
-    @State private var customPlan: WorkoutPlan?
-    @State private var showPlayer = false
+    @State private var runningPlan: RunnablePlan?
 
     init(exercise: Exercise) {
         self.exercise = exercise
@@ -34,41 +34,64 @@ struct ExerciseDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                heroCard
-
+        ZStack(alignment: .topLeading) {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if hasFlaggedInjury {
-                        warningBanner
+                    heroCard
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        if hasFlaggedInjury {
+                            warningBanner
+                        }
+                        infoRow
+                        customizeCard
+                        howToDisclosure
                     }
-                    infoRow
-                    customizeCard
-                    howToDisclosure
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
+                .padding(.bottom, 32)
             }
-            .padding(.top, 8)
-            .padding(.bottom, 32)
+            .scrollIndicators(.hidden)
+            .ignoresSafeArea(edges: .top)
+
+            backButton
+                .padding(.leading, 16)
+                .padding(.top, 8)
         }
-        .scrollIndicators(.hidden)
-        .background(MTBackground())
-        .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showPlayer) {
-            if let customPlan {
-                SessionPlayerView(plan: customPlan)
-            }
+        .background(MTBackground().ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .fullScreenCover(item: $runningPlan) { runnable in
+            SessionPlayerView(plan: runnable.plan)
         }
     }
 
-    // MARK: - Hero (edge-to-edge 9:16, name + muscles overlaid)
+    private var backButton: some View {
+        Button {
+            Haptics.tap()
+            dismiss()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(MTTheme.textPrimary)
+                .frame(width: 40, height: 40)
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(MTTheme.stroke, lineWidth: 0.5))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Hero (edge-to-edge 9:16, extends under the status bar, name + muscles overlaid)
 
     private var heroCard: some View {
         AnatomyHeroView(exercise: exercise, isPlaying: true, contentInset: 0)
             .aspectRatio(9.0 / 16.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .overlay(alignment: .bottom) { heroOverlay }
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .clipShape(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 0, bottomLeadingRadius: 28,
+                    bottomTrailingRadius: 28, topTrailingRadius: 0, style: .continuous))
     }
 
     private var heroOverlay: some View {
@@ -86,11 +109,21 @@ struct ExerciseDetailView: View {
         .padding(20)
         .padding(.top, 56)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
+        .background(scrim)
+    }
+
+    /// A dark scrim (keeps the white text legible) with the user's accent color washed into the
+    /// bottom, so the overlay coordinates with the chosen UI theme. Reading `MTTheme.volt` makes it
+    /// re-render live when the accent changes.
+    private var scrim: some View {
+        ZStack {
             LinearGradient(
-                colors: [.black.opacity(0), .black.opacity(0.35), .black.opacity(0.72)],
+                colors: [.black.opacity(0), .black.opacity(0.32), .black.opacity(0.68)],
                 startPoint: .top, endPoint: .bottom)
-        )
+            LinearGradient(
+                colors: [.clear, MTTheme.volt.opacity(0.28)],
+                startPoint: .top, endPoint: .bottom)
+        }
     }
 
     private func overlayChip(_ text: String) -> some View {
@@ -242,9 +275,9 @@ struct ExerciseDetailView: View {
                                restSeconds: restSeconds)
         let workSeconds = isReps ? sets * reps * 3 : sets * seconds
         let estimated = max(1, (workSeconds + sets * restSeconds) / 60)
-        customPlan = WorkoutPlan(date: .now, focus: .fullBody, title: exercise.name,
-                                 items: [item], estimatedMinutes: estimated)
-        showPlayer = true
+        let plan = WorkoutPlan(date: .now, focus: .fullBody, title: exercise.name,
+                               items: [item], estimatedMinutes: estimated)
+        runningPlan = RunnablePlan(plan: plan)
     }
 
     // MARK: - How to (pull-down)

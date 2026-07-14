@@ -18,8 +18,7 @@ struct TrainingView: View {
     @State private var showPaywall = false
     @State private var showBuilder = false
     @State private var editingWorkout: CustomWorkout?
-    @State private var runningCustomPlan: WorkoutPlan?
-    @State private var showCustomPlayer = false
+    @State private var runningCustom: RunnablePlan?
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -66,10 +65,8 @@ struct TrainingView: View {
             .fullScreenCover(isPresented: $showSessionPlayer) {
                 SessionPlayerView(plan: plan)
             }
-            .fullScreenCover(isPresented: $showCustomPlayer) {
-                if let runningCustomPlan {
-                    SessionPlayerView(plan: runningCustomPlan)
-                }
+            .fullScreenCover(item: $runningCustom) { runnable in
+                SessionPlayerView(plan: runnable.plan)
             }
             .sheet(isPresented: $showBuilder) {
                 WorkoutBuilderView()
@@ -146,8 +143,7 @@ struct TrainingView: View {
                 .buttonStyle(.plain)
                 Button {
                     Haptics.tap()
-                    runningCustomPlan = workout.plan()
-                    showCustomPlayer = true
+                    runningCustom = RunnablePlan(plan: workout.plan())
                 } label: {
                     Image(systemName: "play.fill")
                         .font(.system(size: 15, weight: .semibold))
