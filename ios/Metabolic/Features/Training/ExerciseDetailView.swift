@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import MetabolicCore
 
 /// Exercise detail: a full-bleed 9:16 animation hero with the name + muscles overlaid poster-style,
@@ -9,6 +10,7 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
 
     @State private var howToExpanded = false
     @State private var level: TrainingLevel = .intermediate
@@ -33,31 +35,56 @@ struct ExerciseDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                heroCard
-
+        ZStack(alignment: .topLeading) {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if hasFlaggedInjury {
-                        warningBanner
+                    heroCard
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        if hasFlaggedInjury {
+                            warningBanner
+                        }
+                        infoRow
+                        customizeCard
+                        howToDisclosure
                     }
-                    infoRow
-                    customizeCard
-                    howToDisclosure
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
+                .padding(.bottom, 32)
             }
-            .padding(.bottom, 32)
+            .scrollIndicators(.hidden)
+            .ignoresSafeArea(edges: .top)
+
+            backButton
+                .padding(.leading, 16)
+                .padding(.top, 8)
         }
-        .scrollIndicators(.hidden)
-        .ignoresSafeArea(edges: .top)
         .background(MTBackground().ignoresSafeArea())
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .tint(MTTheme.volt)
+        .background(SwipeBackEnabler())
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .fullScreenCover(item: $runningPlan) { runnable in
             SessionPlayerView(plan: runnable.plan)
         }
+    }
+
+    /// Floating, self-legible back button (dark translucent — reads over the light hero and over
+    /// scrolled content alike, so no top gradient is needed). Swipe-back stays enabled via
+    /// `SwipeBackEnabler`.
+    private var backButton: some View {
+        Button {
+            Haptics.tap()
+            dismiss()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 40, height: 40)
+                .background(Color.black.opacity(0.32), in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 1))
+                .shadow(color: .black.opacity(0.2), radius: 5, y: 2)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Hero (edge-to-edge 9:16, extends under the status bar, name + muscles overlaid)
@@ -66,19 +93,11 @@ struct ExerciseDetailView: View {
         AnatomyHeroView(exercise: exercise, isPlaying: true, contentInset: 0)
             .aspectRatio(9.0 / 16.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
-            .overlay(alignment: .top) { topScrim }
             .overlay(alignment: .bottom) { heroOverlay }
             .clipShape(
                 UnevenRoundedRectangle(
                     topLeadingRadius: 0, bottomLeadingRadius: 28,
                     bottomTrailingRadius: 28, topTrailingRadius: 0, style: .continuous))
-    }
-
-    /// Subtle darkening under the status bar so the transparent-nav-bar back chevron stays legible
-    /// over the light hero top (keeps the native swipe-back gesture intact).
-    private var topScrim: some View {
-        LinearGradient(colors: [.black.opacity(0.28), .clear], startPoint: .top, endPoint: .bottom)
-            .frame(height: 130)
     }
 
     private var heroOverlay: some View {
@@ -91,8 +110,7 @@ struct ExerciseDetailView: View {
             HStack(alignment: .center, spacing: 12) {
                 Text(exercise.name)
                     .font(.system(size: 30, weight: .bold))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.35), radius: 8, y: 2)
+                    .foregroundStyle(Color(white: 0.12))
                 Spacer(minLength: 0)
                 Button {
                     startCustomSession()
@@ -102,35 +120,34 @@ struct ExerciseDetailView: View {
                         .foregroundStyle(Color.black)
                         .frame(width: 56, height: 56)
                         .background(MTTheme.volt, in: Circle())
-                        .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
+                        .shadow(color: .black.opacity(0.18), radius: 8, y: 3)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Start \(exercise.name)")
             }
         }
         .padding(20)
-        .padding(.top, 56)
+        .padding(.top, 72)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(scrim)
     }
 
-    /// A single clean gradient into the deep, accent-tinted `heroScrim` — coordinates with the UI
-    /// theme (re-renders live when the accent changes) while staying dark enough for white text and
-    /// reading clean rather than a muddy black + bright-accent mix.
+    /// A light, fresh wash to lift the dark ink name/chips off the figure without a heavy dark
+    /// band — bright and clean, matching the airy studio look of the clip.
     private var scrim: some View {
         LinearGradient(
-            colors: [.clear, MTTheme.heroScrim.opacity(0.38), MTTheme.heroScrim.opacity(0.84)],
+            colors: [.clear, Color.white.opacity(0.62), Color.white.opacity(0.95)],
             startPoint: .top, endPoint: .bottom)
     }
 
     private func overlayChip(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Color(white: 0.22))
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .background(.white.opacity(0.20), in: Capsule())
-            .overlay(Capsule().stroke(.white.opacity(0.30), lineWidth: 0.5))
+            .background(Color.white.opacity(0.75), in: Capsule())
+            .overlay(Capsule().stroke(Color.black.opacity(0.08), lineWidth: 0.5))
     }
 
     // MARK: - Injury warning
@@ -323,6 +340,26 @@ struct ExerciseDetailView: View {
         }
         .padding(16)
         .background(MTTheme.surface, in: RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+    }
+}
+
+/// Keeps the interactive edge-swipe-back gesture working while the system back button is hidden
+/// (so the custom floating back button can be used without losing native swipe navigation).
+private struct SwipeBackEnabler: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController { Proxy() }
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+
+    private final class Proxy: UIViewController, UIGestureRecognizerDelegate {
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            guard let gesture = navigationController?.interactivePopGestureRecognizer else { return }
+            gesture.delegate = self
+            gesture.isEnabled = true
+        }
+
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            (navigationController?.viewControllers.count ?? 0) > 1
+        }
     }
 }
 

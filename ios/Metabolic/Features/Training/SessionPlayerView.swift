@@ -16,7 +16,7 @@ struct SessionPlayerView: View {
 
     @State private var itemIndex = 0
     @State private var currentSet = 1
-    @State private var phase: SessionPhase = .ready
+    @State private var phase: SessionPhase = .setReady
     @State private var completedExerciseIDs: [String] = []
 
     /// Optional per-set load, remembered per-exercise for the life of this session, plus the
@@ -94,29 +94,25 @@ struct SessionPlayerView: View {
             .overlay(alignment: .bottom) { heroLabel }
     }
 
-    /// Dark top + bottom wash (clear middle) so the frosted top bar and the white hero label stay
-    /// legible over the light studio background of the clip.
+    /// Bottom wash only (clear at top) so the white hero label stays legible; the top bar buttons
+    /// carry their own contrast so no top gradient is needed over the light clip.
     private var heroScrimOverlay: some View {
         LinearGradient(
-            colors: [MTTheme.heroScrim.opacity(0.55), .clear, .clear, MTTheme.heroScrim.opacity(0.78)],
+            colors: [.clear, .clear, MTTheme.heroScrim.opacity(0.32), MTTheme.heroScrim.opacity(0.82)],
             startPoint: .top, endPoint: .bottom)
     }
 
     private var heroLabel: some View {
         VStack(spacing: 6) {
-            Text(phase == .ready ? "READY" : "SET \(currentSet) OF \(currentItem.sets)")
+            Text("SET \(currentSet) OF \(currentItem.sets)")
                 .font(.system(size: 12, weight: .semibold))
                 .tracking(1.4)
                 .foregroundStyle(.white.opacity(0.7))
-            Text(phase == .ready ? plan.title : currentItem.exercise.name)
+            Text(currentItem.exercise.name)
                 .font(.system(size: 26, weight: .bold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
-            if phase == .ready {
-                Text(readySubtitle)
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white.opacity(0.75))
-            } else if isMobility {
+            if isMobility {
                 MTChip(text: "Mobility", systemImage: "leaf.fill")
             }
         }
@@ -128,8 +124,6 @@ struct SessionPlayerView: View {
     @ViewBuilder
     private var controlPane: some View {
         switch phase {
-        case .ready:
-            MTPrimaryButton(title: "Start Workout", systemImage: "play.fill") { startWorkout() }
         case .setReady:
             beginSetContent
         case .working:
@@ -182,26 +176,30 @@ struct SessionPlayerView: View {
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(width: 38, height: 38)
-                        .background(.ultraThinMaterial, in: Circle())
+                        .background(Color.black.opacity(0.32), in: Circle())
+                        .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 1))
+                        .shadow(color: .black.opacity(0.2), radius: 5, y: 2)
                 }
                 .buttonStyle(.plain)
 
                 Spacer()
 
-                if phase != .ready {
-                    TimelineView(.periodic(from: sessionStart, by: 1)) { timeline in
-                        Text(elapsedString(now: timeline.date))
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(.ultraThinMaterial, in: Capsule())
-                    }
+                TimelineView(.periodic(from: sessionStart, by: 1)) { timeline in
+                    Text(elapsedString(now: timeline.date))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Color.black.opacity(0.32), in: Capsule())
+                        .overlay(Capsule().stroke(.white.opacity(0.35), lineWidth: 1))
+                        .shadow(color: .black.opacity(0.2), radius: 5, y: 2)
                 }
             }
 
-            if phase != .ready {
+            // Item progress only when there's more than one exercise — a single full-width
+            // segment reads as a stray line.
+            if plan.items.count > 1 {
                 progressSegments
             }
         }
@@ -236,18 +234,12 @@ struct SessionPlayerView: View {
         return max(reference.timeIntervalSince(sessionStart) - sessionPausedTotal - live, 0)
     }
 
-    private var readySubtitle: String {
-        let count = plan.items.count
-        let noun = count == 1 ? "exercise" : "exercises"
-        return "\(count) \(noun) · ~\(plan.estimatedMinutes) min"
-    }
-
     // MARK: - Center section
 
-    /// The clip loops on the Ready hook and while previewing (set-ready) or performing (working),
-    /// and freezes during rest or when paused — the "non-active phase" pause rule.
+    /// The clip loops while previewing (set-ready) or performing (working), and freezes during
+    /// rest or when paused — the "non-active phase" pause rule.
     private var heroIsPlaying: Bool {
-        !isPaused && (phase == .ready || phase == .setReady || phase == .working)
+        !isPaused && (phase == .setReady || phase == .working)
     }
 
     // MARK: - Begin-set prompt
@@ -612,17 +604,6 @@ struct SessionPlayerView: View {
         phaseStart = Date()
         phasePausedTotal = 0
         pausedAt = nil
-    }
-
-    private func startWorkout() {
-        Haptics.success()
-        sessionStart = Date()
-        sessionEnd = nil
-        sessionPausedTotal = 0
-        itemIndex = 0
-        currentSet = 1
-        phase = .setReady
-        resetPhaseAnchor()
     }
 
     private func beginSet() {
