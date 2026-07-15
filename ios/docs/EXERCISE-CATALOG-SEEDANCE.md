@@ -255,6 +255,23 @@ library as each is authored), `{NEUTRAL POSE}`, and `{TARGET MUSCLES}` from this
 
 # Add-on discipline sets (E–I)
 
+## Shipping model: non-consumable IAP + Apple-hosted ODR (no server)
+
+Packs E–H are **one-time purchases** (StoreKit non-consumables, defined in
+`Config/Products.storekit` and `Services/PackStore.swift`) whose clips ship as **On-Demand
+Resources** — Apple hosts the asset packs (up to 20 GB) and the app downloads a pack's clips
+after purchase. The unlock system, storefront (You → Expansion Packs), locked-exercise
+banners, and the ODR loader are already implemented and dormant until content lands.
+
+**When a pack's clips are ready (local Xcode step):**
+1. Drop the `{clipId}.mp4` files into `Metabolic/ExerciseClips/` as usual.
+2. Select the pack's files in Xcode → File Inspector → **On-Demand Resource Tags** → add the
+   pack's tag: `pack.yoga`, `pack.pilates`, `pack.hiit`, or `pack.kickboxing`.
+   (Untagged clips stay bundled — correct for the free/core catalog.)
+3. Add the pack's exercises to `ExerciseLibrary.swift` with ids matching the catalog. Gating is
+   automatic: ids listed in `ExpansionPack.all` resolve clips only for owners.
+4. Product IDs: `com.metabolicstudio.metabolic.pack.{yoga|pilates|hiit|kickboxing}`.
+
 These five are **class-oriented add-ons**, distinct from the functional-fitness core above.
 Two content types live here, and they must not be conflated:
 

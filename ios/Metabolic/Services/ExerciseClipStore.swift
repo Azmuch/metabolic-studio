@@ -37,9 +37,15 @@ final class ExerciseClipStore {
     /// download completes). Stems are `"{id}"` or `"{id}.{token}"`.
     private(set) var downloadedStems: Set<String> = []
 
+    /// On-Demand Resource tags whose Apple-hosted asset pack is downloaded and accessible.
+    /// Observed by heroes so pack clips appear the moment the ODR download lands.
+    private(set) var odrLoadedTags: Set<String> = []
+
     private let manifest: Manifest?
     private let cacheDir: URL
     private var inFlight: Set<String> = []
+    /// Live requests, kept for the app's lifetime so accessed ODR resources stay available.
+    private var odrRequests: [String: NSBundleResourceRequest] = [:]
 
     private init() {
         manifest = Self.loadBundledManifest()
@@ -57,9 +63,19 @@ final class ExerciseClipStore {
 
     // MARK: - Resolution
 
-    /// Best local clip URL for an exercise under the active style, or `nil`. Kicks off a background
-    /// download when only a remote clip is available.
+    /// Best local clip URL for an exercise under the active style, or `nil`. Expansion-pack
+    /// exercises resolve only when their pack is purchased (their clips arrive via ODR after
+    /// unlock). Kicks off a background download when only a remote clip is available.
     func clipURL(for exerciseID: String) -> URL? {
+        // Expansion gate: locked pack content never resolves; owned-but-not-downloaded content
+        // triggers the ODR fetch and resolves once `odrLoadedTags` updates (observed).
+        if let pack = ExpansionPack.pack(containing: exerciseID) {
+            guard PackStore.shared.purchasedPackIDs.contains(pack.id) else { return nil }
+            if !odrLoadedTags.contains(pack.odrTag) {
+                beginODRAccess(tag: pack.odrTag)
+            }
+        }
+
         let style = self.style   // observed — re-resolves when the pack changes
         // Styled token first (if any), then the unstyled anatomy fallback.
         let tokens: [String?] = style.filenameToken.map { [$0, nil] } ?? [nil]
@@ -77,6 +93,35 @@ final class ExerciseClipStore {
             if manifest?.clips[s] != nil { startDownload(s); break }
         }
         return nil
+    }
+
+    // MARK: - On-Demand Resources (Apple-hosted expansion packs)
+
+    /// Requests an ODR asset pack by tag. Uses `conditionallyBeginAccessingResources` first (free
+    /// if already on device), else downloads from Apple's hosting. Once access succeeds, the tag's
+    /// files resolve through the normal `Bundle.main` lookups and `odrLoadedTags` notifies heroes.
+    /// Safe to call when the tag has no assets yet (clips not shipped) — the request simply fails
+    /// and the still/vector fallback stays.
+    func beginODRAccess(tag: String) {
+        guard odrRequests[tag] == nil else { return }
+        let request = NSBundleResourceRequest(tags: [tag])
+        request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
+        odrRequests[tag] = request
+        request.conditionallyBeginAccessingResources { [weak self] available in
+            if available {
+                Task { @MainActor in self?.odrLoadedTags.insert(tag) }
+            } else {
+                request.beginAccessingResources { error in
+                    Task { @MainActor in
+                        if error == nil {
+                            self?.odrLoadedTags.insert(tag)
+                        } else {
+                            self?.odrRequests[tag] = nil   // allow retry later
+                        }
+                    }
+                }
+            }
+        }
     }
 
     func hasClip(for exerciseID: String) -> Bool {

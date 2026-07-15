@@ -44,6 +44,9 @@ struct ExerciseDetailView: View {
                     heroCard
 
                     VStack(alignment: .leading, spacing: 16) {
+                        if let pack = PackStore.shared.lockingPack(for: exercise.id) {
+                            packUnlockBanner(pack)
+                        }
                         if hasFlaggedInjury {
                             warningBanner
                         }
@@ -190,6 +193,38 @@ struct ExerciseDetailView: View {
             .padding(.vertical, 5)
             .background(Color.white.opacity(0.75), in: Capsule())
             .overlay(Capsule().stroke(Color.black.opacity(0.08), lineWidth: 0.5))
+    }
+
+    // MARK: - Pack unlock
+
+    /// Shown when this exercise belongs to an expansion pack the user hasn't purchased — the demo
+    /// clip won't resolve until then, so route to the pack storefront.
+    private func packUnlockBanner(_ pack: ExpansionPack) -> some View {
+        NavigationLink {
+            PacksView()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(MTTheme.volt)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Part of the \(pack.title) Pack")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("Unlock to get the full demo and all \(pack.exerciseIDs.count) exercises.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(MTTheme.textTertiary)
+            }
+            .padding(14)
+            .background(MTTheme.voltDim)
+            .clipShape(RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Injury warning

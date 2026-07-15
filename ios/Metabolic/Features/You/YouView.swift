@@ -172,6 +172,11 @@ struct YouView: View {
                             caption: subscriptionManager.tier.displayName)
                 }
                 rowDivider
+                NavigationLink { PacksView() } label: {
+                    linkRow(symbol: "puzzlepiece.extension.fill", title: "Expansion Packs",
+                            caption: "Yoga · Pilates · HIIT · Kickboxing")
+                }
+                rowDivider
                 NavigationLink { SettingsView() } label: {
                     linkRow(symbol: "gearshape.fill", title: "Settings",
                             caption: appState.demoMode ? "Demo mode on" : "API key, export, about")

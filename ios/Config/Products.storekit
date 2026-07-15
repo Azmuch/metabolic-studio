@@ -4,7 +4,66 @@
 
   ],
   "products" : [
-
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "5F2A9C10-0000-4000-8000-000000000010",
+      "localizations" : [
+        {
+          "description" : "13 yoga asanas with guided demos, beginner to advanced.",
+          "displayName" : "Yoga Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.metabolicstudio.metabolic.pack.yoga",
+      "referenceName" : "Yoga Pack",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "5F2A9C10-0000-4000-8000-000000000011",
+      "localizations" : [
+        {
+          "description" : "12 classic Pilates mat moves with guided demos.",
+          "displayName" : "Pilates Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.metabolicstudio.metabolic.pack.pilates",
+      "referenceName" : "Pilates Pack",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "5F2A9C10-0000-4000-8000-000000000012",
+      "localizations" : [
+        {
+          "description" : "Signature HIIT moves plus interval circuit templates.",
+          "displayName" : "HIIT Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.metabolicstudio.metabolic.pack.hiit",
+      "referenceName" : "HIIT Pack",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "5F2A9C10-0000-4000-8000-000000000013",
+      "localizations" : [
+        {
+          "description" : "Strikes, kicks and defense with guided demos.",
+          "displayName" : "Kickboxing Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.metabolicstudio.metabolic.pack.kickboxing",
+      "referenceName" : "Kickboxing Pack",
+      "type" : "NonConsumable"
+    }
   ],
   "settings" : {
     "_applicationInternalID" : "",
