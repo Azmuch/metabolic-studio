@@ -84,25 +84,10 @@ struct TrainingView: View {
 
     private var myWorkoutsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("MY WORKOUTS")
-                    .font(.system(size: 11, weight: .semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
-                Spacer()
-                Button {
-                    Haptics.tap()
-                    showBuilder = true
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "plus")
-                        Text("Create")
-                    }
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
-                }
-                .buttonStyle(.plain)
-            }
+            Text("MY WORKOUTS")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(MTTheme.textTertiary)
 
             if customWorkouts.isEmpty {
                 Text("Build your own session from any exercises in the library.")
@@ -115,6 +100,22 @@ struct TrainingView: View {
                     }
                 }
             }
+
+            Button {
+                Haptics.tap()
+                showBuilder = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                    Text("Create Workout")
+                }
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(MTTheme.volt, in: Capsule())
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -615,10 +616,21 @@ struct TrainingView: View {
 
     private var librarySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("EXERCISE LIBRARY")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.2)
-                .foregroundStyle(MTTheme.textTertiary)
+            HStack {
+                Text("EXERCISE LIBRARY")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                Spacer()
+                NavigationLink {
+                    ExerciseLibraryView()
+                } label: {
+                    Text("See all")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                }
+                .buttonStyle(.plain)
+            }
 
             ScrollView(.horizontal) {
                 HStack(spacing: 12) {

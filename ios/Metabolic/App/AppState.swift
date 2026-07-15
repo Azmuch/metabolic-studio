@@ -180,6 +180,23 @@ final class AppState {
         }
     }
 
+    /// Exercise ids the user has saved/favorited.
+    var favoriteExerciseIDs: Set<String> {
+        didSet { Self.save(Array(favoriteExerciseIDs), key: Keys.favorites) }
+    }
+
+    func toggleFavorite(_ id: String) {
+        if favoriteExerciseIDs.contains(id) {
+            favoriteExerciseIDs.remove(id)
+        } else {
+            favoriteExerciseIDs.insert(id)
+        }
+    }
+
+    func isFavorite(_ id: String) -> Bool {
+        favoriteExerciseIDs.contains(id)
+    }
+
     var selectedTab: AppTab = .today
 
     /// Saves the user's wallpaper photo (JPEG data) and notifies themed views.
@@ -213,6 +230,7 @@ final class AppState {
         backgroundStyle = defaults.string(forKey: Keys.background)
             .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
         clipStyle = defaults.string(forKey: Keys.clipStyle).flatMap(ClipStyle.init(rawValue:)) ?? .ecorche
+        favoriteExerciseIDs = Set(Self.load([String].self, key: Keys.favorites) ?? [])
         // Property observers don't fire during init — apply the loaded pack to the shared store.
         ExerciseClipStore.shared.style = clipStyle
     }
@@ -231,6 +249,7 @@ final class AppState {
         static let accent = "mt.accent"
         static let background = "mt.background"
         static let clipStyle = "mt.clipStyle"
+        static let favorites = "mt.favorites"
     }
 
     private static func save<T: Encodable>(_ value: T, key: String) {

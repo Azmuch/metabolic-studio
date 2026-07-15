@@ -40,6 +40,7 @@ struct SessionPlayerView: View {
     @State private var isSaving = false
     @State private var celebrate = false
     @State private var showConfetti = true
+    @State private var newPRExercises: [String] = []
 
     init(plan: WorkoutPlan) {
         self.plan = plan
@@ -94,11 +95,11 @@ struct SessionPlayerView: View {
             .overlay(alignment: .bottom) { heroLabel }
     }
 
-    /// Bottom wash only (clear at top) so the white hero label stays legible; the top bar buttons
-    /// carry their own contrast so no top gradient is needed over the light clip.
+    /// Light accent-tinted bottom wash (clear at top) — consistent with the exercise detail card.
+    /// The top bar buttons carry their own contrast so no top gradient is needed over the clip.
     private var heroScrimOverlay: some View {
         LinearGradient(
-            colors: [.clear, .clear, MTTheme.heroScrim.opacity(0.32), MTTheme.heroScrim.opacity(0.82)],
+            colors: [.clear, .clear, MTTheme.heroScrimLight.opacity(0.42), MTTheme.heroScrimLight.opacity(0.94)],
             startPoint: .top, endPoint: .bottom)
     }
 
@@ -107,10 +108,10 @@ struct SessionPlayerView: View {
             Text("SET \(currentSet) OF \(currentItem.sets)")
                 .font(.system(size: 12, weight: .semibold))
                 .tracking(1.4)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(Color(white: 0.3))
             Text(currentItem.exercise.name)
                 .font(.system(size: 26, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color(white: 0.12))
                 .multilineTextAlignment(.center)
             if isMobility {
                 MTChip(text: "Mobility", systemImage: "leaf.fill")
@@ -481,6 +482,14 @@ struct SessionPlayerView: View {
                     MTChip(text: volumeSummaryText, systemImage: "scalemass.fill")
                 }
 
+                if !newPRExercises.isEmpty {
+                    Label("New personal best · \(newPRExercises.joined(separator: ", "))",
+                          systemImage: "trophy.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                        .multilineTextAlignment(.center)
+                }
+
                 MTPrimaryButton(title: "Save & Finish", systemImage: "checkmark") {
                     Task { await saveAndFinish() }
                 }
@@ -489,6 +498,7 @@ struct SessionPlayerView: View {
         }
         .onAppear {
             Haptics.success()
+            AppSound.achievement()
             withAnimation(.spring(response: 0.6, dampingFraction: 0.5)) {
                 celebrate = true
             }
@@ -614,6 +624,7 @@ struct SessionPlayerView: View {
 
     private func completeSet() {
         Haptics.success()
+        recordPersonalBest()
         if case .reps(let n) = currentItem.kind, showsLoadField {
             volumeKg += Double(n) * currentLoadKg
         }
@@ -661,6 +672,40 @@ struct SessionPlayerView: View {
                     return
                 }
                 try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+        }
+    }
+
+    // MARK: - Personal bests
+
+    /// Upserts this exercise's personal best from the just-completed set, recording which exercises
+    /// hit a new record so the celebration can call it out.
+    private func recordPersonalBest() {
+        let exercise = currentItem.exercise
+        let id = exercise.id
+        let descriptor = FetchDescriptor<PersonalBest>(
+            predicate: #Predicate<PersonalBest> { $0.exerciseID == id })
+        let record: PersonalBest
+        if let existing = try? modelContext.fetch(descriptor).first {
+            record = existing
+        } else {
+            record = PersonalBest(exerciseID: id)
+            modelContext.insert(record)
+        }
+
+        var improved = false
+        switch currentItem.kind {
+        case .reps(let n):
+            if n > record.bestReps { record.bestReps = n; improved = true }
+            if currentLoadKg > record.bestLoadKg { record.bestLoadKg = currentLoadKg; improved = true }
+        case .timed(let seconds):
+            if seconds > record.bestHoldSeconds { record.bestHoldSeconds = seconds; improved = true }
+        }
+
+        if improved {
+            record.updatedAt = .now
+            if !newPRExercises.contains(exercise.name) {
+                newPRExercises.append(exercise.name)
             }
         }
     }

@@ -149,6 +149,11 @@ struct YouView: View {
                             caption: profileSummary)
                 }
                 rowDivider
+                NavigationLink { AchievementsView() } label: {
+                    linkRow(symbol: "trophy.fill", title: "Achievements",
+                            caption: "Badges you've unlocked")
+                }
+                rowDivider
                 linkRow(symbol: "target", title: "Daily targets", caption: targetsSummary)
                 rowDivider
                 Button {

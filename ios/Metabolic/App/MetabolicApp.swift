@@ -12,7 +12,7 @@ struct MetabolicApp: App {
         do {
             return try ModelContainer(
                 for: FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self,
-                ScanRecord.self, CustomWorkout.self
+                ScanRecord.self, CustomWorkout.self, PersonalBest.self
             )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")

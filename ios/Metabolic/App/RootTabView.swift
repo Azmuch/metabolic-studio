@@ -37,7 +37,7 @@ struct RootTabView: View {
         .environment(SubscriptionManager())
         .environment(HealthKitService())
         .modelContainer(
-            for: [FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self, ScanRecord.self, CustomWorkout.self],
+            for: [FoodEntry.self, WaterEntry.self, WorkoutLog.self, WeightEntry.self, ScanRecord.self, CustomWorkout.self, PersonalBest.self],
             inMemory: true
         )
 }

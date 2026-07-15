@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import MetabolicCore
 
@@ -11,6 +12,8 @@ struct ExerciseDetailView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
+
+    @Query private var personalBests: [PersonalBest]
 
     @State private var howToExpanded = false
     @State private var level: TrainingLevel = .intermediate
@@ -59,6 +62,11 @@ struct ExerciseDetailView: View {
                 .padding(.leading, 16)
                 .padding(.top, 8)
         }
+        .overlay(alignment: .topTrailing) {
+            favoriteButton
+                .padding(.trailing, 16)
+                .padding(.top, 8)
+        }
         .background(MTBackground().ignoresSafeArea())
         .background(SwipeBackEnabler())
         .navigationBarBackButtonHidden(true)
@@ -66,6 +74,39 @@ struct ExerciseDetailView: View {
         .fullScreenCover(item: $runningPlan) { runnable in
             SessionPlayerView(plan: runnable.plan)
         }
+    }
+
+    private var favoriteButton: some View {
+        Button {
+            Haptics.tap()
+            appState.toggleFavorite(exercise.id)
+        } label: {
+            Image(systemName: appState.isFavorite(exercise.id) ? "heart.fill" : "heart")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(appState.isFavorite(exercise.id) ? MTTheme.volt : .white)
+                .frame(width: 40, height: 40)
+                .background(Color.black.opacity(0.32), in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 1))
+                .shadow(color: .black.opacity(0.2), radius: 5, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(appState.isFavorite(exercise.id) ? "Unsave exercise" : "Save exercise")
+    }
+
+    private var personalBest: PersonalBest? {
+        personalBests.first { $0.exerciseID == exercise.id }
+    }
+
+    private func prSummary(_ pb: PersonalBest) -> String {
+        var parts: [String] = []
+        if pb.bestReps > 0 { parts.append("\(pb.bestReps) reps") }
+        if pb.bestLoadKg > 0 {
+            let value = appState.unitSystem == .imperial ? Units.pounds(fromKg: pb.bestLoadKg) : pb.bestLoadKg
+            let unit = appState.unitSystem == .imperial ? "lb" : "kg"
+            parts.append("\(Int(value.rounded())) \(unit)")
+        }
+        if pb.bestHoldSeconds > 0 { parts.append("\(pb.bestHoldSeconds)s hold") }
+        return "PB · " + parts.joined(separator: " · ")
     }
 
     /// Floating, self-legible back button (dark translucent — reads over the light hero and over
@@ -132,11 +173,12 @@ struct ExerciseDetailView: View {
         .background(scrim)
     }
 
-    /// A light, fresh wash to lift the dark ink name/chips off the figure without a heavy dark
-    /// band — bright and clean, matching the airy studio look of the clip.
+    /// A light, fresh wash carrying a subtle tint of the accent (`heroScrimLight`) — lifts the dark
+    /// ink name/chips off the figure while coordinating with the UI theme. Re-renders live on
+    /// accent change.
     private var scrim: some View {
         LinearGradient(
-            colors: [.clear, Color.white.opacity(0.62), Color.white.opacity(0.95)],
+            colors: [.clear, MTTheme.heroScrimLight.opacity(0.66), MTTheme.heroScrimLight.opacity(0.96)],
             startPoint: .top, endPoint: .bottom)
     }
 
@@ -191,6 +233,9 @@ struct ExerciseDetailView: View {
             HStack(spacing: 8) {
                 MTChip(text: "MET \(String(format: "%.1f", exercise.met))", systemImage: "bolt.fill")
                 MTChip(text: "~\(estimatedCaloriesPer10Min) kcal / 10 min", systemImage: "flame")
+            }
+            if let pb = personalBest, pb.hasAnyRecord {
+                MTChip(text: prSummary(pb), systemImage: "trophy.fill", isActive: true)
             }
         }
     }

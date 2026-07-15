@@ -72,6 +72,13 @@ enum MTTheme {
                                            fraction: 0.16))
     }
 
+    /// Light counterpart of `heroScrim`: near-white with a subtle wash of the accent — for the
+    /// light, fresh hero overlays (dark ink text stays legible). Tracks the accent theme.
+    static var heroScrimLight: Color {
+        Color(uiColor: UIColor.white.mixed(with: accentUIColor(for: ThemeStore.shared.accent),
+                                           fraction: 0.15))
+    }
+
     static func accentColor(for theme: AccentTheme) -> Color {
         Color(uiColor: accentUIColor(for: theme))
     }
