@@ -77,6 +77,9 @@ final class ExerciseClipStore {
     /// Best local clip URL for an exercise under the active style, or `nil`. Expansion-pack
     /// exercises resolve only when their pack is purchased (their clips arrive via ODR after
     /// unlock). Kicks off a background download when only a remote clip is available.
+    /// Main-actor: consults `PackStore`'s purchase state (a MainActor store), and is only ever
+    /// called from view bodies, which are MainActor.
+    @MainActor
     func clipURL(for exerciseID: String) -> URL? {
         // Expansion gate: locked pack content never resolves; owned-but-not-downloaded content
         // triggers the ODR fetch and resolves once `odrLoadedTags` updates (observed).
@@ -135,6 +138,7 @@ final class ExerciseClipStore {
         }
     }
 
+    @MainActor
     func hasClip(for exerciseID: String) -> Bool {
         clipURL(for: exerciseID) != nil
     }
