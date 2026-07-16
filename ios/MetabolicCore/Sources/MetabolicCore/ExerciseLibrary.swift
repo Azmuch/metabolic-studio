@@ -337,6 +337,155 @@ public enum ExerciseLibrary {
             keyframes: ExercisePoses.pullUp(), secondsPerCycle: 3.0
         ),
 
+        // MARK: Squat & lunge variations (Seedance clip set)
+
+        Exercise(
+            id: "boxSquat", name: "Box Squat",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee, .hip],
+            met: 5.0, kind: .reps(10),
+            instructions: [
+                "Stand in front of a box or bench, feet shoulder-width.",
+                "Sit hips back and down until you lightly touch the box.",
+                "Stay braced — don't relax your weight onto it.",
+                "Drive through the heels to stand tall.",
+            ],
+            keyframes: ExercisePoses.squat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "frontSquat", name: "Front Squat",
+            muscleGroups: [.quads, .glutes, .core],
+            equipment: [.barbell], contraindications: [.knee, .wrist, .lowerBack],
+            met: 5.5, kind: .reps(8),
+            instructions: [
+                "Rack the bar across the front of your shoulders, elbows high.",
+                "Brace hard and sit straight down between your hips.",
+                "Keep the chest and elbows up out of the bottom.",
+                "Drive through mid-foot to stand.",
+            ],
+            keyframes: ExercisePoses.gobletSquat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "bulgarianSplitSquat", name: "Bulgarian Split Squat",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee],
+            met: 5.5, kind: .reps(10),
+            instructions: [
+                "Rest the top of your rear foot on a bench behind you.",
+                "Lower straight down over the front leg.",
+                "Front knee tracks over the toes, torso tall.",
+                "Push through the front heel to rise — switch legs.",
+            ],
+            keyframes: ExercisePoses.lunge(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "reverseLunge", name: "Reverse Lunge",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee],
+            met: 4.5, kind: .reps(10),
+            instructions: [
+                "Step one foot straight back into a long stance.",
+                "Drop the back knee toward the floor.",
+                "Both knees at ninety degrees at the bottom.",
+                "Drive through the front heel to return — alternate.",
+            ],
+            keyframes: ExercisePoses.lunge(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "walkingLunge", name: "Walking Lunge",
+            muscleGroups: [.quads, .glutes, .hamstrings],
+            equipment: [.none], contraindications: [.knee],
+            met: 4.5, kind: .reps(10),
+            instructions: [
+                "Step forward into a long lunge, back knee low.",
+                "Push through the front heel to stand.",
+                "Bring the back foot through into the next lunge.",
+                "Keep walking, tall through the torso.",
+            ],
+            keyframes: ExercisePoses.lunge(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "deepSquatHold", name: "Deep Squat Hold",
+            muscleGroups: [.quads, .glutes],
+            equipment: [.none], contraindications: [.knee, .hip],
+            met: 3.0, kind: .timed(seconds: 40),
+            instructions: [
+                "Sink into the bottom of a squat, heels flat.",
+                "Elbows inside the knees, chest proud.",
+                "Gently press the knees open and breathe.",
+                "Hold the position for the full time.",
+            ],
+            keyframes: ExercisePoses.squat(), secondsPerCycle: 3.0
+        ),
+
+        // MARK: Core holds & dynamic core (Seedance clip set)
+
+        Exercise(
+            id: "hollowHold", name: "Hollow Hold",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [.lowerBack],
+            met: 3.0, kind: .timed(seconds: 30),
+            instructions: [
+                "Lie on your back, arms reaching overhead.",
+                "Press your lower back into the floor.",
+                "Lift shoulders and legs into a shallow banana.",
+                "Hold, breathing steadily — no arching.",
+            ],
+            keyframes: ExercisePoses.deadBug(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "lSit", name: "L-Sit",
+            muscleGroups: [.core, .quads],
+            equipment: [.none], contraindications: [.wrist],
+            met: 4.0, kind: .timed(seconds: 20),
+            instructions: [
+                "Hands planted by your hips, press tall.",
+                "Lift your hips and extend both legs out front.",
+                "Point the toes, thighs squeezing to an L.",
+                "Hold as long as your form stays sharp.",
+            ],
+            keyframes: ExercisePoses.deadBug(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "vUp", name: "V-Up",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [.lowerBack, .neck],
+            met: 4.0, kind: .reps(12),
+            instructions: [
+                "Lie flat, arms overhead, legs long.",
+                "Fold up, reaching your hands toward your toes.",
+                "Balance on your hips at the top.",
+                "Lower with control — don't drop.",
+            ],
+            keyframes: ExercisePoses.deadBug(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "candlestick", name: "Candlestick",
+            muscleGroups: [.core, .fullBody],
+            equipment: [.none], contraindications: [.neck, .lowerBack],
+            met: 4.0, kind: .reps(8),
+            instructions: [
+                "From your back, roll knees over your chest.",
+                "Extend the legs and hips toward the ceiling.",
+                "Roll back down under control.",
+                "Flow up to stand or repeat the roll.",
+            ],
+            keyframes: ExercisePoses.deadBug(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "kneePlank", name: "Knee Plank",
+            muscleGroups: [.core],
+            equipment: [.none], contraindications: [.wrist],
+            met: 2.8, kind: .timed(seconds: 30),
+            instructions: [
+                "Forearms down, weight resting on your knees.",
+                "Straight line from head to knees.",
+                "Brace the core and squeeze the glutes.",
+                "Breathe steady and hold the line.",
+            ],
+            keyframes: ExercisePoses.plank(), secondsPerCycle: 3.0
+        ),
+
         // MARK: Mobility / physical-therapy block (v2)
 
         Exercise(

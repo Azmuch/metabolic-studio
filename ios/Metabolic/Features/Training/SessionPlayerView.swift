@@ -237,10 +237,20 @@ struct SessionPlayerView: View {
 
     // MARK: - Center section
 
-    /// The clip loops while previewing (set-ready) or performing (working), and freezes during
-    /// rest or when paused — the "non-active phase" pause rule.
+    /// The clip loops while previewing (set-ready) or performing rep work, and freezes during a
+    /// timed hold, during rest, and whenever paused. A hold pauses the écorché in position for the
+    /// full duration so the stillness on screen matches the isometric effort the user is holding.
     private var heroIsPlaying: Bool {
-        !isPaused && (phase == .setReady || phase == .working)
+        guard !isPaused else { return false }
+        switch phase {
+        case .setReady:
+            return true
+        case .working:
+            if case .timed = currentItem.kind { return false }
+            return true
+        default:
+            return false
+        }
     }
 
     // MARK: - Begin-set prompt
