@@ -66,60 +66,82 @@ struct SessionPlayerView: View {
         }
     }
 
-    /// Edge-to-edge: the exercise animation fills the screen behind a frosted top bar; the
-    /// phase-specific controls sit in a pane at the bottom over the themed base.
+    /// Edge-to-edge for the whole session: the clip is a full-screen backdrop in every phase, and
+    /// the top bar, set label, and phase controls all float over it on the scrim — the video never
+    /// shrinks into a boxed pane when a set begins.
     private var playerLayout: some View {
-        ZStack(alignment: .top) {
+        ZStack {
+            heroBackdrop
+
             VStack(spacing: 0) {
-                heroPane
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
+                topBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                Spacer(minLength: 0)
+                heroLabel
                 controlPane
                     .padding(.horizontal, 20)
-                    .padding(.top, 18)
+                    .padding(.top, 16)
                     .padding(.bottom, 8)
             }
-            .ignoresSafeArea(edges: .top)
-
-            topBar
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
         }
     }
 
-    private var heroPane: some View {
+    private var heroBackdrop: some View {
         AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
                         contentInset: 0, cornerRadius: 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(heroScrimOverlay)
-            .overlay(alignment: .bottom) { heroLabel }
+            .ignoresSafeArea()
     }
 
     /// Light accent-tinted bottom wash (clear at top) — consistent with the exercise detail card.
-    /// The top bar buttons carry their own contrast so no top gradient is needed over the clip.
+    /// Strong enough at the base that the floating controls stay legible over the clip; the top
+    /// bar buttons carry their own contrast so no top gradient is needed.
     private var heroScrimOverlay: some View {
         LinearGradient(
-            colors: [.clear, .clear, MTTheme.heroScrimLight.opacity(0.42), MTTheme.heroScrimLight.opacity(0.94)],
+            colors: [.clear, .clear, MTTheme.heroScrimLight.opacity(0.55), MTTheme.heroScrimLight.opacity(0.97)],
             startPoint: .top, endPoint: .bottom)
     }
+
+    /// Fixed dark ink for content floating over the light scrim — the clip canvas and scrim are
+    /// light in both appearances, so themed text colors (light in dark mode) would disappear.
+    private var ink: Color { Color(white: 0.12) }
+    private var inkSoft: Color { Color(white: 0.3) }
 
     private var heroLabel: some View {
         VStack(spacing: 6) {
             Text("SET \(currentSet) OF \(currentItem.sets)")
                 .font(.system(size: 12, weight: .semibold))
                 .tracking(1.4)
-                .foregroundStyle(Color(white: 0.3))
+                .foregroundStyle(inkSoft)
             Text(currentItem.exercise.name)
                 .font(.system(size: 26, weight: .bold))
-                .foregroundStyle(Color(white: 0.12))
+                .foregroundStyle(ink)
                 .multilineTextAlignment(.center)
             if isMobility {
-                MTChip(text: "Mobility", systemImage: "leaf.fill")
+                inkPill(text: "Mobility", systemImage: "leaf.fill")
             }
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 24)
         .frame(maxWidth: .infinity)
+    }
+
+    /// Translucent white pill with dark ink — the over-hero counterpart of `MTChip`, which is
+    /// themed and would go light-on-light in dark mode.
+    private func inkPill(text: String, systemImage: String? = nil) -> some View {
+        HStack(spacing: 6) {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .font(.system(size: 12, weight: .semibold))
+            }
+            Text(text)
+                .font(.system(size: 13, weight: .semibold))
+        }
+        .foregroundStyle(Color(white: 0.22))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(Color.white.opacity(0.75), in: Capsule())
     }
 
     @ViewBuilder
@@ -251,7 +273,7 @@ struct SessionPlayerView: View {
         VStack(spacing: 20) {
             Text(setTargetPreview)
                 .font(MTTheme.numberFont(size: 34))
-                .foregroundStyle(MTTheme.textPrimary)
+                .foregroundStyle(ink)
             MTPrimaryButton(title: "Begin Set", systemImage: "play.fill") {
                 beginSet()
             }
@@ -274,7 +296,7 @@ struct SessionPlayerView: View {
             VStack(spacing: 20) {
                 Text("\(n) reps")
                     .font(MTTheme.numberFont(size: 40))
-                    .foregroundStyle(MTTheme.textPrimary)
+                    .foregroundStyle(ink)
                 if showsLoadField {
                     loadField
                 }
@@ -292,7 +314,7 @@ struct SessionPlayerView: View {
                             .frame(width: 160, height: 160)
                         Text("\(Int(remaining.rounded()))")
                             .font(MTTheme.numberFont(size: 44))
-                            .foregroundStyle(MTTheme.textPrimary)
+                            .foregroundStyle(ink)
                     }
                     pauseButton
                 }
@@ -304,19 +326,19 @@ struct SessionPlayerView: View {
         HStack(spacing: 10) {
             Text("Load")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(MTTheme.textSecondary)
+                .foregroundStyle(inkSoft)
             TextField("0", text: loadTextBinding)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .foregroundStyle(MTTheme.textPrimary)
+                .foregroundStyle(ink)
                 .frame(width: 72)
                 .padding(.vertical, 8)
-                .background(MTTheme.surface2)
+                .background(Color.white.opacity(0.75))
                 .clipShape(RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous))
             Text(unitLabel)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(MTTheme.textTertiary)
+                .foregroundStyle(inkSoft)
         }
     }
 
@@ -392,22 +414,19 @@ struct SessionPlayerView: View {
                 Text("REST")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
+                    .foregroundStyle(inkSoft)
 
                 ZStack {
                     MTRing(progress: restProgress(remaining: remaining), lineWidth: 12)
                         .frame(width: 160, height: 160)
                     Text("\(Int(remaining.rounded()))")
                         .font(MTTheme.numberFont(size: 44))
-                        .foregroundStyle(MTTheme.textPrimary)
+                        .foregroundStyle(ink)
                 }
 
                 pauseButton
 
-                MTSecondaryButton(title: "Skip", systemImage: "forward.fill") {
-                    Haptics.tap()
-                    advanceAfterRest()
-                }
+                skipButton
 
                 if let nextItem = nextPreviewItem {
                     nextUpPreview(nextItem)
@@ -427,11 +446,33 @@ struct SessionPlayerView: View {
         return min(max(1 - remaining / total, 0), 1)
     }
 
+    /// Over-hero counterpart of `MTSecondaryButton` — white translucent capsule with dark ink,
+    /// legible on the light scrim in both appearances.
+    private var skipButton: some View {
+        Button {
+            Haptics.tap()
+            advanceAfterRest()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "forward.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                Text("Skip")
+                    .font(.system(size: 17, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .foregroundStyle(ink)
+            .background(Color.white.opacity(0.75))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
     private func nextUpPreview(_ item: WorkoutItem) -> some View {
         HStack(spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous)
-                    .fill(MTTheme.voltDim)
+                    .fill(Color.white.opacity(0.6))
                 ExerciseAnimationView(exercise: item.exercise)
                     .padding(8)
             }
@@ -442,15 +483,15 @@ struct SessionPlayerView: View {
                 Text("NEXT UP")
                     .font(.system(size: 10, weight: .semibold))
                     .tracking(1.2)
-                    .foregroundStyle(MTTheme.textTertiary)
+                    .foregroundStyle(inkSoft)
                 Text(item.exercise.name)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(MTTheme.textPrimary)
+                    .foregroundStyle(ink)
             }
             Spacer(minLength: 0)
         }
         .padding(12)
-        .background(MTTheme.surface2)
+        .background(Color.white.opacity(0.75))
         .clipShape(RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous))
     }
 
