@@ -1,6 +1,15 @@
 import Foundation
 import Observation
 
+/// How a resolved clip should be played back, per the bundled manifest's `type`:
+///   - `.loop`  — seamless loop (a rep whose motion returns to its start, or a boomerang-baked clip).
+///   - `.hold`  — play the entry once and freeze on the last frame (the held position) for the full
+///     isometric countdown; no exit animation is needed since the UI moves to the Rest screen.
+enum ClipPlayback: Equatable {
+    case loop
+    case hold
+}
+
 /// Resolves the best available exercise-demo video clip for an exercise id, honoring the user's
 /// chosen visual **style** ("skin pack"), in priority order:
 ///
@@ -22,6 +31,8 @@ final class ExerciseClipStore {
         struct Entry: Decodable {
             let file: String
             let bytes: Int?
+            /// `"hold"` for isometric clips (entry-into-hold), `"rep"`/absent for looping motion.
+            let type: String?
         }
         let version: Int
         let baseUrl: String
@@ -126,6 +137,12 @@ final class ExerciseClipStore {
 
     func hasClip(for exerciseID: String) -> Bool {
         clipURL(for: exerciseID) != nil
+    }
+
+    /// Playback mode for an exercise's clip. Motion is defined by the anatomy clip, so a skin pack
+    /// only restyles the look — the `type` is keyed by the bare exercise id. Unknown/absent ⇒ loop.
+    func playback(for exerciseID: String) -> ClipPlayback {
+        manifest?.clips[exerciseID]?.type == "hold" ? .hold : .loop
     }
 
     /// Force the current style's clip for an exercise to be fetched now (e.g. "Download for offline").

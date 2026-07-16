@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "type=hold => app plays forward into the hold, counts down, then plays reversed to exit. type=rep => seamless loop.",
+  "note": "type=hold => app plays the entry once and freezes on the final (held) frame for the full countdown; no reverse exit (the UI moves to the Rest screen). type=rep => seamless loop; author one-way 'ping-pong' reps (gobletSquat, walkingLunge, vUp) as a baked forward+reverse boomerang so they loop cleanly.",
   "baseUrl": "",
   "clips": {
     "squat": {

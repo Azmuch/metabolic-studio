@@ -237,20 +237,12 @@ struct SessionPlayerView: View {
 
     // MARK: - Center section
 
-    /// The clip loops while previewing (set-ready) or performing rep work, and freezes during a
-    /// timed hold, during rest, and whenever paused. A hold pauses the écorché in position for the
-    /// full duration so the stillness on screen matches the isometric effort the user is holding.
+    /// The clip plays while previewing (set-ready) or performing (working) and freezes during rest
+    /// or when paused. A hold clip freezes itself on top of this: its manifest `type: hold` makes
+    /// the player run the entry once (non-looping) and stop on the held frame, so the écorché
+    /// settles into the isometric position for the full countdown instead of cycling through it.
     private var heroIsPlaying: Bool {
-        guard !isPaused else { return false }
-        switch phase {
-        case .setReady:
-            return true
-        case .working:
-            if case .timed = currentItem.kind { return false }
-            return true
-        default:
-            return false
-        }
+        !isPaused && (phase == .setReady || phase == .working)
     }
 
     // MARK: - Begin-set prompt

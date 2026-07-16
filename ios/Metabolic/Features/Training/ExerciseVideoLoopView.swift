@@ -2,23 +2,36 @@ import SwiftUI
 import AVFoundation
 import Combine
 
-/// Owns an `AVQueuePlayer` + `AVPlayerLooper` for a single clip, giving a genuinely gapless
-/// loop. (Seeking to zero on `AVPlayerItemDidPlayToEndTime` visibly stutters at the seam; the
-/// looper double-buffers the item instead.) Muted, no transport controls.
+/// Owns an `AVQueuePlayer` for a single clip in one of two modes:
+///   - `.loop`: paired with an `AVPlayerLooper` for a genuinely gapless loop. (Seeking to zero on
+///     `AVPlayerItemDidPlayToEndTime` visibly stutters at the seam; the looper double-buffers the
+///     item instead.)
+///   - `.hold`: no looper, `actionAtItemEnd = .pause` — the clip plays its entry once and freezes
+///     on the final frame (the held position), which is exactly the isometric-hold behavior.
+/// Muted, no transport controls.
 @MainActor
 final class LoopPlayer: ObservableObject {
     let queue = AVQueuePlayer()
     private var looper: AVPlayerLooper?
     private var loadedURL: URL?
+    private var loadedMode: ClipPlayback = .loop
 
-    func load(url: URL) {
-        guard url != loadedURL else { return }
+    func load(url: URL, mode: ClipPlayback) {
+        guard url != loadedURL || mode != loadedMode else { return }
         loadedURL = url
+        loadedMode = mode
+        looper = nil
         queue.removeAllItems()
-        let item = AVPlayerItem(url: url)
-        looper = AVPlayerLooper(player: queue, templateItem: item)
         queue.isMuted = true
-        queue.actionAtItemEnd = .advance
+        let item = AVPlayerItem(url: url)
+        switch mode {
+        case .loop:
+            looper = AVPlayerLooper(player: queue, templateItem: item)
+            queue.actionAtItemEnd = .advance
+        case .hold:
+            queue.insert(item, after: nil)
+            queue.actionAtItemEnd = .pause   // freeze on the held frame after the entry
+        }
     }
 
     func play() { queue.play() }
@@ -63,6 +76,8 @@ struct ExerciseVideoLoopView: UIViewRepresentable {
 struct ExerciseClipHero: View {
     let url: URL
     var isPlaying: Bool = true
+    /// Loop (rep) vs hold (play entry, freeze on the held frame). Drives the `LoopPlayer` mode.
+    var playback: ClipPlayback = .loop
     /// Inset between the video and the card edge. 0 = edge-to-edge fill (used by the detail hero).
     var contentInset: CGFloat = 10
     /// Card corner radius. 0 = square (full-screen player background).
@@ -83,11 +98,11 @@ struct ExerciseClipHero: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .stroke(MTTheme.stroke, lineWidth: contentInset > 0 ? 1 : 0))
         .onAppear {
-            player.load(url: url)
+            player.load(url: url, mode: playback)
             if isPlaying { player.play() }
         }
         .onChange(of: url) { _, newURL in
-            player.load(url: newURL)
+            player.load(url: newURL, mode: playback)
             if isPlaying { player.play() } else { player.pause() }
         }
         .onChange(of: isPlaying) { _, playing in

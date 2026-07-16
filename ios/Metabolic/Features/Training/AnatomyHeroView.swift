@@ -43,8 +43,9 @@ struct AnatomyHeroView: View {
 
     var body: some View {
         if let clipURL = ExerciseClipStore.shared.clipURL(for: exercise.id) {
-            ExerciseClipHero(url: clipURL, isPlaying: isPlaying, contentInset: contentInset,
-                             cornerRadius: cornerRadius)
+            ExerciseClipHero(url: clipURL, isPlaying: isPlaying,
+                             playback: ExerciseClipStore.shared.playback(for: exercise.id),
+                             contentInset: contentInset, cornerRadius: cornerRadius)
         } else if let names = Self.assetManifest[exercise.id],
                   let primary = UIImage(named: names[0]) {
             AnatomyImageHero(
