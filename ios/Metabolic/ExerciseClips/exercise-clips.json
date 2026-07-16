@@ -5,8 +5,9 @@
   "clips": {
     "squat": {
       "file": "squat.mp4",
-      "bytes": 292843,
-      "type": "rep"
+      "bytes": 199559,
+      "type": "rep",
+      "note": "grid method replacement (side profile). Fixed head-crop from the old text-to-video clip."
     },
     "pushUp": {
       "file": "pushUp.mp4",
