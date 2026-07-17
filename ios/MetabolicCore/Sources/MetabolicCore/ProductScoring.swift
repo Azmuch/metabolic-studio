@@ -94,6 +94,39 @@ public struct ProductScore: Codable, Equatable, Sendable {
     }
 }
 
+/// How well a product fits *this* user's declared goal — the personalized second layer on top
+/// of the standards-based health score. Kept strictly separate so the base number stays
+/// comparable with other Nutri-Score-derived apps (Yuka et al.).
+public enum FitVerdict: String, Codable, Sendable {
+    case strong, mixed, caution
+
+    public var displayName: String {
+        switch self {
+        case .strong: return "Fits your goal"
+        case .mixed: return "Situational"
+        case .caution: return "Off-plan"
+        }
+    }
+
+    public var symbolName: String {
+        switch self {
+        case .strong: return "hand.thumbsup.fill"
+        case .mixed: return "hand.raised.fill"
+        case .caution: return "hand.thumbsdown.fill"
+        }
+    }
+}
+
+public struct PersonalFit: Codable, Equatable, Sendable {
+    public var verdict: FitVerdict
+    public var factors: [ScoreFactor]
+
+    public init(verdict: FitVerdict, factors: [ScoreFactor]) {
+        self.verdict = verdict
+        self.factors = factors
+    }
+}
+
 /// Yuka-style blend: 60% nutrition (Nutri-Score 2017 point tables), 30% additive risk,
 /// 10% organic — with hard caps so a risky additive can never hide behind good macros.
 public enum ProductScoringEngine {
@@ -128,6 +161,110 @@ public enum ProductScoringEngine {
 
         return ProductScore(value: total, rating: ScoreRating.rating(for: total),
                             positives: positives, negatives: negatives)
+    }
+
+    // MARK: - Personal fit (goal-aware second layer)
+
+    /// Evaluates the product against the user's primary goal. Rules are deliberately simple and
+    /// explainable: protein density (g per 100 kcal), energy density, sugar, fiber, and sodium,
+    /// each thresholded per goal. Returns a verdict plus the reasons behind it.
+    public static func personalFit(_ p: ScannedProduct, goal: FitnessGoal) -> PersonalFit {
+        var pros: [ScoreFactor] = []
+        var cons: [ScoreFactor] = []
+        let unit = p.isBeverage ? "100 ml" : "100 g"
+
+        let kcal = p.energyKcal ?? 0
+        let protein = p.proteinG ?? 0
+        let sugars = p.sugarsG ?? 0
+        let fiber = p.fiberG ?? 0
+        let sodium = p.sodiumMg ?? 0
+        // Protein density: grams of protein per 100 kcal — load-bearing for every training goal.
+        let proteinDensity = kcal > 0 ? protein / kcal * 100 : 0
+
+        if proteinDensity >= 8 {
+            pros.append(ScoreFactor(
+                title: "Protein dense",
+                detail: String(format: "%.0f g of protein per 100 kcal — efficient for your training.", proteinDensity),
+                isPositive: true, symbolName: "bolt.fill"))
+        }
+
+        switch goal {
+        case .gainMuscle:
+            if kcal >= 250 && proteinDensity >= 6 {
+                pros.append(ScoreFactor(
+                    title: "Building fuel",
+                    detail: "Calorie-dense with solid protein — useful in a surplus.",
+                    isPositive: true, symbolName: "dumbbell.fill"))
+            }
+            if sugars > 22.5 {
+                cons.append(ScoreFactor(
+                    title: "Sugar-heavy calories",
+                    detail: String(format: "%.0f g sugar per %@ — surplus calories better spent on protein.", sugars, unit),
+                    isPositive: false, symbolName: "cube.fill"))
+            }
+        case .loseFat:
+            if kcal > 0 && kcal <= (p.isBeverage ? 25 : 120) {
+                pros.append(ScoreFactor(
+                    title: "Light on calories",
+                    detail: String(format: "Only %.0f kcal per %@ — easy to fit in a deficit.", kcal, unit),
+                    isPositive: true, symbolName: "feather"))
+            }
+            if !p.isBeverage && kcal > 350 {
+                cons.append(ScoreFactor(
+                    title: "Energy dense",
+                    detail: String(format: "%.0f kcal per %@ — portion carefully while cutting.", kcal, unit),
+                    isPositive: false, symbolName: "flame.fill"))
+            }
+            if sugars > (p.isBeverage ? 6 : 13.5) {
+                cons.append(ScoreFactor(
+                    title: "High sugar for a cut",
+                    detail: String(format: "%.1f g sugar per %@.", sugars, unit),
+                    isPositive: false, symbolName: "cube.fill"))
+            }
+            if fiber > 3.7 {
+                pros.append(ScoreFactor(
+                    title: "Keeps you full",
+                    detail: String(format: "%.1f g fiber per %@ helps satiety in a deficit.", fiber, unit),
+                    isPositive: true, symbolName: "leaf.fill"))
+            }
+        case .improveEndurance:
+            if p.isBeverage && sodium > 0 && sodium <= 450 && sugars > 0 && sugars <= 9 {
+                pros.append(ScoreFactor(
+                    title: "Session-friendly",
+                    detail: "Moderate sugar and electrolytes suit longer efforts.",
+                    isPositive: true, symbolName: "figure.run"))
+            }
+            if fiber > 3.7 {
+                pros.append(ScoreFactor(
+                    title: "Steady energy",
+                    detail: String(format: "%.1f g fiber per %@ smooths energy release.", fiber, unit),
+                    isPositive: true, symbolName: "leaf.fill"))
+            }
+        case .maintain, .improveMobility:
+            if fiber > 3.7 {
+                pros.append(ScoreFactor(
+                    title: "Good fiber",
+                    detail: String(format: "%.1f g fiber per %@.", fiber, unit),
+                    isPositive: true, symbolName: "leaf.fill"))
+            }
+        }
+
+        if sodium > 720 {
+            cons.append(ScoreFactor(
+                title: "High sodium",
+                detail: String(format: "%.0f mg per %@ — heavy for daily use.", sodium, unit),
+                isPositive: false, symbolName: "aqi.medium"))
+        }
+
+        let verdict: FitVerdict
+        if cons.isEmpty && !pros.isEmpty {
+            verdict = .strong
+        } else if pros.isEmpty && !cons.isEmpty {
+            verdict = .caution
+        } else {
+            verdict = .mixed
+        }
+        return PersonalFit(verdict: verdict, factors: pros + cons)
     }
 
     // MARK: - Nutrition (Nutri-Score points per 100 g/ml, 2017 tables)

@@ -6,6 +6,7 @@ struct ScanResultView: View {
     let product: ScannedProduct
     let score: ProductScore
 
+    @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
     @State private var alternatives: [(ScannedProduct, ProductScore)] = []
     @State private var loadingAlternatives = true
@@ -19,6 +20,7 @@ struct ScanResultView: View {
         ScrollView {
             VStack(spacing: 12) {
                 hero
+                fitSection
                 if !score.negatives.isEmpty {
                     factorSection(title: "Negatives", factors: score.negatives)
                 }
@@ -105,6 +107,48 @@ struct ScanResultView: View {
         }
     }
 
+    /// The personalized second layer — visually separate from the health score so the base
+    /// number stays comparable across apps while this speaks to the user's own goal.
+    @ViewBuilder
+    private var fitSection: some View {
+        let fit = ProductScoringEngine.personalFit(product, goal: appState.profile.goal)
+        if !fit.factors.isEmpty {
+            MTCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Text("FIT FOR YOU · \(appState.profile.goal.displayName.uppercased())")
+                            .font(.system(size: 11, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(MTTheme.textTertiary)
+                        Spacer()
+                        HStack(spacing: 5) {
+                            Image(systemName: fit.verdict.symbolName)
+                                .font(.system(size: 11, weight: .semibold))
+                            Text(fit.verdict.displayName)
+                                .font(.system(size: 12, weight: .bold))
+                        }
+                        .foregroundStyle(fit.verdict == .caution ? .white : Color.black)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(verdictColor(fit.verdict), in: Capsule())
+                    }
+                    ForEach(fit.factors) { factor in
+                        factorRow(factor)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private func verdictColor(_ verdict: FitVerdict) -> Color {
+        switch verdict {
+        case .strong: return MTTheme.volt
+        case .mixed: return MTTheme.warning
+        case .caution: return MTTheme.danger
+        }
+    }
+
     private func factorSection(title: String, factors: [ScoreFactor]) -> some View {
         MTCard {
             VStack(alignment: .leading, spacing: 14) {
@@ -113,28 +157,32 @@ struct ScanResultView: View {
                     .tracking(1.2)
                     .foregroundStyle(MTTheme.textTertiary)
                 ForEach(factors) { factor in
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill((factor.isPositive ? MTTheme.success : MTTheme.danger).opacity(0.15))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: factor.symbolName)
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(factor.isPositive ? MTTheme.success : MTTheme.danger)
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(factor.title)
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(MTTheme.textPrimary)
-                            Text(factor.detail)
-                                .font(.system(size: 13))
-                                .foregroundStyle(MTTheme.textSecondary)
-                        }
-                        Spacer(minLength: 0)
-                    }
+                    factorRow(factor)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func factorRow(_ factor: ScoreFactor) -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill((factor.isPositive ? MTTheme.success : MTTheme.danger).opacity(0.15))
+                    .frame(width: 36, height: 36)
+                Image(systemName: factor.symbolName)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(factor.isPositive ? MTTheme.success : MTTheme.danger)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(factor.title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(MTTheme.textPrimary)
+                Text(factor.detail)
+                    .font(.system(size: 13))
+                    .foregroundStyle(MTTheme.textSecondary)
+            }
+            Spacer(minLength: 0)
         }
     }
 
@@ -229,4 +277,5 @@ struct ScanResultView: View {
                            energyKcal: 590, sugarsG: 14, satFatG: 24, sodiumMg: 20,
                            fiberG: 11, proteinG: 8, additives: ["e322"]))
     )
+    .environment(AppState())
 }

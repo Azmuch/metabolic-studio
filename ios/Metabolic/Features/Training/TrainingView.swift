@@ -21,6 +21,8 @@ struct TrainingView: View {
     @State private var runningCustom: RunnablePlan?
     @State private var showWorkoutImporter = false
     @State private var importMessage: String?
+    /// Collapses the My Workouts list so a long collection doesn't bury the rest of Training.
+    @AppStorage("mt.myworkouts.collapsed") private var myWorkoutsCollapsed = false
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -110,21 +112,38 @@ struct TrainingView: View {
 
     private var myWorkoutsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("MY WORKOUTS")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.2)
-                .foregroundStyle(MTTheme.textTertiary)
+            Button {
+                Haptics.tap()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    myWorkoutsCollapsed.toggle()
+                }
+            } label: {
+                HStack {
+                    Text("MY WORKOUTS\(myWorkoutsCollapsed && !customWorkouts.isEmpty ? " · \(customWorkouts.count)" : "")")
+                        .font(.system(size: 11, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(MTTheme.textTertiary)
+                    Spacer()
+                    Image(systemName: "chevron.up")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(MTTheme.textTertiary)
+                        .rotationEffect(.degrees(myWorkoutsCollapsed ? 180 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
 
             if customWorkouts.isEmpty {
                 Text("Build your own session from any exercises in the library.")
                     .font(.system(size: 13))
                     .foregroundStyle(MTTheme.textSecondary)
-            } else {
+            } else if !myWorkoutsCollapsed {
                 VStack(spacing: 12) {
                     ForEach(customWorkouts) { workout in
                         customWorkoutCard(workout)
                     }
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
             HStack(spacing: 10) {

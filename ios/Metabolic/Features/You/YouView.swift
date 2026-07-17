@@ -92,8 +92,10 @@ struct YouView: View {
                 }
 
                 HStack(spacing: 0) {
+                    // Shows the latest *logged* weight (which can differ from the profile's
+                    // starting weight) — labeled as the logging action to avoid confusion.
                     statColumn(value: weightDisplayValue, unit: weightDisplayUnit,
-                               label: "Weight", action: { showWeightSheet = true })
+                               label: "Log Weight", action: { showWeightSheet = true })
                     divider
                     statColumn(value: "\(streak)", unit: streak == 1 ? "day" : "days",
                                label: "Streak", action: nil)
