@@ -130,6 +130,28 @@ enum BackgroundStyle: String, Codable, CaseIterable {
     }
 }
 
+/// Light/dark override for the whole UI — `.system` follows the device setting.
+enum AppearanceMode: String, Codable, CaseIterable {
+    case system, light, dark
+
+    var displayName: String {
+        switch self {
+        case .system: return "Auto"
+        case .light: return "Light"
+        case .dark: return "Dark"
+        }
+    }
+
+    /// `nil` = no override, for `preferredColorScheme`.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+}
+
 /// App-wide observable state: fitness profile, computed nutrition targets, onboarding flag,
 /// dashboard layout, and demo-mode flag. All persisted as JSON in `UserDefaults`.
 @Observable
@@ -171,6 +193,10 @@ final class AppState {
             UserDefaults.standard.set(backgroundStyle.rawValue, forKey: Keys.background)
             ThemeStore.shared.backgroundStyle = backgroundStyle
         }
+    }
+
+    var appearanceMode: AppearanceMode {
+        didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: Keys.appearance) }
     }
 
     var clipStyle: ClipStyle {
@@ -229,6 +255,8 @@ final class AppState {
         accentTheme = defaults.string(forKey: Keys.accent).flatMap(AccentTheme.init(rawValue:)) ?? .volt
         backgroundStyle = defaults.string(forKey: Keys.background)
             .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
+        appearanceMode = defaults.string(forKey: Keys.appearance)
+            .flatMap(AppearanceMode.init(rawValue:)) ?? .system
         clipStyle = defaults.string(forKey: Keys.clipStyle).flatMap(ClipStyle.init(rawValue:)) ?? .ecorche
         favoriteExerciseIDs = Set(Self.load([String].self, key: Keys.favorites) ?? [])
         // Property observers don't fire during init — apply the loaded pack to the shared store.
@@ -248,6 +276,7 @@ final class AppState {
         static let units = "mt.units"
         static let accent = "mt.accent"
         static let background = "mt.background"
+        static let appearance = "mt.appearance"
         static let clipStyle = "mt.clipStyle"
         static let favorites = "mt.favorites"
     }

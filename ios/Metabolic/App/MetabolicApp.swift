@@ -39,7 +39,7 @@ struct MetabolicApp: App {
             .environment(healthKitService)
             .environment(smartScale)
             .modelContainer(modelContainer)
-            .preferredColorScheme(nil)
+            .preferredColorScheme(appState.appearanceMode.colorScheme)
             .task {
                 await subscriptionManager.configure()
                 DemoDataSeeder.seedIfNeeded(context: modelContainer.mainContext, appState: appState)

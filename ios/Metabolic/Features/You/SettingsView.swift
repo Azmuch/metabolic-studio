@@ -29,6 +29,15 @@ struct SettingsView: View {
             VStack(spacing: 12) {
                 section("Appearance") {
                     VStack(alignment: .leading, spacing: 16) {
+                        Picker("Appearance", selection: $appState.appearanceMode) {
+                            ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                                Text(mode.displayName).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        Divider().overlay(MTTheme.stroke)
+
                         HStack(spacing: 10) {
                             ForEach(AccentTheme.allCases, id: \.self) { theme in
                                 accentCard(theme, selection: $appState.accentTheme)
