@@ -149,6 +149,11 @@ struct YouView: View {
                             caption: profileSummary)
                 }
                 rowDivider
+                NavigationLink { ProgressDashboardView() } label: {
+                    linkRow(symbol: "chart.line.uptrend.xyaxis", title: "Progress",
+                            caption: "Volume, sessions, weight, personal bests")
+                }
+                rowDivider
                 NavigationLink { AchievementsView() } label: {
                     linkRow(symbol: "trophy.fill", title: "Achievements",
                             caption: "Badges you've unlocked")

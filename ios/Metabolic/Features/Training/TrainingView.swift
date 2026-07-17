@@ -19,6 +19,8 @@ struct TrainingView: View {
     @State private var showBuilder = false
     @State private var editingWorkout: CustomWorkout?
     @State private var runningCustom: RunnablePlan?
+    @State private var showWorkoutImporter = false
+    @State private var importMessage: String?
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -71,6 +73,30 @@ struct TrainingView: View {
             .sheet(isPresented: $showBuilder) {
                 WorkoutBuilderView()
             }
+            .fileImporter(isPresented: $showWorkoutImporter,
+                          allowedContentTypes: WorkoutShare.importTypes) { result in
+                switch result {
+                case .success(let url):
+                    if let workout = WorkoutShare.importWorkout(from: url) {
+                        modelContext.insert(workout)
+                        Haptics.success()
+                        importMessage = "“\(workout.name)” was added to My Workouts."
+                    } else {
+                        Haptics.warning()
+                        importMessage = "That file isn't a Metabolic workout, or its exercises aren't in this version of the app."
+                    }
+                case .failure:
+                    Haptics.warning()
+                    importMessage = "Couldn't read that file."
+                }
+            }
+            .alert("Import workout",
+                   isPresented: Binding(get: { importMessage != nil },
+                                        set: { if !$0 { importMessage = nil } })) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(importMessage ?? "")
+            }
             .sheet(item: $editingWorkout) { workout in
                 WorkoutBuilderView(editing: workout)
             }
@@ -101,21 +127,36 @@ struct TrainingView: View {
                 }
             }
 
-            Button {
-                Haptics.tap()
-                showBuilder = true
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus")
-                    Text("Create Workout")
+            HStack(spacing: 10) {
+                Button {
+                    Haptics.tap()
+                    showBuilder = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus")
+                        Text("Create Workout")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(MTTheme.volt, in: Capsule())
                 }
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.black)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(MTTheme.volt, in: Capsule())
+                .buttonStyle(.plain)
+
+                Button {
+                    Haptics.tap()
+                    showWorkoutImporter = true
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                        .frame(width: 48, height: 48)
+                        .background(MTTheme.voltDim, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Import a shared workout")
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -156,6 +197,12 @@ struct TrainingView: View {
                 .disabled(workout.items.isEmpty)
             }
             .contextMenu {
+                if let url = WorkoutShare.exportURL(for: workout) {
+                    ShareLink(item: url,
+                              message: Text(WorkoutShare.shareText(for: workout))) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                }
                 Button(role: .destructive) {
                     modelContext.delete(workout)
                 } label: {

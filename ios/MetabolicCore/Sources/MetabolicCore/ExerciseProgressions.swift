@@ -5,20 +5,25 @@ import Foundation
 /// selected exercise and map a level preset onto the right sibling. Ids not listed stand alone.
 public enum ExerciseProgressions {
 
-    /// Each family is ordered easiest → hardest.
+    /// Each family is ordered easiest → hardest; weighted variants sit at the harder end of
+    /// their bodyweight pattern so progressions naturally graduate onto load.
     public static let families: [[String]] = [
-        // Push pattern
-        ["kneePushUp", "pushUp"],
+        // Push pattern (graduates onto weighted overhead pressing)
+        ["kneePushUp", "pushUp", "dbShoulderPress"],
         // Squat pattern
         ["boxSquat", "squat", "gobletSquat", "frontSquat"],
         // Single-leg / lunge pattern
         ["reverseLunge", "lunge", "walkingLunge", "bulgarianSplitSquat"],
+        // Hip hinge (bridge graduates onto loaded hinging and power)
+        ["gluteBridge", "dbRomanianDeadlift", "kbSwing"],
         // Plank line
         ["kneePlank", "plank", "sidePlank"],
         // Hollow-body core line
         ["deadBug", "hollowHold", "vUp", "candlestick", "lSit"],
         // Horizontal/vertical pull
         ["bandRow", "dbRow", "pullUp"],
+        // Shoulder isolation → compound press
+        ["lateralRaise", "dbShoulderPress"],
         // Quad isometric holds
         ["wallSit", "deepSquatHold"],
     ]
