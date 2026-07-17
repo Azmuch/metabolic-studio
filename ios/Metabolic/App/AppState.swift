@@ -199,6 +199,22 @@ final class AppState {
         didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: Keys.appearance) }
     }
 
+    /// Selected bundled wallpaper preset (`WallpaperCatalog` id), or nil for the user's own
+    /// photo / no wallpaper. Mirrored into `ThemeStore` for live re-render.
+    var wallpaperPresetID: String? {
+        didSet {
+            UserDefaults.standard.set(wallpaperPresetID, forKey: Keys.wallpaperPreset)
+            ThemeStore.shared.wallpaperPreset = wallpaperPresetID
+        }
+    }
+
+    var wallpaperParallax: Bool {
+        didSet {
+            UserDefaults.standard.set(wallpaperParallax, forKey: Keys.wallpaperParallax)
+            ThemeStore.shared.wallpaperParallax = wallpaperParallax
+        }
+    }
+
     var clipStyle: ClipStyle {
         didSet {
             UserDefaults.standard.set(clipStyle.rawValue, forKey: Keys.clipStyle)
@@ -225,14 +241,17 @@ final class AppState {
 
     var selectedTab: AppTab = .today
 
-    /// Saves the user's wallpaper photo (JPEG data) and notifies themed views.
+    /// Saves the user's wallpaper photo (JPEG data) and notifies themed views. Uploading a
+    /// photo takes over from any selected preset.
     func setWallpaper(_ data: Data) {
         try? data.write(to: ThemeStore.wallpaperURL, options: .atomic)
+        wallpaperPresetID = nil
         ThemeStore.shared.wallpaperVersion += 1
     }
 
     func clearWallpaper() {
         try? FileManager.default.removeItem(at: ThemeStore.wallpaperURL)
+        wallpaperPresetID = nil
         ThemeStore.shared.wallpaperVersion += 1
     }
 
@@ -257,6 +276,9 @@ final class AppState {
             .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
         appearanceMode = defaults.string(forKey: Keys.appearance)
             .flatMap(AppearanceMode.init(rawValue:)) ?? .system
+        // ThemeStore reads the same keys in its own init, so no re-mirroring is needed here.
+        wallpaperPresetID = defaults.string(forKey: Keys.wallpaperPreset)
+        wallpaperParallax = defaults.bool(forKey: Keys.wallpaperParallax)
         clipStyle = defaults.string(forKey: Keys.clipStyle).flatMap(ClipStyle.init(rawValue:)) ?? .ecorche
         favoriteExerciseIDs = Set(Self.load([String].self, key: Keys.favorites) ?? [])
         // Property observers don't fire during init — apply the loaded pack to the shared store.
@@ -277,6 +299,8 @@ final class AppState {
         static let accent = "mt.accent"
         static let background = "mt.background"
         static let appearance = "mt.appearance"
+        static let wallpaperPreset = "mt.wallpaper.preset"
+        static let wallpaperParallax = "mt.wallpaper.parallax"
         static let clipStyle = "mt.clipStyle"
         static let favorites = "mt.favorites"
     }

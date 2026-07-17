@@ -13,12 +13,19 @@ final class ThemeStore {
     var backgroundStyle: BackgroundStyle
     /// Bumped whenever the wallpaper image file changes so photo backgrounds reload.
     var wallpaperVersion = 0
+    /// Bundled preset wallpaper asset name (see `WallpaperCatalog`), or `nil` when the user's
+    /// own uploaded photo (or nothing) is in use. A set preset wins over the uploaded file.
+    var wallpaperPreset: String?
+    /// Apple's gyroscope wallpaper parallax on the photo backdrop.
+    var wallpaperParallax: Bool
 
     private init() {
         accent = UserDefaults.standard.string(forKey: "mt.accent")
             .flatMap(AccentTheme.init(rawValue:)) ?? .volt
         backgroundStyle = UserDefaults.standard.string(forKey: "mt.background")
             .flatMap(BackgroundStyle.init(rawValue:)) ?? .classic
+        wallpaperPreset = UserDefaults.standard.string(forKey: "mt.wallpaper.preset")
+        wallpaperParallax = UserDefaults.standard.bool(forKey: "mt.wallpaper.parallax")
     }
 
     /// On-disk location of the user's wallpaper photo (present only when one is set).
@@ -31,6 +38,25 @@ final class ThemeStore {
     var hasWallpaper: Bool {
         _ = wallpaperVersion   // register observation so setters refresh readers
         return FileManager.default.fileExists(atPath: Self.wallpaperURL.path)
+    }
+
+    /// The image the photo backdrop should draw: the selected preset first, else the
+    /// uploaded photo, else `nil` (backdrop falls back to the themed base).
+    var activeWallpaperImage: UIImage? {
+        _ = wallpaperVersion
+        if let wallpaperPreset, let preset = UIImage(named: wallpaperPreset) { return preset }
+        return UIImage(contentsOfFile: Self.wallpaperURL.path)
+    }
+}
+
+/// Bundled wallpaper presets, resolved by naming convention: add images to the asset catalog
+/// named `wallpaper.1` … `wallpaper.6`. Missing ones simply don't appear in Settings, so the
+/// gallery lights up as assets land (same pattern as the anatomy stills).
+enum WallpaperCatalog {
+    static let presetIDs: [String] = (1...6).map { "wallpaper.\($0)" }
+
+    static var available: [String] {
+        presetIDs.filter { UIImage(named: $0) != nil }
     }
 }
 

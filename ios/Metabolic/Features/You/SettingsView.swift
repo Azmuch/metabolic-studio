@@ -61,6 +61,17 @@ struct SettingsView: View {
 
                             if appState.backgroundStyle == .photo {
                                 VStack(alignment: .leading, spacing: 10) {
+                                    if !WallpaperCatalog.available.isEmpty {
+                                        ScrollView(.horizontal) {
+                                            HStack(spacing: 10) {
+                                                ForEach(WallpaperCatalog.available, id: \.self) { presetID in
+                                                    wallpaperPresetTile(presetID)
+                                                }
+                                            }
+                                        }
+                                        .scrollIndicators(.hidden)
+                                    }
+
                                     PhotosPicker(selection: $wallpaperPickerItem, matching: .images) {
                                         HStack(spacing: 12) {
                                             Image(systemName: "photo.badge.plus")
@@ -68,7 +79,7 @@ struct SettingsView: View {
                                                 .foregroundStyle(MTTheme.volt)
                                                 .frame(width: 36, height: 36)
                                                 .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
-                                            Text("Choose wallpaper…")
+                                            Text("Use your own photo…")
                                                 .font(.system(size: 15, weight: .semibold))
                                                 .foregroundStyle(MTTheme.textPrimary)
                                             Spacer(minLength: 0)
@@ -76,7 +87,19 @@ struct SettingsView: View {
                                         .contentShape(Rectangle())
                                     }
 
-                                    if ThemeStore.shared.hasWallpaper {
+                                    Toggle(isOn: $appState.wallpaperParallax) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("3D parallax")
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(MTTheme.textPrimary)
+                                            Text("The wallpaper drifts subtly as you tilt your phone. Pauses automatically with Reduce Motion.")
+                                                .font(.system(size: 12))
+                                                .foregroundStyle(MTTheme.textSecondary)
+                                        }
+                                    }
+                                    .tint(MTTheme.volt)
+
+                                    if ThemeStore.shared.hasWallpaper && appState.wallpaperPresetID == nil {
                                         MTSecondaryButton(title: "Remove wallpaper") {
                                             appState.clearWallpaper()
                                         }
@@ -298,6 +321,42 @@ struct SettingsView: View {
             }
             Spacer(minLength: 0)
         }
+    }
+
+    /// One bundled wallpaper thumbnail — tap to select, tap again to deselect (falls back to
+    /// the user's uploaded photo, if any).
+    private func wallpaperPresetTile(_ presetID: String) -> some View {
+        let selected = appState.wallpaperPresetID == presetID
+        return Button {
+            Haptics.tap()
+            appState.wallpaperPresetID = selected ? nil : presetID
+        } label: {
+            Group {
+                if let image = UIImage(named: presetID) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    MTTheme.surface2
+                }
+            }
+            .frame(width: 64, height: 96)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(selected ? MTTheme.volt : MTTheme.stroke, lineWidth: selected ? 2 : 1))
+            .overlay(alignment: .bottomTrailing) {
+                if selected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                        .background(Circle().fill(Color.black.opacity(0.55)))
+                        .padding(5)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Wallpaper preset\(selected ? ", selected" : "")")
     }
 
     private func accentCard(_ theme: AccentTheme, selection: Binding<AccentTheme>) -> some View {

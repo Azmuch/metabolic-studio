@@ -54,7 +54,9 @@ private struct GlassBackdrop: View {
     }
 }
 
-/// User wallpaper under a scrim that keeps cards and text legible in both appearances.
+/// Wallpaper (bundled preset or the user's own photo) under a scrim that keeps cards and
+/// text legible in both appearances. With parallax on, the image drifts opposite device
+/// tilt — Apple's classic home-screen wallpaper effect.
 private struct PhotoBackdrop: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -63,16 +65,23 @@ private struct PhotoBackdrop: View {
         ZStack {
             MTTheme.bg
 
-            if store.hasWallpaper,
-               let image = UIImage(contentsOfFile: ThemeStore.wallpaperURL.path) {
+            if let image = store.activeWallpaperImage {
                 GeometryReader { geo in
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
+                    Group {
+                        if store.wallpaperParallax {
+                            ParallaxImage(image: image, strength: 22)
+                        } else {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        }
+                    }
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    // Overscan under parallax so the drift never reveals an edge.
+                    .scaleEffect(store.wallpaperParallax ? 1.12 : 1)
+                    .clipped()
                 }
-                .id(store.wallpaperVersion)
+                .id("\(store.wallpaperVersion)-\(store.wallpaperPreset ?? "custom")")
 
                 Rectangle()
                     .fill(colorScheme == .dark
@@ -82,6 +91,35 @@ private struct PhotoBackdrop: View {
                 Rectangle().fill(.ultraThinMaterial.opacity(0.5))
             }
         }
+    }
+}
+
+/// Apple's gyroscope wallpaper parallax: `UIInterpolatingMotionEffect` drifts the layer
+/// opposite device tilt, exactly like the home screen. The system disables motion effects
+/// automatically when the user has Reduce Motion on, so no accessibility branch is needed.
+private struct ParallaxImage: UIViewRepresentable {
+    let image: UIImage
+    /// Maximum drift in points on each axis.
+    let strength: CGFloat
+
+    func makeUIView(context: Context) -> UIImageView {
+        let view = UIImageView(image: image)
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
+        let x = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
+        x.minimumRelativeValue = -strength
+        x.maximumRelativeValue = strength
+        let y = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
+        y.minimumRelativeValue = -strength
+        y.maximumRelativeValue = strength
+        let group = UIMotionEffectGroup()
+        group.motionEffects = [x, y]
+        view.addMotionEffect(group)
+        return view
+    }
+
+    func updateUIView(_ view: UIImageView, context: Context) {
+        if view.image !== image { view.image = image }
     }
 }
 
