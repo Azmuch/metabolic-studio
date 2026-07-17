@@ -91,11 +91,19 @@ struct SessionPlayerView: View {
         }
     }
 
+    /// The clip keeps the detail card's exact geometry — a full-width 9:16 fit pinned to the very
+    /// top of the screen, so the figure sits in the same position on both screens and never crops.
+    /// The remainder below continues the clip's canvas color and disappears under the scrim.
     private var heroBackdrop: some View {
-        AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
-                        fillsContainer: true, contentInset: 0, cornerRadius: 0)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
+        VStack(spacing: 0) {
+            AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
+                            contentInset: 0, cornerRadius: 0)
+                .aspectRatio(9.0 / 16.0, contentMode: .fit)
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.965, green: 0.965, blue: 0.957))
+        .ignoresSafeArea()
     }
 
     /// Fixed dark ink for content floating over the light scrim — the clip canvas and scrim are

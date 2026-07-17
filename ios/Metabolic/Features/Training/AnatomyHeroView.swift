@@ -21,10 +21,6 @@ struct AnatomyHeroView: View {
     /// Detail screens pass `true`; the Session Player pauses the clip in inactive phases.
     var isPlaying: Bool = true
 
-    /// Fill the container by cropping the clip/still's studio sides instead of letterboxing.
-    /// Only the full-screen session backdrop passes `true` — its aspect is taller than 9:16.
-    var fillsContainer: Bool = false
-
     /// Inset between the figure and the card edge. 0 = edge-to-edge (the full-bleed detail hero).
     var contentInset: CGFloat = 10
 
@@ -49,14 +45,12 @@ struct AnatomyHeroView: View {
         if let clipURL = ExerciseClipStore.shared.clipURL(for: exercise.id) {
             ExerciseClipHero(url: clipURL, isPlaying: isPlaying,
                              playback: ExerciseClipStore.shared.playback(for: exercise.id),
-                             fillsContainer: fillsContainer,
                              contentInset: contentInset, cornerRadius: cornerRadius)
         } else if let names = Self.assetManifest[exercise.id],
                   let primary = UIImage(named: names[0]) {
             AnatomyImageHero(
                 primary: primary,
                 secondary: names.count > 1 ? UIImage(named: names[1]) : nil,
-                fillsContainer: fillsContainer,
                 contentInset: contentInset,
                 cornerRadius: cornerRadius)
         } else {
@@ -72,7 +66,6 @@ struct AnatomyHeroView: View {
 private struct AnatomyImageHero: View {
     let primary: UIImage
     let secondary: UIImage?
-    var fillsContainer: Bool = false
     var contentInset: CGFloat = 10
     var cornerRadius: CGFloat = MTTheme.cardRadius
 
@@ -94,12 +87,12 @@ private struct AnatomyImageHero: View {
                 ZStack {
                     Image(uiImage: primary)
                         .resizable()
-                        .aspectRatio(contentMode: fillsContainer ? .fill : .fit)
+                        .aspectRatio(contentMode: .fit)
                         .opacity(secondary == nil ? 1 : 1 - blend)
                     if let secondary {
                         Image(uiImage: secondary)
                             .resizable()
-                            .aspectRatio(contentMode: fillsContainer ? .fill : .fit)
+                            .aspectRatio(contentMode: .fit)
                             .opacity(blend)
                     }
                 }
