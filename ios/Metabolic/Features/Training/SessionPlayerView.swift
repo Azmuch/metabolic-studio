@@ -2,10 +2,10 @@ import SwiftUI
 import SwiftData
 import MetabolicCore
 
-/// Immersive full-screen set/rep/rest player. Opens on a Ready screen; the user taps Start, then
-/// confirms each set with Begin Set, works (reps or a Date-anchored timed countdown), rests, and
-/// finally saves a `WorkoutLog` (+ HealthKit). Work-timed and rest countdowns are pausable, and the
-/// elapsed-session clock excludes paused time.
+/// Immersive full-screen set/rep/rest player. Opening it starts the session: a 3-second get-ready
+/// countdown rolls straight into each set (reps or a Date-anchored timed countdown), rest
+/// auto-advances into the next countdown, and finishing saves a `WorkoutLog` (+ HealthKit).
+/// Work-timed and rest countdowns are pausable, and the elapsed clock excludes paused time.
 struct SessionPlayerView: View {
     let plan: WorkoutPlan
 
@@ -16,7 +16,7 @@ struct SessionPlayerView: View {
 
     @State private var itemIndex = 0
     @State private var currentSet = 1
-    @State private var phase: SessionPhase = .setReady
+    @State private var phase: SessionPhase = .countdown
     @State private var completedExerciseIDs: [String] = []
 
     /// Optional per-set load, remembered per-exercise for the life of this session, plus the
@@ -162,13 +162,13 @@ struct SessionPlayerView: View {
     @ViewBuilder
     private var controlPane: some View {
         switch phase {
-        case .setReady:
-            beginSetContent
+        case .countdown:
+            countdownContent
         case .working:
             workContent
         case .resting:
             restContent
-        default:
+        case .finished:
             EmptyView()
         }
     }
@@ -274,25 +274,45 @@ struct SessionPlayerView: View {
 
     // MARK: - Center section
 
-    /// The clip plays while previewing (set-ready) or performing (working) and freezes during rest
-    /// or when paused. A hold clip freezes itself on top of this: its manifest `type: hold` makes
-    /// the player run the entry once (non-looping) and stop on the held frame, so the écorché
-    /// settles into the isometric position for the full countdown instead of cycling through it.
+    /// The clip plays during the get-ready countdown (previewing the movement) and while working,
+    /// and freezes during rest or when paused. A hold clip freezes itself on top of this: its
+    /// manifest `type: hold` makes the player run the entry once (non-looping) and stop on the
+    /// held frame, so the écorché settles into the isometric position instead of cycling.
     private var heroIsPlaying: Bool {
-        !isPaused && (phase == .setReady || phase == .working)
+        !isPaused && (phase == .countdown || phase == .working)
     }
 
-    // MARK: - Begin-set prompt
+    // MARK: - Get-ready countdown
 
-    private var beginSetContent: some View {
-        VStack(spacing: 20) {
-            Text(setTargetPreview)
-                .font(MTTheme.numberFont(size: 34))
-                .foregroundStyle(ink)
-            MTPrimaryButton(title: "Begin Set", systemImage: "play.fill") {
-                beginSet()
+    private static let countdownLength: Double = 3
+
+    /// Auto-running 3-2-1 into the set — no Begin Set tap. Shows the target so the user knows
+    /// what's coming while they get into position.
+    private var countdownContent: some View {
+        TimelineView(.animation) { timeline in
+            let remaining = countdownRemaining(now: timeline.date)
+            VStack(spacing: 16) {
+                Text(setTargetPreview)
+                    .font(MTTheme.numberFont(size: 34))
+                    .foregroundStyle(ink)
+                ZStack {
+                    MTRing(progress: 1 - remaining / Self.countdownLength, lineWidth: 8)
+                        .frame(width: 88, height: 88)
+                    Text("\(max(Int(remaining.rounded(.up)), 1))")
+                        .font(MTTheme.numberFont(size: 32))
+                        .foregroundStyle(ink)
+                }
+                Text("GET READY")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.4)
+                    .foregroundStyle(inkSoft)
             }
         }
+    }
+
+    private func countdownRemaining(now: Date) -> Double {
+        let elapsed = now.timeIntervalSince(phaseStart) - pausedSoFar(now: now)
+        return max(Self.countdownLength - elapsed, 0)
     }
 
     private var setTargetPreview: String {
@@ -705,15 +725,23 @@ struct SessionPlayerView: View {
             itemIndex += 1
             currentSet = 1
         }
-        phase = .setReady
+        phase = .countdown
         resetPhaseAnchor()
     }
 
     private func runPhaseWatcher() async {
         guard !plan.items.isEmpty else { return }
         switch phase {
-        case .ready, .setReady, .finished:
+        case .finished:
             return
+        case .countdown:
+            while !Task.isCancelled {
+                if countdownRemaining(now: Date()) <= 0 {
+                    beginSet()
+                    return
+                }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
         case .working:
             guard case .timed = currentItem.kind else { return }
             while !Task.isCancelled {
@@ -790,10 +818,10 @@ struct SessionPlayerView: View {
     }
 }
 
-/// Where the player currently is: the pre-start Ready screen, waiting to begin a set, doing the
-/// work, resting between sets, or done.
+/// Where the player currently is: counting down into a set, doing the work, resting between
+/// sets, or done.
 fileprivate enum SessionPhase {
-    case ready, setReady, working, resting, finished
+    case countdown, working, resting, finished
 }
 
 /// Lightweight Canvas confetti for the completion celebration — colored pieces fall from above,
