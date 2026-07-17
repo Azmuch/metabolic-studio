@@ -23,6 +23,13 @@ struct ExerciseDetailView: View {
     @State private var restSeconds: Int
     @State private var runningPlan: RunnablePlan?
 
+    /// A progression-family sibling the user swapped to (via the Variations chips or a level
+    /// preset). `nil` = the exercise this screen opened on.
+    @State private var variant: Exercise?
+
+    /// The movement everything on screen reflects — hero, chips, prescription, and session start.
+    private var active: Exercise { variant ?? exercise }
+
     init(exercise: Exercise) {
         self.exercise = exercise
         switch exercise.kind {
@@ -44,7 +51,7 @@ struct ExerciseDetailView: View {
                     heroCard
 
                     VStack(alignment: .leading, spacing: 16) {
-                        if let pack = PackStore.shared.lockingPack(for: exercise.id) {
+                        if let pack = PackStore.shared.lockingPack(for: active.id) {
                             packUnlockBanner(pack)
                         }
                         if hasFlaggedInjury {
@@ -82,22 +89,22 @@ struct ExerciseDetailView: View {
     private var favoriteButton: some View {
         Button {
             Haptics.tap()
-            appState.toggleFavorite(exercise.id)
+            appState.toggleFavorite(active.id)
         } label: {
-            Image(systemName: appState.isFavorite(exercise.id) ? "heart.fill" : "heart")
+            Image(systemName: appState.isFavorite(active.id) ? "heart.fill" : "heart")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(appState.isFavorite(exercise.id) ? MTTheme.volt : .white)
+                .foregroundStyle(appState.isFavorite(active.id) ? MTTheme.volt : .white)
                 .frame(width: 40, height: 40)
                 .background(Color.black.opacity(0.32), in: Circle())
                 .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 1))
                 .shadow(color: .black.opacity(0.2), radius: 5, y: 2)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(appState.isFavorite(exercise.id) ? "Unsave exercise" : "Save exercise")
+        .accessibilityLabel(appState.isFavorite(active.id) ? "Unsave exercise" : "Save exercise")
     }
 
     private var personalBest: PersonalBest? {
-        personalBests.first { $0.exerciseID == exercise.id }
+        personalBests.first { $0.exerciseID == active.id }
     }
 
     private func prSummary(_ pb: PersonalBest) -> String {
@@ -134,7 +141,7 @@ struct ExerciseDetailView: View {
     // MARK: - Hero (edge-to-edge 9:16, extends under the status bar, name + muscles overlaid)
 
     private var heroCard: some View {
-        AnatomyHeroView(exercise: exercise, isPlaying: true, contentInset: 0)
+        AnatomyHeroView(exercise: active, isPlaying: true, contentInset: 0)
             .aspectRatio(9.0 / 16.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .overlay(alignment: .bottom) { heroOverlay }
@@ -147,12 +154,12 @@ struct ExerciseDetailView: View {
     private var heroOverlay: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
-                ForEach(exercise.muscleGroups, id: \.self) { group in
+                ForEach(active.muscleGroups, id: \.self) { group in
                     overlayChip(group.displayName)
                 }
             }
             HStack(alignment: .center, spacing: 12) {
-                Text(exercise.name)
+                Text(active.name)
                     .font(.system(size: 30, weight: .bold))
                     .foregroundStyle(Color(white: 0.12))
                 Spacer(minLength: 0)
@@ -167,7 +174,7 @@ struct ExerciseDetailView: View {
                         .shadow(color: .black.opacity(0.18), radius: 8, y: 3)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Start \(exercise.name)")
+                .accessibilityLabel("Start \(active.name)")
             }
         }
         .padding(20)
@@ -221,11 +228,11 @@ struct ExerciseDetailView: View {
     // MARK: - Injury warning
 
     private var flaggedInjuries: Set<InjuryFlag> {
-        exercise.contraindications.intersection(appState.profile.injuries)
+        active.contraindications.intersection(appState.profile.injuries)
     }
 
     private var hasFlaggedInjury: Bool {
-        !exercise.contraindications.isDisjoint(with: appState.profile.injuries)
+        !active.contraindications.isDisjoint(with: appState.profile.injuries)
     }
 
     private var flaggedInjuryNames: String {
@@ -257,7 +264,7 @@ struct ExerciseDetailView: View {
                 }
             }
             HStack(spacing: 8) {
-                MTChip(text: "MET \(String(format: "%.1f", exercise.met))", systemImage: "bolt.fill")
+                MTChip(text: "MET \(String(format: "%.1f", active.met))", systemImage: "bolt.fill")
                 MTChip(text: "~\(estimatedCaloriesPer10Min) kcal / 10 min", systemImage: "flame")
             }
             if let pb = personalBest, pb.hasAnyRecord {
@@ -267,13 +274,13 @@ struct ExerciseDetailView: View {
     }
 
     private var sortedEquipment: [Equipment] {
-        exercise.equipment.sorted { $0.displayName < $1.displayName }
+        active.equipment.sorted { $0.displayName < $1.displayName }
     }
 
     private var estimatedCaloriesPer10Min: Int {
         Int(
             CalorieBurnCalculator.kilocalories(
-                met: exercise.met, weightKg: appState.profile.weightKg, minutes: 10
+                met: active.met, weightKg: appState.profile.weightKg, minutes: 10
             ).rounded()
         )
     }
@@ -281,8 +288,15 @@ struct ExerciseDetailView: View {
     // MARK: - Preview & customize
 
     private var isReps: Bool {
-        if case .reps = exercise.kind { return true }
+        if case .reps = active.kind { return true }
         return false
+    }
+
+    /// This exercise's progression family (easiest → hardest, including itself), or empty when
+    /// it stands alone. Keyed off the exercise the screen opened on, so the row is stable while
+    /// the user hops between siblings.
+    private var variations: [Exercise] {
+        ExerciseProgressions.variations(of: exercise.id)
     }
 
     private var customizeCard: some View {
@@ -303,6 +317,10 @@ struct ExerciseDetailView: View {
             Text("Levels preset your volume — fine-tune anything below.")
                 .font(.system(size: 12))
                 .foregroundStyle(MTTheme.textTertiary)
+
+            if variations.count > 1 {
+                variationsRow
+            }
 
             stepperRow("Sets", value: $sets, range: 1...8)
             if isReps {
@@ -338,7 +356,89 @@ struct ExerciseDetailView: View {
         }
     }
 
+    // MARK: - Variations (progression family)
+
+    /// Chips for the family siblings, easiest → hardest. Tapping swaps the whole screen — hero
+    /// clip, muscles, cues, prescription — to that movement; level presets pre-select the
+    /// tier-matching sibling automatically.
+    private var variationsRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("VARIATIONS")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                Spacer()
+                Text("easiest → hardest")
+                    .font(.system(size: 10))
+                    .foregroundStyle(MTTheme.textTertiary)
+            }
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(variations) { variation in
+                        variationChip(variation)
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
+    private func variationChip(_ variation: Exercise) -> some View {
+        let selected = variation.id == active.id
+        return Button {
+            Haptics.tap()
+            selectVariant(variation.id)
+        } label: {
+            Text(variation.name)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(selected ? Color.black : MTTheme.textSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(selected ? MTTheme.volt : MTTheme.surface2, in: Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Swaps the screen to a family sibling and re-baselines the prescription for it at the
+    /// current level (its own default reps/seconds, scaled).
+    private func selectVariant(_ id: String) {
+        guard id != active.id, let target = ExerciseLibrary.exercise(id: id) else { return }
+        withAnimation(.snappy(duration: 0.3)) {
+            variant = target.id == exercise.id ? nil : target
+        }
+        applyVolumePreset(level)
+    }
+
+    /// Level presets step through the progression family *relative to the exercise this screen
+    /// opened on*: Beginner = one step easier, Advanced = one step harder, Intermediate = the
+    /// original movement. Freestyle keeps whatever the user picked. Steps clamp at the family
+    /// edges, and the volume preset is applied to whichever movement ends up active.
     private func applyLevel(_ level: TrainingLevel) {
+        if let targetID = levelVariantID(for: level), targetID != active.id,
+           let target = ExerciseLibrary.exercise(id: targetID) {
+            withAnimation(.snappy(duration: 0.3)) {
+                variant = target.id == exercise.id ? nil : target
+            }
+        }
+        applyVolumePreset(level)
+    }
+
+    private func levelVariantID(for level: TrainingLevel) -> String? {
+        guard let family = ExerciseProgressions.family(containing: exercise.id),
+              let baseIndex = family.firstIndex(of: exercise.id) else { return nil }
+        let offset: Int
+        switch level {
+        case .beginner: offset = -1
+        case .intermediate: offset = 0
+        case .advanced: offset = 1
+        case .freestyle: return nil
+        }
+        let index = min(max(baseIndex + offset, 0), family.count - 1)
+        return family[index]
+    }
+
+    private func applyVolumePreset(_ level: TrainingLevel) {
         switch level {
         case .beginner: sets = 2; scaleVolume(0.7)
         case .intermediate: sets = 3; scaleVolume(1.0)
@@ -348,7 +448,7 @@ struct ExerciseDetailView: View {
     }
 
     private func scaleVolume(_ scale: Double) {
-        switch exercise.kind {
+        switch active.kind {
         case .reps(let base): reps = max(1, Int((Double(base) * scale).rounded()))
         case .timed(let base): seconds = max(5, Int((Double(base) * scale).rounded()))
         }
@@ -356,11 +456,11 @@ struct ExerciseDetailView: View {
 
     private func startCustomSession() {
         let kind: ExerciseKind = isReps ? .reps(reps) : .timed(seconds: seconds)
-        let item = WorkoutItem(id: exercise.id, exercise: exercise, sets: sets, kind: kind,
+        let item = WorkoutItem(id: active.id, exercise: active, sets: sets, kind: kind,
                                restSeconds: restSeconds)
         let workSeconds = isReps ? sets * reps * 3 : sets * seconds
         let estimated = max(1, (workSeconds + sets * restSeconds) / 60)
-        let plan = WorkoutPlan(date: .now, focus: .fullBody, title: exercise.name,
+        let plan = WorkoutPlan(date: .now, focus: .fullBody, title: active.name,
                                items: [item], estimatedMinutes: estimated)
         runningPlan = RunnablePlan(plan: plan)
     }
@@ -390,7 +490,7 @@ struct ExerciseDetailView: View {
 
             if howToExpanded {
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(Array(exercise.instructions.enumerated()), id: \.offset) { index, cue in
+                    ForEach(Array(active.instructions.enumerated()), id: \.offset) { index, cue in
                         HStack(alignment: .top, spacing: 12) {
                             ZStack {
                                 Circle().fill(MTTheme.voltDim).frame(width: 26, height: 26)
