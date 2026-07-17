@@ -11,6 +11,7 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
     @Query private var personalBests: [PersonalBest]
@@ -21,6 +22,8 @@ struct ExerciseDetailView: View {
     @State private var reps: Int
     @State private var seconds: Int
     @State private var restSeconds: Int
+    @State private var loadText = ""
+    @State private var savedAsWorkout = false
     @State private var runningPlan: RunnablePlan?
 
     /// A progression-family sibling the user swapped to (via the Variations chips or a level
@@ -82,7 +85,7 @@ struct ExerciseDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .fullScreenCover(item: $runningPlan) { runnable in
-            SessionPlayerView(plan: runnable.plan)
+            SessionPlayerView(plan: runnable.plan, initialLoadsKg: runnable.initialLoadsKg)
         }
     }
 
@@ -329,14 +332,107 @@ struct ExerciseDetailView: View {
                 stepperRow("Seconds", value: $seconds, range: 5...300, step: 5, suffix: "s")
             }
             stepperRow("Rest", value: $restSeconds, range: 0...180, step: 5, suffix: "s")
+            if showsLoadRow {
+                loadRow
+            }
 
             MTPrimaryButton(title: level == .freestyle ? "Start Freestyle" : "Start Exercise",
                             systemImage: "play.fill") {
                 startCustomSession()
             }
+
+            HStack(spacing: 10) {
+                Button {
+                    saveAsWorkout()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: savedAsWorkout ? "checkmark" : "bookmark")
+                            .font(.system(size: 15, weight: .semibold))
+                        Text(savedAsWorkout ? "Saved to My Workouts" : "Save to My Workouts")
+                            .font(.system(size: 15, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .foregroundStyle(MTTheme.textPrimary)
+                    .background(MTTheme.surface2, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(savedAsWorkout)
+
+                if let shareURL = WorkoutShare.exportURL(
+                    for: CustomWorkout(name: active.name, items: [configuredItem()])) {
+                    ShareLink(item: shareURL) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(MTTheme.volt)
+                            .frame(width: 44, height: 44)
+                            .background(MTTheme.voltDim, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Share this exercise setup")
+                }
+            }
         }
         .padding(16)
         .background(MTTheme.surface, in: RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+    }
+
+    // MARK: - Load (entered here — the auto-rolling countdown leaves no time mid-session)
+
+    private var showsLoadRow: Bool {
+        !active.equipment.contains(.none)
+    }
+
+    private var loadUnit: String {
+        appState.unitSystem == .imperial ? "lb" : "kg"
+    }
+
+    /// Entered load converted to kg, or 0 when empty/unparsable.
+    private var currentLoadKg: Double {
+        guard let value = Double(loadText.replacingOccurrences(of: ",", with: ".")), value > 0 else {
+            return 0
+        }
+        return appState.unitSystem == .imperial ? Units.kg(fromPounds: value) : value
+    }
+
+    private var loadRow: some View {
+        HStack {
+            Text("Load")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(MTTheme.textPrimary)
+            Spacer()
+            TextField("0", text: $loadText)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(MTTheme.textPrimary)
+                .frame(width: 64)
+                .padding(.vertical, 7)
+                .background(MTTheme.surface2)
+                .clipShape(RoundedRectangle(cornerRadius: MTTheme.controlRadius, style: .continuous))
+            Text(loadUnit)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+    }
+
+    /// The exercise exactly as configured on this screen, as a shareable/saveable workout item.
+    private func configuredItem() -> CustomWorkoutItem {
+        var item = CustomWorkoutItem(exercise: active)
+        item.sets = sets
+        item.isTimed = !isReps
+        item.reps = reps
+        item.seconds = seconds
+        item.restSeconds = restSeconds
+        item.loadKg = currentLoadKg > 0 ? currentLoadKg : nil
+        return item
+    }
+
+    private func saveAsWorkout() {
+        guard !savedAsWorkout else { return }
+        Haptics.success()
+        modelContext.insert(CustomWorkout(name: active.name, items: [configuredItem()]))
+        withAnimation(.snappy(duration: 0.25)) { savedAsWorkout = true }
     }
 
     private func stepperRow(_ label: String, value: Binding<Int>, range: ClosedRange<Int>,
@@ -462,7 +558,9 @@ struct ExerciseDetailView: View {
         let estimated = max(1, (workSeconds + sets * restSeconds) / 60)
         let plan = WorkoutPlan(date: .now, focus: .fullBody, title: active.name,
                                items: [item], estimatedMinutes: estimated)
-        runningPlan = RunnablePlan(plan: plan)
+        runningPlan = RunnablePlan(
+            plan: plan,
+            initialLoadsKg: currentLoadKg > 0 ? [active.id: currentLoadKg] : [:])
     }
 
     // MARK: - How to (pull-down)

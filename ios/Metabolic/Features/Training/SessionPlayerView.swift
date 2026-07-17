@@ -8,6 +8,9 @@ import MetabolicCore
 /// Work-timed and rest countdowns are pausable, and the elapsed clock excludes paused time.
 struct SessionPlayerView: View {
     let plan: WorkoutPlan
+    /// Loads (kg) to pre-fill per exercise — from the detail configurator or a custom workout's
+    /// saved loads, so equipment sets begin with the weight already entered.
+    var initialLoadsKg: [String: Double] = [:]
 
     @Environment(AppState.self) private var appState
     @Environment(HealthKitService.self) private var healthKit
@@ -47,8 +50,9 @@ struct SessionPlayerView: View {
     /// hero canvas color until sampling lands (or when the exercise has no clip).
     @State private var canvasContinuation = Color(red: 0.965, green: 0.965, blue: 0.957)
 
-    init(plan: WorkoutPlan) {
+    init(plan: WorkoutPlan, initialLoadsKg: [String: Double] = [:]) {
         self.plan = plan
+        self.initialLoadsKg = initialLoadsKg
     }
 
     var body: some View {
@@ -66,6 +70,7 @@ struct SessionPlayerView: View {
         }
         .task(id: taskKey) { await runPhaseWatcher() }
         .task(id: currentItem.exercise.id) { await sampleCanvasContinuation() }
+        .onAppear { seedInitialLoads() }
         .confirmationDialog("End workout?", isPresented: $showEndConfirm, titleVisibility: .visible) {
             Button("End Workout", role: .destructive) { dismiss() }
             Button("Keep Going", role: .cancel) {}
@@ -374,6 +379,16 @@ struct SessionPlayerView: View {
             Text(unitLabel)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(inkSoft)
+        }
+    }
+
+    /// Pre-fills the load fields (converted to the user's display unit) once, on entry.
+    private func seedInitialLoads() {
+        guard loadTextByExercise.isEmpty, !initialLoadsKg.isEmpty else { return }
+        for (id, kg) in initialLoadsKg {
+            let value = appState.unitSystem == .imperial ? Units.pounds(fromKg: kg) : kg
+            loadTextByExercise[id] = value.truncatingRemainder(dividingBy: 1) == 0
+                ? String(Int(value)) : String(format: "%.1f", value)
         }
     }
 

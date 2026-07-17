@@ -68,7 +68,7 @@ struct TrainingView: View {
                 SessionPlayerView(plan: plan)
             }
             .fullScreenCover(item: $runningCustom) { runnable in
-                SessionPlayerView(plan: runnable.plan)
+                SessionPlayerView(plan: runnable.plan, initialLoadsKg: runnable.initialLoadsKg)
             }
             .sheet(isPresented: $showBuilder) {
                 WorkoutBuilderView()
@@ -162,7 +162,26 @@ struct TrainingView: View {
 
     private func customWorkoutCard(_ workout: CustomWorkout) -> some View {
         MTCard {
-            HStack(spacing: 12) {
+            cardContent(workout)
+        }
+        .contentShape(Rectangle())   // whole card long-presses, not just the text
+        .contextMenu {
+            if let url = WorkoutShare.exportURL(for: workout) {
+                ShareLink(item: url,
+                          message: Text(WorkoutShare.shareText(for: workout))) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            }
+            Button(role: .destructive) {
+                modelContext.delete(workout)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    private func cardContent(_ workout: CustomWorkout) -> some View {
+        HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(workout.name)
                         .font(.system(size: 17, weight: .bold))
@@ -185,7 +204,8 @@ struct TrainingView: View {
                 .buttonStyle(.plain)
                 Button {
                     Haptics.tap()
-                    runningCustom = RunnablePlan(plan: workout.plan())
+                    runningCustom = RunnablePlan(plan: workout.plan(),
+                                                 initialLoadsKg: workout.initialLoadsKg)
                 } label: {
                     Image(systemName: "play.fill")
                         .font(.system(size: 15, weight: .semibold))
@@ -195,20 +215,6 @@ struct TrainingView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(workout.items.isEmpty)
-            }
-            .contextMenu {
-                if let url = WorkoutShare.exportURL(for: workout) {
-                    ShareLink(item: url,
-                              message: Text(WorkoutShare.shareText(for: workout))) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                }
-                Button(role: .destructive) {
-                    modelContext.delete(workout)
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
         }
     }
 

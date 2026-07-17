@@ -6,6 +6,7 @@ import MetabolicCore
 /// duration / rest per exercise, reorder or remove, then save. Saved workouts live in SwiftData
 /// and run through the same `SessionPlayerView` as generated plans.
 struct WorkoutBuilderView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -15,6 +16,7 @@ struct WorkoutBuilderView: View {
     @State private var name: String
     @State private var items: [CustomWorkoutItem]
     @State private var showExercisePicker = false
+    @State private var level: BuilderLevel = .intermediate
 
     init(editing: CustomWorkout? = nil) {
         self.editing = editing
@@ -31,6 +33,7 @@ struct WorkoutBuilderView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     nameField
+                    levelSection
 
                     if items.isEmpty {
                         emptyState
@@ -81,6 +84,43 @@ struct WorkoutBuilderView: View {
         }
     }
 
+    /// Preset that rescales every exercise's sets and volume from its library default —
+    /// fine-tune any single exercise below afterwards.
+    private var levelSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("LEVEL PRESET")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(MTTheme.textTertiary)
+            Picker("Level", selection: $level) {
+                ForEach(BuilderLevel.allCases, id: \.self) { lvl in
+                    Text(lvl.displayName).tag(lvl)
+                }
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: level) { _, newValue in
+                Haptics.tap()
+                for index in items.indices {
+                    apply(newValue, to: &items[index])
+                }
+            }
+            Text("Applies to every exercise — fine-tune each one below.")
+                .font(.system(size: 12))
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+    }
+
+    private func apply(_ level: BuilderLevel, to item: inout CustomWorkoutItem) {
+        guard let exercise = ExerciseLibrary.exercise(id: item.exerciseID) else { return }
+        item.sets = level.sets
+        switch exercise.kind {
+        case .reps(let base):
+            item.reps = max(1, Int((Double(base) * level.volumeScale).rounded()))
+        case .timed(let base):
+            item.seconds = max(5, Int((Double(base) * level.volumeScale).rounded()))
+        }
+    }
+
     private var emptyState: some View {
         MTEmptyState(symbol: "dumbbell.fill", title: "No exercises yet",
                      message: "Add exercises from the library to build your session.")
@@ -105,7 +145,7 @@ struct WorkoutBuilderView: View {
                 .buttonStyle(.plain)
             }
 
-            HStack(spacing: 18) {
+            HStack(spacing: 12) {
                 miniStepper("Sets", value: $items[index].sets, range: 1...8)
                 if item.isTimed {
                     miniStepper("Sec", value: $items[index].seconds, range: 5...300, step: 5)
@@ -113,6 +153,9 @@ struct WorkoutBuilderView: View {
                     miniStepper("Reps", value: $items[index].reps, range: 1...50)
                 }
                 miniStepper("Rest", value: $items[index].restSeconds, range: 0...180, step: 5)
+                if usesEquipment(item.exerciseID) {
+                    miniStepper(loadUnit.capitalized, value: loadBinding(index), range: 0...500, step: 5)
+                }
             }
         }
         .padding(14)
@@ -185,6 +228,37 @@ struct WorkoutBuilderView: View {
         ExerciseLibrary.exercise(id: id)?.name ?? id
     }
 
+    // MARK: - Load (equipment exercises)
+
+    private var loadUnit: String {
+        appState.unitSystem == .imperial ? "lb" : "kg"
+    }
+
+    private func usesEquipment(_ id: String) -> Bool {
+        guard let exercise = ExerciseLibrary.exercise(id: id) else { return false }
+        return !exercise.equipment.contains(.none)
+    }
+
+    /// Whole-number load in the user's display unit, stored as kg on the item (0 clears it).
+    private func loadBinding(_ index: Int) -> Binding<Int> {
+        Binding(
+            get: {
+                let kg = items[index].loadKg ?? 0
+                let display = appState.unitSystem == .imperial ? Units.pounds(fromKg: kg) : kg
+                return Int(display.rounded())
+            },
+            set: { newValue in
+                guard newValue > 0 else {
+                    items[index].loadKg = nil
+                    return
+                }
+                let value = Double(newValue)
+                items[index].loadKg = appState.unitSystem == .imperial
+                    ? Units.kg(fromPounds: value) : value
+            }
+        )
+    }
+
     private func save() {
         guard canSave else { return }
         let trimmed = name.trimmingCharacters(in: .whitespaces)
@@ -196,6 +270,35 @@ struct WorkoutBuilderView: View {
         }
         Haptics.success()
         dismiss()
+    }
+}
+
+/// Difficulty preset for the whole workout: sets count + volume scale from library defaults.
+private enum BuilderLevel: String, CaseIterable {
+    case beginner, intermediate, advanced
+
+    var displayName: String {
+        switch self {
+        case .beginner: return "Beginner"
+        case .intermediate: return "Inter"
+        case .advanced: return "Advanced"
+        }
+    }
+
+    var sets: Int {
+        switch self {
+        case .beginner: return 2
+        case .intermediate: return 3
+        case .advanced: return 4
+        }
+    }
+
+    var volumeScale: Double {
+        switch self {
+        case .beginner: return 0.7
+        case .intermediate: return 1.0
+        case .advanced: return 1.3
+        }
     }
 }
 

@@ -8,6 +8,10 @@ import MetabolicCore
 struct RunnablePlan: Identifiable {
     let id = UUID()
     let plan: WorkoutPlan
+    /// Per-exercise starting loads (kg) to pre-fill in the session player, so equipment sets
+    /// begin with the weight already entered — there's no idle moment to type it once the
+    /// get-ready countdown auto-rolls into the set.
+    var initialLoadsKg: [String: Double] = [:]
 }
 
 /// One configured exercise inside a user-built workout. Stored as JSON on `CustomWorkout` so the
@@ -20,6 +24,9 @@ struct CustomWorkoutItem: Codable, Identifiable, Equatable {
     var reps: Int
     var seconds: Int
     var restSeconds: Int
+    /// Working weight in kg for equipment exercises; nil = bodyweight / not set. Optional so
+    /// items saved before this field existed keep decoding.
+    var loadKg: Double?
 
     var kind: ExerciseKind {
         isTimed ? .timed(seconds: seconds) : .reps(reps)
@@ -70,6 +77,13 @@ final class CustomWorkout {
             return acc + work + item.sets * item.restSeconds
         }
         return max(1, totalSeconds / 60)
+    }
+
+    /// Per-exercise starting loads (kg) from items that carry one, for the session player.
+    var initialLoadsKg: [String: Double] {
+        items.reduce(into: [:]) { dict, item in
+            if let load = item.loadKg, load > 0 { dict[item.exerciseID] = load }
+        }
     }
 
     /// Builds a runnable plan, dropping any items whose exercise id no longer exists in the library.

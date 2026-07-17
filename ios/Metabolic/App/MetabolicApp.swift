@@ -7,6 +7,7 @@ struct MetabolicApp: App {
     @State private var subscriptionManager = SubscriptionManager()
     @State private var healthKitService = HealthKitService()
     @State private var smartScale = SmartScaleService()
+    @State private var importedWorkoutName: String?
 
     private let modelContainer: ModelContainer = {
         do {
@@ -43,6 +44,23 @@ struct MetabolicApp: App {
             .task {
                 await subscriptionManager.configure()
                 DemoDataSeeder.seedIfNeeded(context: modelContainer.mainContext, appState: appState)
+            }
+            // A shared .metabolicworkout file tapped in Messages/Mail/Files lands here.
+            .onOpenURL { url in
+                guard let workout = WorkoutShare.importWorkout(from: url) else { return }
+                modelContainer.mainContext.insert(workout)
+                appState.selectedTab = .training
+                Haptics.success()
+                importedWorkoutName = workout.name
+            }
+            .alert(
+                "Workout imported",
+                isPresented: Binding(get: { importedWorkoutName != nil },
+                                     set: { if !$0 { importedWorkoutName = nil } })
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("“\(importedWorkoutName ?? "")” was added to My Workouts.")
             }
         }
     }
