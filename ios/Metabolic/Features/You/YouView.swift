@@ -192,7 +192,10 @@ struct YouView: View {
 
     private var profileSummary: String {
         let p = appState.profile
-        return "\(p.age)y · \(Int(p.heightCm)) cm · \(p.goal.displayName)"
+        let goalText = p.secondaryGoals.isEmpty
+            ? p.goal.displayName
+            : "\(p.goal.displayName) +\(p.allGoals.count - 1)"
+        return "\(p.age)y · \(Int(p.heightCm)) cm · \(goalText)"
     }
 
     private var targetsSummary: String {

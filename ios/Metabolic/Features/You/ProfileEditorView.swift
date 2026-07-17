@@ -135,12 +135,32 @@ struct ProfileEditorView: View {
     }
 
     private var goalSection: some View {
-        section("Goal") {
+        section("Goals") {
+            sectionLabel("SELECT ALL THAT APPLY — FIRST PICK LEADS")
             ForEach(FitnessGoal.allCases, id: \.self) { goal in
-                selectableRow(title: goal.displayName, isSelected: draft.goal == goal) {
-                    draft.goal = goal
+                let isPrimary = draft.goal == goal
+                let title = isPrimary && !draft.secondaryGoals.isEmpty
+                    ? goal.displayName + "  ·  Primary" : goal.displayName
+                selectableRow(title: title,
+                              isSelected: isPrimary || draft.secondaryGoals.contains(goal)) {
+                    toggleGoal(goal)
                 }
             }
+        }
+    }
+
+    /// Same semantics as onboarding: first pick is primary (drives targets), tapping the
+    /// primary promotes the next selected goal, and at least one goal always remains.
+    private func toggleGoal(_ goal: FitnessGoal) {
+        if draft.goal == goal {
+            if let promoted = FitnessGoal.allCases.first(where: { draft.secondaryGoals.contains($0) }) {
+                draft.secondaryGoals.remove(promoted)
+                draft.goal = promoted
+            }
+        } else if draft.secondaryGoals.contains(goal) {
+            draft.secondaryGoals.remove(goal)
+        } else {
+            draft.secondaryGoals.insert(goal)
         }
     }
 

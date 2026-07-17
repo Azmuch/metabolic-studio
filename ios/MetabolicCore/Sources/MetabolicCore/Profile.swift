@@ -175,6 +175,9 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
     public var dietaryPreference: DietaryPreference
     /// Allergens strictly excluded from generated meal plans.
     public var allergies: Set<FoodAllergen>
+    /// Additional goals beyond the primary. `goal` stays the single driver of calorie/macro
+    /// math; these shape recommendations and show on the profile.
+    public var secondaryGoals: Set<FitnessGoal>
 
     public init(age: Int = 30, sex: BiologicalSex = .male, heightCm: Double = 175,
                 weightKg: Double = 75, goal: FitnessGoal = .maintain,
@@ -187,7 +190,8 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
                 customProteinG: Int? = nil, customCarbsG: Int? = nil, customFatG: Int? = nil,
                 scheduleAnchor: ScheduleAnchor = .daysPerWeek,
                 dietaryPreference: DietaryPreference = .none,
-                allergies: Set<FoodAllergen> = []) {
+                allergies: Set<FoodAllergen> = [],
+                secondaryGoals: Set<FitnessGoal> = []) {
         self.age = age
         self.sex = sex
         self.heightCm = heightCm
@@ -209,6 +213,12 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         self.scheduleAnchor = scheduleAnchor
         self.dietaryPreference = dietaryPreference
         self.allergies = allergies
+        self.secondaryGoals = secondaryGoals
+    }
+
+    /// Primary goal first, then the additional goals in their canonical order.
+    public var allGoals: [FitnessGoal] {
+        [goal] + FitnessGoal.allCases.filter { $0 != goal && secondaryGoals.contains($0) }
     }
 
     public init(from decoder: Decoder) throws {
@@ -234,6 +244,7 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         scheduleAnchor = try c.decodeIfPresent(ScheduleAnchor.self, forKey: .scheduleAnchor) ?? .daysPerWeek
         dietaryPreference = try c.decodeIfPresent(DietaryPreference.self, forKey: .dietaryPreference) ?? .none
         allergies = try c.decodeIfPresent(Set<FoodAllergen>.self, forKey: .allergies) ?? []
+        secondaryGoals = try c.decodeIfPresent(Set<FitnessGoal>.self, forKey: .secondaryGoals) ?? []
     }
 
     public static let `default` = FitnessProfile()

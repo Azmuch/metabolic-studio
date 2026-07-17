@@ -190,7 +190,8 @@ struct OnboardingGoalStep: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            OnboardingStepHeader(title: "Goal", subtitle: "What are we optimizing for?")
+            OnboardingStepHeader(title: "Goals",
+                                 subtitle: "Pick everything that applies — your first pick leads the plan.")
 
             VStack(spacing: 12) {
                 ForEach(FitnessGoal.allCases, id: \.self) { goal in
@@ -202,6 +203,23 @@ struct OnboardingGoalStep: View {
             MTPrimaryButton(title: "Continue") { onNext() }
         }
         .padding(20)
+    }
+
+    /// Selecting is additive: the first pick becomes the primary goal (drives calorie/macro
+    /// math), later picks are secondary. Tapping the primary hands leadership to the next
+    /// selected goal — the profile always keeps at least one.
+    private func toggleGoal(_ goal: FitnessGoal) {
+        Haptics.tap()
+        if draft.goal == goal {
+            if let promoted = FitnessGoal.allCases.first(where: { draft.secondaryGoals.contains($0) }) {
+                draft.secondaryGoals.remove(promoted)
+                draft.goal = promoted
+            }
+        } else if draft.secondaryGoals.contains(goal) {
+            draft.secondaryGoals.remove(goal)
+        } else {
+            draft.secondaryGoals.insert(goal)
+        }
     }
 
     private func symbol(for goal: FitnessGoal) -> String {
@@ -225,10 +243,10 @@ struct OnboardingGoalStep: View {
     }
 
     private func goalCard(_ goal: FitnessGoal) -> some View {
-        let isSelected = draft.goal == goal
+        let isPrimary = draft.goal == goal
+        let isSelected = isPrimary || draft.secondaryGoals.contains(goal)
         return Button {
-            Haptics.tap()
-            draft.goal = goal
+            toggleGoal(goal)
         } label: {
             HStack(spacing: 16) {
                 ZStack {
@@ -238,14 +256,30 @@ struct OnboardingGoalStep: View {
                         .foregroundStyle(MTTheme.volt)
                 }
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(goal.displayName)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(MTTheme.textPrimary)
+                    HStack(spacing: 8) {
+                        Text(goal.displayName)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(MTTheme.textPrimary)
+                        if isPrimary && !draft.secondaryGoals.isEmpty {
+                            Text("PRIMARY")
+                                .font(.system(size: 9, weight: .bold))
+                                .tracking(0.8)
+                                .foregroundStyle(Color.black)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(MTTheme.volt, in: Capsule())
+                        }
+                    }
                     Text(description(for: goal))
                         .font(.system(size: 13))
                         .foregroundStyle(MTTheme.textSecondary)
                 }
                 Spacer(minLength: 0)
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                }
             }
             .padding(16)
             .background(isSelected ? MTTheme.voltDim : MTTheme.surface)
