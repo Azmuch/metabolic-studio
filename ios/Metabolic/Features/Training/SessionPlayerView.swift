@@ -42,6 +42,11 @@ struct SessionPlayerView: View {
     @State private var showConfetti = true
     @State private var newPRExercises: [String] = []
 
+    /// Fill for the screen region below the top-pinned 9:16 clip card — sampled from the current
+    /// clip's bottom-edge pixels so the studio floor continues without a seam. Falls back to the
+    /// hero canvas color until sampling lands (or when the exercise has no clip).
+    @State private var canvasContinuation = Color(red: 0.965, green: 0.965, blue: 0.957)
+
     init(plan: WorkoutPlan) {
         self.plan = plan
     }
@@ -60,6 +65,7 @@ struct SessionPlayerView: View {
             }
         }
         .task(id: taskKey) { await runPhaseWatcher() }
+        .task(id: currentItem.exercise.id) { await sampleCanvasContinuation() }
         .confirmationDialog("End workout?", isPresented: $showEndConfirm, titleVisibility: .visible) {
             Button("End Workout", role: .destructive) { dismiss() }
             Button("Keep Going", role: .cancel) {}
@@ -93,7 +99,8 @@ struct SessionPlayerView: View {
 
     /// The clip keeps the detail card's exact geometry — a full-width 9:16 fit pinned to the very
     /// top of the screen, so the figure sits in the same position on both screens and never crops.
-    /// The remainder below continues the clip's canvas color and disappears under the scrim.
+    /// The remainder below continues the clip's sampled bottom-edge color, so the studio floor
+    /// runs seamlessly to the bottom of the screen underneath the scrim.
     private var heroBackdrop: some View {
         VStack(spacing: 0) {
             AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
@@ -102,8 +109,14 @@ struct SessionPlayerView: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.965, green: 0.965, blue: 0.957))
+        .background(canvasContinuation)
         .ignoresSafeArea()
+    }
+
+    private func sampleCanvasContinuation() async {
+        guard let url = ExerciseClipStore.shared.clipURL(for: currentItem.exercise.id),
+              let edge = await ClipEdgeColor.sample(url: url) else { return }
+        canvasContinuation = Color(uiColor: edge)
     }
 
     /// Fixed dark ink for content floating over the light scrim — the clip canvas and scrim are
