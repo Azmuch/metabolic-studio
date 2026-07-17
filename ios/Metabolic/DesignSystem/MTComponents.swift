@@ -84,6 +84,20 @@ struct MTRing: View {
     private func clamp(_ value: Double) -> Double { min(max(value, 0), 1) }
 }
 
+// MARK: - MTHeroScrim
+
+/// Light accent-tinted wash laid behind content at the bottom of a hero canvas — shared by the
+/// exercise detail card and the session player so both screens read as the same surface. Apply
+/// as the `.background` of the bottom content block (with generous top padding so the wash fades
+/// in above the text); fixed dark-ink foreground stays legible in both appearances.
+struct MTHeroScrim: View {
+    var body: some View {
+        LinearGradient(
+            colors: [.clear, MTTheme.heroScrimLight.opacity(0.66), MTTheme.heroScrimLight.opacity(0.96)],
+            startPoint: .top, endPoint: .bottom)
+    }
+}
+
 // MARK: - MTChip
 
 struct MTChip: View {

@@ -78,30 +78,24 @@ struct SessionPlayerView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
                 Spacer(minLength: 0)
-                heroLabel
-                controlPane
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
+                VStack(spacing: 16) {
+                    heroLabel
+                    controlPane
+                        .padding(.horizontal, 20)
+                }
+                .padding(.top, 64)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity)
+                .background(MTHeroScrim().ignoresSafeArea(edges: .bottom))
             }
         }
     }
 
     private var heroBackdrop: some View {
         AnatomyHeroView(exercise: currentItem.exercise, isPlaying: heroIsPlaying,
-                        contentInset: 0, cornerRadius: 0)
+                        fillsContainer: true, contentInset: 0, cornerRadius: 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(heroScrimOverlay)
             .ignoresSafeArea()
-    }
-
-    /// Light accent-tinted bottom wash (clear at top) — consistent with the exercise detail card.
-    /// Strong enough at the base that the floating controls stay legible over the clip; the top
-    /// bar buttons carry their own contrast so no top gradient is needed.
-    private var heroScrimOverlay: some View {
-        LinearGradient(
-            colors: [.clear, .clear, MTTheme.heroScrimLight.opacity(0.55), MTTheme.heroScrimLight.opacity(0.97)],
-            startPoint: .top, endPoint: .bottom)
     }
 
     /// Fixed dark ink for content floating over the light scrim — the clip canvas and scrim are

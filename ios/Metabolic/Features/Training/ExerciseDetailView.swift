@@ -173,16 +173,7 @@ struct ExerciseDetailView: View {
         .padding(20)
         .padding(.top, 72)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(scrim)
-    }
-
-    /// A light, fresh wash carrying a subtle tint of the accent (`heroScrimLight`) — lifts the dark
-    /// ink name/chips off the figure while coordinating with the UI theme. Re-renders live on
-    /// accent change.
-    private var scrim: some View {
-        LinearGradient(
-            colors: [.clear, MTTheme.heroScrimLight.opacity(0.66), MTTheme.heroScrimLight.opacity(0.96)],
-            startPoint: .top, endPoint: .bottom)
+        .background(MTHeroScrim())
     }
 
     private func overlayChip(_ text: String) -> some View {

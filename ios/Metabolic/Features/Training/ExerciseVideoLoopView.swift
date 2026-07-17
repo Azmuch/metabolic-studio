@@ -38,32 +38,39 @@ final class LoopPlayer: ObservableObject {
     func pause() { queue.pause() }
 }
 
-/// `AVPlayerLayer`-backed view rendering the loop with no controls. Aspect-*fit* so the full
-/// head-to-feet figure is always visible: the hero containers are square/landscape, not 9:16,
-/// and a fill would crop the head and feet. The clip's white studio background merges with the
-/// card, so the fit shows no visible letterbox.
+/// `AVPlayerLayer`-backed view rendering the loop with no controls. Default is aspect-*fit* so
+/// the full head-to-feet figure is always visible in card-shaped containers. The full-screen
+/// session backdrop passes `.resizeAspectFill` instead: the screen is taller than the 9:16 clip,
+/// so fill matches the height exactly (head/feet stay intact, only studio background is cropped
+/// from the sides) and removes the letterbox band above the video.
 struct ExerciseVideoLoopView: UIViewRepresentable {
     let player: AVQueuePlayer
+    var gravity: AVLayerVideoGravity = .resizeAspect
 
-    func makeUIView(context: Context) -> PlayerContainer { PlayerContainer(player: player) }
+    func makeUIView(context: Context) -> PlayerContainer { PlayerContainer(player: player, gravity: gravity) }
 
     func updateUIView(_ view: PlayerContainer, context: Context) {
         view.setPlayer(player)
+        view.setGravity(gravity)
     }
 
     final class PlayerContainer: UIView {
         override class var layerClass: AnyClass { AVPlayerLayer.self }
         private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
 
-        init(player: AVQueuePlayer) {
+        init(player: AVQueuePlayer, gravity: AVLayerVideoGravity) {
             super.init(frame: .zero)
             playerLayer.player = player
-            playerLayer.videoGravity = .resizeAspect
+            playerLayer.videoGravity = gravity
             backgroundColor = .clear
         }
 
         func setPlayer(_ player: AVQueuePlayer) {
             if playerLayer.player !== player { playerLayer.player = player }
+        }
+
+        func setGravity(_ gravity: AVLayerVideoGravity) {
+            if playerLayer.videoGravity != gravity { playerLayer.videoGravity = gravity }
         }
 
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -78,6 +85,9 @@ struct ExerciseClipHero: View {
     var isPlaying: Bool = true
     /// Loop (rep) vs hold (play entry, freeze on the held frame). Drives the `LoopPlayer` mode.
     var playback: ClipPlayback = .loop
+    /// Fill the container (crop the clip's studio sides) instead of letterboxing — used by the
+    /// full-screen session backdrop, whose aspect is taller than the clip's 9:16.
+    var fillsContainer: Bool = false
     /// Inset between the video and the card edge. 0 = edge-to-edge fill (used by the detail hero).
     var contentInset: CGFloat = 10
     /// Card corner radius. 0 = square (full-screen player background).
@@ -90,7 +100,8 @@ struct ExerciseClipHero: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(Color(red: 0.965, green: 0.965, blue: 0.957))
 
-            ExerciseVideoLoopView(player: player.queue)
+            ExerciseVideoLoopView(player: player.queue,
+                                  gravity: fillsContainer ? .resizeAspectFill : .resizeAspect)
                 .padding(contentInset)
         }
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
