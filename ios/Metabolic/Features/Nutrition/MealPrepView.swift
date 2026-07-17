@@ -25,6 +25,11 @@ struct MealPrepView: View {
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
     private static let offsetKey = "mt.mealprep.offset"
+    private static let checkedKeyPrefix = "mt.grocery.checked."
+
+    /// Checked-off items persist per plan seed, so the shopping list survives app restarts
+    /// for the whole week and resets naturally when the plan changes.
+    private var checkedKey: String { Self.checkedKeyPrefix + String(currentWeekSeed()) }
 
     init() {
         let cal = Calendar.current
@@ -275,26 +280,40 @@ struct MealPrepView: View {
     private var groceryListSection: some View {
         MTCard {
             VStack(alignment: .leading, spacing: 12) {
-                Button {
-                    Haptics.tap()
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                        showGroceryList.toggle()
+                HStack(spacing: 10) {
+                    Button {
+                        Haptics.tap()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                            showGroceryList.toggle()
+                        }
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "takeoutbag.and.cup.and.straw.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.volt)
+                            Text("Grocery list")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            Spacer()
+                            Image(systemName: showGroceryList ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(MTTheme.textTertiary)
+                        }
+                        .contentShape(Rectangle())
                     }
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "takeoutbag.and.cup.and.straw.fill")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
-                        Text("Grocery list")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(MTTheme.textPrimary)
-                        Spacer()
-                        Image(systemName: showGroceryList ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(MTTheme.textTertiary)
+                    .buttonStyle(.plain)
+
+                    if !groceries.isEmpty {
+                        ShareLink(item: groceryShareText) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(MTTheme.volt)
+                                .frame(width: 32, height: 32)
+                                .background(MTTheme.voltDim, in: Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .buttonStyle(.plain)
 
                 if showGroceryList {
                     if groceries.isEmpty {
@@ -326,6 +345,7 @@ struct MealPrepView: View {
                 } else {
                     checkedGroceries.insert(line.foodID)
                 }
+                UserDefaults.standard.set(Array(checkedGroceries), forKey: checkedKey)
             }
         } label: {
             HStack(spacing: 12) {
@@ -369,10 +389,12 @@ struct MealPrepView: View {
         week = MealPlanGenerator.weeklyPlan(
             targets: appState.targets, profile: appState.profile, weekSeed: currentWeekSeed()
         )
+        checkedGroceries = Set(UserDefaults.standard.stringArray(forKey: checkedKey) ?? [])
     }
 
     private func regenerate() {
         Haptics.tap()
+        UserDefaults.standard.removeObject(forKey: checkedKey)   // old plan's checks are obsolete
         let nextOffset = UserDefaults.standard.integer(forKey: Self.offsetKey) + 1
         UserDefaults.standard.set(nextOffset, forKey: Self.offsetKey)
         loggedMealKeys.removeAll()
@@ -382,6 +404,22 @@ struct MealPrepView: View {
                 targets: appState.targets, profile: appState.profile, weekSeed: currentWeekSeed()
             )
         }
+    }
+
+    // MARK: - Share
+
+    /// Plain-text export of the week's list — pastes cleanly into Messages, Notes, or Reminders.
+    /// Open items get a bullet, already-bought items a check.
+    private var groceryShareText: String {
+        var iso = Calendar(identifier: .iso8601)
+        iso.timeZone = .current
+        let weekStart = iso.dateInterval(of: .weekOfYear, for: .now)?.start ?? .now
+        var lines = ["Metabolic — Shopping list (week of \(weekStart.formatted(date: .abbreviated, time: .omitted)))", ""]
+        for line in groceries {
+            let mark = checkedGroceries.contains(line.foodID) ? "✓" : "•"
+            lines.append("\(mark) \(line.name) — \(formattedServings(line.totalServings))× serving")
+        }
+        return lines.joined(separator: "\n")
     }
 
     // MARK: - Formatting
