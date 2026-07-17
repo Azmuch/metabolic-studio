@@ -83,7 +83,7 @@ struct SessionPlayerView: View {
                     controlPane
                         .padding(.horizontal, 20)
                 }
-                .padding(.top, 64)
+                .padding(.top, 140)
                 .padding(.bottom, 8)
                 .frame(maxWidth: .infinity)
                 .background(MTHeroScrim().ignoresSafeArea(edges: .bottom))

@@ -90,10 +90,21 @@ struct MTRing: View {
 /// exercise detail card and the session player so both screens read as the same surface. Apply
 /// as the `.background` of the bottom content block (with generous top padding so the wash fades
 /// in above the text); fixed dark-ink foreground stays legible in both appearances.
+/// The eased stops matter: a straight clear→opaque ramp switches on visibly at its top edge
+/// (Mach banding) and reads as a hard line across the hero canvas.
 struct MTHeroScrim: View {
     var body: some View {
+        let c = MTTheme.heroScrimLight
         LinearGradient(
-            colors: [.clear, MTTheme.heroScrimLight.opacity(0.66), MTTheme.heroScrimLight.opacity(0.96)],
+            stops: [
+                .init(color: .clear, location: 0),
+                .init(color: c.opacity(0.04), location: 0.18),
+                .init(color: c.opacity(0.14), location: 0.38),
+                .init(color: c.opacity(0.34), location: 0.58),
+                .init(color: c.opacity(0.60), location: 0.78),
+                .init(color: c.opacity(0.85), location: 0.92),
+                .init(color: c.opacity(0.96), location: 1),
+            ],
             startPoint: .top, endPoint: .bottom)
     }
 }
