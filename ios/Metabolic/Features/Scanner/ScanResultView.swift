@@ -10,6 +10,7 @@ struct ScanResultView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var alternatives: [(ScannedProduct, ProductScore)] = []
     @State private var loadingAlternatives = true
+    @State private var showScoringInfo = false
 
     init(product: ScannedProduct, score: ProductScore) {
         self.product = product
@@ -50,6 +51,7 @@ struct ScanResultView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .sheet(isPresented: $showScoringInfo) { ScoringInfoView() }
         .task { await loadAlternatives() }
     }
 
@@ -99,6 +101,19 @@ struct ScanResultView: View {
                         Text("Health score out of 100")
                             .font(.system(size: 12))
                             .foregroundStyle(MTTheme.textTertiary)
+                        Button {
+                            Haptics.tap()
+                            showScoringInfo = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "info.circle")
+                                    .font(.system(size: 11, weight: .semibold))
+                                Text("How products are scored")
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundStyle(MTTheme.volt)
+                        }
+                        .buttonStyle(.plain)
                     }
                     Spacer(minLength: 0)
                 }

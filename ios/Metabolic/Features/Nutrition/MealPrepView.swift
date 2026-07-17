@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 import MetabolicCore
 
 /// UserDefaults key gating the one-time diet-preferences prompt; shared by `MealPrepView`
@@ -21,6 +22,10 @@ struct MealPrepView: View {
     @State private var loggedMealKeys: Set<String> = []
     @State private var showGroceryList = true
     @State private var showDietPrefs = false
+    @State private var selectedMeal: PlannedMeal?
+    @State private var favoriteMeals: [PlannedMeal] = []
+
+    private static let favoritesKey = "mt.meals.favorites"
 
     private let calendar = Calendar.current
     private static let weekdayLetters = ["M", "T", "W", "T", "F", "S", "S"]
@@ -66,6 +71,10 @@ struct MealPrepView: View {
                 }
 
                 groceryListSection
+
+                if !favoriteMeals.isEmpty {
+                    favoriteMealsSection
+                }
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -94,6 +103,7 @@ struct MealPrepView: View {
             }
         }
         .onAppear {
+            loadFavoriteMeals()
             // Ask about allergies & preferences before the first plan is built.
             if !UserDefaults.standard.bool(forKey: mealPrepDietPromptedKey) {
                 showDietPrefs = true
@@ -105,6 +115,9 @@ struct MealPrepView: View {
             DietPreferencesSheet {
                 loadWeek()
             }
+        }
+        .sheet(item: $selectedMeal) { meal in
+            MealDetailSheet(meal: meal)
         }
     }
 
@@ -169,16 +182,29 @@ struct MealPrepView: View {
         MTCard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    Image(systemName: meal.mealType.symbolName)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(MTTheme.textSecondary)
-                    Text(meal.mealType.displayName)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(MTTheme.textPrimary)
+                    Button {
+                        Haptics.tap()
+                        selectedMeal = meal
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: meal.mealType.symbolName)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(MTTheme.textSecondary)
+                            Text(meal.mealType.displayName)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(MTTheme.textTertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                     Spacer()
                     Text("\(Int(meal.calories.rounded())) kcal")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(MTTheme.textSecondary)
+                    favoriteHeart(meal)
                 }
 
                 if meal.items.isEmpty {
@@ -291,7 +317,7 @@ struct MealPrepView: View {
                             Image(systemName: "takeoutbag.and.cup.and.straw.fill")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(MTTheme.volt)
-                            Text("Grocery list")
+                            Text("Weekly shopping list")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(MTTheme.textPrimary)
                             Spacer()
@@ -367,6 +393,106 @@ struct MealPrepView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Favorite meals (persisted snapshots, independent of the weekly plan)
+
+    /// Content signature — generated meals get fresh UUIDs every plan, so favorites match on
+    /// what's actually on the plate.
+    private func mealSignature(_ meal: PlannedMeal) -> String {
+        meal.mealType.rawValue + "|"
+            + meal.items.map { "\($0.food.id)×\($0.servings)" }.joined(separator: ",")
+    }
+
+    private func isFavorite(_ meal: PlannedMeal) -> Bool {
+        favoriteMeals.contains { mealSignature($0) == mealSignature(meal) }
+    }
+
+    private func favoriteHeart(_ meal: PlannedMeal) -> some View {
+        let isFav = isFavorite(meal)
+        return Button {
+            Haptics.tap()
+            toggleFavorite(meal)
+        } label: {
+            Image(systemName: isFav ? "heart.fill" : "heart")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(isFav ? MTTheme.volt : MTTheme.textTertiary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isFav ? "Remove meal from favorites" : "Save meal to favorites")
+    }
+
+    private func toggleFavorite(_ meal: PlannedMeal) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+            if let index = favoriteMeals.firstIndex(where: { mealSignature($0) == mealSignature(meal) }) {
+                favoriteMeals.remove(at: index)
+            } else {
+                favoriteMeals.append(meal)
+            }
+        }
+        if let data = try? JSONEncoder().encode(favoriteMeals) {
+            UserDefaults.standard.set(data, forKey: Self.favoritesKey)
+        }
+    }
+
+    private func loadFavoriteMeals() {
+        guard let data = UserDefaults.standard.data(forKey: Self.favoritesKey),
+              let meals = try? JSONDecoder().decode([PlannedMeal].self, from: data) else { return }
+        favoriteMeals = meals
+    }
+
+    private var favoriteMealsSection: some View {
+        MTCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                    Text("Favorite meals")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                }
+                VStack(spacing: 0) {
+                    ForEach(favoriteMeals) { meal in
+                        favoriteMealRow(meal)
+                        if meal.id != favoriteMeals.last?.id {
+                            Divider().overlay(MTTheme.stroke)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func favoriteMealRow(_ meal: PlannedMeal) -> some View {
+        HStack(spacing: 12) {
+            Button {
+                Haptics.tap()
+                selectedMeal = meal
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: meal.mealType.symbolName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                        .frame(width: 32, height: 32)
+                        .background(MTTheme.voltDim, in: Circle())
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(meal.items.map(\.food.name).joined(separator: " · "))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(MTTheme.textPrimary)
+                            .lineLimit(2)
+                        Text("\(meal.mealType.displayName) · \(Int(meal.calories.rounded())) kcal")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textSecondary)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            favoriteHeart(meal)
+        }
+        .padding(.vertical, 8)
     }
 
     // MARK: - Week seed + regenerate
@@ -445,6 +571,191 @@ struct MealPrepView: View {
     }
 }
 
+// MARK: - Meal detail
+
+/// Detail for one planned meal: hero image (asset convention `meal.<foodID>` — soft placeholder
+/// until the imagery batch lands), macro strip, ingredients with servings, simple prep steps,
+/// and one-tap logging.
+struct MealDetailSheet: View {
+    let meal: PlannedMeal
+
+    @Environment(HealthKitService.self) private var healthKit
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var logged = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                heroImage
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(meal.mealType.displayName)
+                        .font(.system(size: 24, weight: .heavy))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Text("\(meal.items.count) ingredient\(meal.items.count == 1 ? "" : "s")")
+                        .font(.system(size: 13))
+                        .foregroundStyle(MTTheme.textSecondary)
+                }
+
+                macroStrip
+                ingredientsCard
+                prepCard
+
+                MTPrimaryButton(title: logged ? "Logged" : "Log this meal",
+                                systemImage: logged ? "checkmark.circle.fill" : "checkmark") {
+                    log()
+                }
+                .disabled(logged)
+                .opacity(logged ? 0.5 : 1)
+            }
+            .padding(20)
+        }
+        .scrollIndicators(.hidden)
+        .background(MTBackground().ignoresSafeArea())
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+    }
+
+    private var heroImage: some View {
+        Group {
+            if let image = meal.items.lazy
+                .compactMap({ UIImage(named: "meal.\($0.food.id)") }).first {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                ZStack {
+                    LinearGradient(colors: [MTTheme.voltDim, MTTheme.surface2],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Image(systemName: meal.mealType.symbolName)
+                        .font(.system(size: 44, weight: .semibold))
+                        .foregroundStyle(MTTheme.volt)
+                }
+            }
+        }
+        .frame(height: 180)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
+    }
+
+    private var macroStrip: some View {
+        MTCard {
+            HStack(spacing: 0) {
+                macroColumn("\(Int(meal.calories.rounded()))", "kcal", MTTheme.volt)
+                macroDivider
+                macroColumn("\(Int(meal.proteinG.rounded()))g", "Protein", MTTheme.protein)
+                macroDivider
+                macroColumn("\(Int(meal.carbsG.rounded()))g", "Carbs", MTTheme.carbs)
+                macroDivider
+                macroColumn("\(Int(meal.fatG.rounded()))g", "Fat", MTTheme.fat)
+            }
+        }
+    }
+
+    private var macroDivider: some View {
+        Rectangle().fill(MTTheme.stroke).frame(width: 1, height: 36)
+    }
+
+    private func macroColumn(_ value: String, _ label: String, _ tint: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(MTTheme.numberFont(size: 18))
+                .foregroundStyle(tint)
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .tracking(1)
+                .foregroundStyle(MTTheme.textTertiary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var ingredientsCard: some View {
+        MTCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("INGREDIENTS")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                ForEach(meal.items) { item in
+                    HStack(alignment: .top, spacing: 10) {
+                        Text(servingsText(item.servings) + "×")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundStyle(MTTheme.volt)
+                            .frame(width: 40, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.food.name)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(MTTheme.textPrimary)
+                            Text("\(item.food.servingDescription) · \(Int(item.calories.rounded())) kcal")
+                                .font(.system(size: 12))
+                                .foregroundStyle(MTTheme.textSecondary)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// Assembly-style guidance — the plan generates food combinations, not authored recipes,
+    /// so the steps stay honest: portion, prepare, assemble.
+    private var prepCard: some View {
+        let names = meal.items.map { "\(servingsText($0.servings))× \($0.food.name)" }
+        let steps = [
+            "Portion out " + names.joined(separator: ", ") + ".",
+            "Cook or heat anything served warm; keep fresh items chilled until you assemble.",
+            "Plate it together and season to taste — the macros above already reflect these portions.",
+        ]
+        return MTCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("HOW TO PREP")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(MTTheme.textTertiary)
+                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                    HStack(alignment: .top, spacing: 12) {
+                        ZStack {
+                            Circle().fill(MTTheme.voltDim).frame(width: 24, height: 24)
+                            Text("\(index + 1)")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(MTTheme.volt)
+                        }
+                        Text(step)
+                            .font(.system(size: 13))
+                            .foregroundStyle(MTTheme.textPrimary)
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func servingsText(_ value: Double) -> String {
+        var text = String(format: "%.2f", value)
+        while text.hasSuffix("0") { text.removeLast() }
+        if text.hasSuffix(".") { text.removeLast() }
+        return text
+    }
+
+    private func log() {
+        for item in meal.items {
+            let entry = FoodEntry(
+                date: .now, mealType: meal.mealType, name: item.food.name, brand: item.food.brand,
+                calories: item.calories, proteinG: item.proteinG, carbsG: item.carbsG, fatG: item.fatG,
+                grams: nil, source: .manual
+            )
+            modelContext.insert(entry)
+            Task { await healthKit.saveMeal(entry) }
+        }
+        Haptics.success()
+        withAnimation(.snappy(duration: 0.25)) { logged = true }
+    }
+}
+
 // MARK: - Diet preferences gate
 
 /// Asked once before the first meal plan is built (and reopenable from the toolbar):
@@ -458,6 +769,8 @@ struct DietPreferencesSheet: View {
 
     @State private var preference: DietaryPreference = .none
     @State private var allergies: Set<FoodAllergen> = []
+    @State private var favoriteFoods: [String] = []
+    @State private var favoriteFoodText = ""
     @State private var loaded = false
 
     private let columns = [GridItem(.adaptive(minimum: 110), spacing: 8)]
@@ -531,10 +844,60 @@ struct DietPreferencesSheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
+                MTCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("FAVORITE FOODS")
+                            .font(.system(size: 11, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(MTTheme.textTertiary)
+                        HStack(spacing: 10) {
+                            TextField("e.g. Salmon", text: $favoriteFoodText)
+                                .font(.system(size: 15))
+                                .foregroundStyle(MTTheme.textPrimary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
+                            Button {
+                                let trimmed = favoriteFoodText.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !trimmed.isEmpty, !favoriteFoods.contains(trimmed) else { return }
+                                Haptics.tap()
+                                favoriteFoods.append(trimmed)
+                                favoriteFoodText = ""
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(Color.black)
+                                    .frame(width: 40, height: 40)
+                                    .background(MTTheme.volt, in: Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(favoriteFoodText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                        if !favoriteFoods.isEmpty {
+                            LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
+                                ForEach(favoriteFoods, id: \.self) { food in
+                                    Button {
+                                        Haptics.tap()
+                                        favoriteFoods.removeAll { $0 == food }
+                                    } label: {
+                                        MTChip(text: food, systemImage: "xmark", isActive: true)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                        Text("We'll lean toward these when they fit your targets.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(MTTheme.textTertiary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 MTPrimaryButton(title: "Build my plan", systemImage: "sparkles") {
                     var profile = appState.profile
                     profile.dietaryPreference = preference
                     profile.allergies = allergies
+                    profile.favoriteFoods = favoriteFoods
                     appState.profile = profile
                     UserDefaults.standard.set(true, forKey: mealPrepDietPromptedKey)
                     Haptics.success()
@@ -551,6 +914,7 @@ struct DietPreferencesSheet: View {
             guard !loaded else { return }
             preference = appState.profile.dietaryPreference
             allergies = appState.profile.allergies
+            favoriteFoods = appState.profile.favoriteFoods
             loaded = true
         }
     }

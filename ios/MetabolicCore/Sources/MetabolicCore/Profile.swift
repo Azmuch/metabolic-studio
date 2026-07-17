@@ -178,6 +178,8 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
     /// Additional goals beyond the primary. `goal` stays the single driver of calorie/macro
     /// math; these shape recommendations and show on the profile.
     public var secondaryGoals: Set<FitnessGoal>
+    /// Free-text foods the user loves — meal planning leans toward these when they fit targets.
+    public var favoriteFoods: [String]
 
     public init(age: Int = 30, sex: BiologicalSex = .male, heightCm: Double = 175,
                 weightKg: Double = 75, goal: FitnessGoal = .maintain,
@@ -191,7 +193,8 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
                 scheduleAnchor: ScheduleAnchor = .daysPerWeek,
                 dietaryPreference: DietaryPreference = .none,
                 allergies: Set<FoodAllergen> = [],
-                secondaryGoals: Set<FitnessGoal> = []) {
+                secondaryGoals: Set<FitnessGoal> = [],
+                favoriteFoods: [String] = []) {
         self.age = age
         self.sex = sex
         self.heightCm = heightCm
@@ -214,6 +217,7 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         self.dietaryPreference = dietaryPreference
         self.allergies = allergies
         self.secondaryGoals = secondaryGoals
+        self.favoriteFoods = favoriteFoods
     }
 
     /// Primary goal first, then the additional goals in their canonical order.
@@ -245,6 +249,7 @@ public struct FitnessProfile: Codable, Equatable, Sendable {
         dietaryPreference = try c.decodeIfPresent(DietaryPreference.self, forKey: .dietaryPreference) ?? .none
         allergies = try c.decodeIfPresent(Set<FoodAllergen>.self, forKey: .allergies) ?? []
         secondaryGoals = try c.decodeIfPresent(Set<FitnessGoal>.self, forKey: .secondaryGoals) ?? []
+        favoriteFoods = try c.decodeIfPresent([String].self, forKey: .favoriteFoods) ?? []
     }
 
     public static let `default` = FitnessProfile()
