@@ -132,7 +132,7 @@ struct SmartScaleSheet: View {
                     HStack(spacing: 12) {
                         Image(systemName: device.isSimulated ? "sparkles" : "scalemass.fill")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                             .frame(width: 34, height: 34)
                             .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
                         VStack(alignment: .leading, spacing: 1) {

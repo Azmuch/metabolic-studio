@@ -71,7 +71,7 @@ struct ScoringInfoView: View {
                 HStack(spacing: 10) {
                     Text(number)
                         .font(.system(size: 14, weight: .heavy, design: .rounded))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .frame(width: 30, height: 30)
                         .background(MTTheme.voltDim, in: Circle())
                     Text(title)

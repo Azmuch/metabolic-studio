@@ -109,6 +109,19 @@ enum MTTheme {
         Color(uiColor: accentUIColor(for: theme))
     }
 
+    /// Accent for **text and small glyphs** on themed surfaces. The raw accents — volt lime
+    /// especially — fail contrast as fine foreground on light backgrounds, so this darkens
+    /// toward ink in light mode and stays bright in dark mode. Fills, buttons, and rings keep
+    /// using `volt`; anything read as type or a small icon uses this.
+    static var accentText: Color {
+        let accent = accentUIColor(for: ThemeStore.shared.accent)
+        return Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? accent
+                : accent.mixed(with: .black, fraction: 0.32)
+        })
+    }
+
     private static func accentUIColor(for theme: AccentTheme) -> UIColor {
         switch theme {
         case .volt: return UIColor(hex: 0xC8F542)

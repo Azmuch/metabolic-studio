@@ -84,7 +84,7 @@ struct ProgressDashboardView: View {
             VStack(spacing: 12) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .font(.system(size: 40, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                 Text("Your progress will live here")
                     .font(.system(size: 17, weight: .bold))
                     .foregroundStyle(MTTheme.textPrimary)
@@ -145,7 +145,7 @@ struct ProgressDashboardView: View {
                         x: .value("Week", point.weekStart, unit: .weekOfYear),
                         y: .value("Volume", displayWeight(point.volumeKg))
                     )
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                     .cornerRadius(4)
                 }
             }
@@ -177,13 +177,13 @@ struct ProgressDashboardView: View {
                         x: .value("Date", entry.date),
                         y: .value("Weight", displayWeight(entry.weightKg))
                     )
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                     .interpolationMethod(.catmullRom)
                     PointMark(
                         x: .value("Date", entry.date),
                         y: .value("Weight", displayWeight(entry.weightKg))
                     )
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                     .symbolSize(20)
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
@@ -235,7 +235,7 @@ struct ProgressDashboardView: View {
         HStack(spacing: 12) {
             Image(systemName: "trophy.fill")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
                 .frame(width: 32, height: 32)
                 .background(MTTheme.voltDim, in: Circle())
             VStack(alignment: .leading, spacing: 2) {

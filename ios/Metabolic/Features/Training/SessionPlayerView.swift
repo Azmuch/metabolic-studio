@@ -579,7 +579,7 @@ struct SessionPlayerView: View {
                     Label("New personal best · \(newPRExercises.joined(separator: ", "))",
                           systemImage: "trophy.fill")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .multilineTextAlignment(.center)
                 }
 
@@ -609,7 +609,7 @@ struct SessionPlayerView: View {
                 .frame(width: 108, height: 108)
             Image(systemName: "trophy.fill")
                 .font(.system(size: 48, weight: .bold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
         }
         .scaleEffect(celebrate ? 1 : 0.3)
         .rotationEffect(.degrees(celebrate ? 0 : -20))
@@ -687,7 +687,7 @@ struct SessionPlayerView: View {
         VStack(spacing: 20) {
             Image(systemName: "moon.zzz.fill")
                 .font(.system(size: 48, weight: .semibold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
             Text("Nothing to play")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(MTTheme.textPrimary)

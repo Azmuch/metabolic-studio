@@ -76,7 +76,7 @@ struct SettingsView: View {
                                         HStack(spacing: 12) {
                                             Image(systemName: "photo.badge.plus")
                                                 .font(.system(size: 15, weight: .semibold))
-                                                .foregroundStyle(MTTheme.volt)
+                                                .foregroundStyle(MTTheme.accentText)
                                                 .frame(width: 36, height: 36)
                                                 .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
                                             Text("Use your own photo…")
@@ -198,7 +198,7 @@ struct SettingsView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "scalemass.fill")
                                 .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                                 .symbolEffect(.pulse)
                                 .frame(width: 36, height: 36)
                                 .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
@@ -273,7 +273,7 @@ struct SettingsView: View {
                             Spacer()
                             Text("hello@metabolicstudio.app")
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                         }
                     }
                     Text("Nutrition math, plan generation and product scoring run on-device in MetabolicCore.")
@@ -308,7 +308,7 @@ struct SettingsView: View {
         HStack(spacing: 12) {
             Image(systemName: "square.and.arrow.up.fill")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
                 .frame(width: 36, height: 36)
                 .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
             VStack(alignment: .leading, spacing: 2) {
@@ -349,7 +349,7 @@ struct SettingsView: View {
                 if selected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .background(Circle().fill(Color.black.opacity(0.55)))
                         .padding(5)
                 }
@@ -395,7 +395,7 @@ struct SettingsView: View {
             VStack(spacing: 8) {
                 Image(systemName: style.symbolName)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(selected ? MTTheme.volt : MTTheme.textSecondary)
+                    .foregroundStyle(selected ? MTTheme.accentText : MTTheme.textSecondary)
                     .frame(height: 22)
                 Text(style.displayName)
                     .font(.system(size: 11, weight: .semibold))
@@ -423,7 +423,7 @@ struct SettingsView: View {
             VStack(spacing: 8) {
                 Image(systemName: style.symbolName)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(selected ? MTTheme.volt : MTTheme.textSecondary)
+                    .foregroundStyle(selected ? MTTheme.accentText : MTTheme.textSecondary)
                     .frame(height: 22)
                 Text(style.displayName)
                     .font(.system(size: 11, weight: .semibold))

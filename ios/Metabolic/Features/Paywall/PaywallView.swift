@@ -83,7 +83,7 @@ struct PaywallView: View {
                 MTRing(progress: 0.55, lineWidth: 8).frame(width: 60, height: 60)
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             Text("Metabolic+")
                 .font(MTTheme.numberFont(size: 34))
@@ -163,7 +163,7 @@ struct PaywallView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                             Text(feature)
                                 .font(.system(size: 14))
                                 .foregroundStyle(MTTheme.textSecondary)
@@ -217,7 +217,7 @@ struct PaywallView: View {
             } label: {
                 Text("Restore purchases")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             Text("Subscriptions auto-renew until cancelled in App Store settings. Prices shown in your local currency at checkout.")
                 .font(.system(size: 11))

@@ -116,7 +116,7 @@ struct NutritionView: View {
                                 .easeInOut(duration: 1.1)
                             }
                     }
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                 }
             }
             .navigationDestination(isPresented: $showWaterDetail) {
@@ -255,7 +255,7 @@ struct NutritionView: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
                         Image(systemName: "takeoutbag.and.cup.and.straw.fill")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
 
                     VStack(alignment: .leading, spacing: 4) {

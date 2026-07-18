@@ -58,7 +58,7 @@ struct WorkoutBuilderView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .foregroundStyle(canSave ? MTTheme.volt : MTTheme.textTertiary)
+                        .foregroundStyle(canSave ? MTTheme.accentText : MTTheme.textTertiary)
                         .disabled(!canSave)
                 }
             }
@@ -195,7 +195,7 @@ struct WorkoutBuilderView: View {
         } label: {
             Image(systemName: symbol)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
                 .frame(width: 30, height: 30)
                 .background(MTTheme.voltDim, in: Circle())
         }
@@ -358,7 +358,7 @@ private struct ExercisePickerSheet: View {
                                 Spacer(minLength: 0)
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 20))
-                                    .foregroundStyle(MTTheme.volt)
+                                    .foregroundStyle(MTTheme.accentText)
                             }
                             .padding(10)
                             .background(MTTheme.surface, in: RoundedRectangle(cornerRadius: MTTheme.cardRadius, style: .continuous))
@@ -375,7 +375,7 @@ private struct ExercisePickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
             }
         }

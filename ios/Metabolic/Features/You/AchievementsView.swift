@@ -42,7 +42,7 @@ struct AchievementsView: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 56, height: 56)
                     Image(systemName: "trophy.fill")
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(earnedCount) of \(Achievement.all.count) unlocked")
@@ -65,7 +65,7 @@ struct AchievementsView: View {
                     .frame(width: 60, height: 60)
                 Image(systemName: earned ? achievement.symbol : "lock.fill")
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(earned ? MTTheme.volt : MTTheme.textTertiary)
+                    .foregroundStyle(earned ? MTTheme.accentText : MTTheme.textTertiary)
             }
             Text(achievement.title)
                 .font(.system(size: 14, weight: .semibold))

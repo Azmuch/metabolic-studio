@@ -83,7 +83,7 @@ struct MealPhotoView: View {
                 Circle().fill(MTTheme.voltDim).frame(width: 88, height: 88)
                 Image(systemName: "sparkles")
                     .font(.system(size: 34, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             VStack(spacing: 8) {
                 Text("AI Calorie Vision")
@@ -227,7 +227,7 @@ struct MealPhotoView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 30, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .scaleEffect(pulse ? 1.15 : 0.9)
                         .opacity(pulse ? 1 : 0.5)
                         .animation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true), value: pulse)

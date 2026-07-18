@@ -22,7 +22,7 @@ struct PacksView: View {
                 } label: {
                     Text("Restore purchases")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 6)
@@ -59,7 +59,7 @@ struct PacksView: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 52, height: 52)
                     Image(systemName: pack.symbol)
                         .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {

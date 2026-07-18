@@ -123,7 +123,7 @@ struct ScanResultView: View {
                                 Text("How products are scored")
                                     .font(.system(size: 12, weight: .semibold))
                             }
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                         }
                         .buttonStyle(.plain)
                     }

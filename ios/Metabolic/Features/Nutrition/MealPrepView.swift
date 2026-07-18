@@ -91,7 +91,7 @@ struct MealPrepView: View {
                 } label: {
                     Image(systemName: "fork.knife.circle")
                 }
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -99,7 +99,7 @@ struct MealPrepView: View {
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
             }
         }
         .onAppear {
@@ -161,7 +161,7 @@ struct MealPrepView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(isSelected ? MTTheme.textPrimary : MTTheme.textSecondary)
                 Circle()
-                    .fill(dayCalories > 0 ? MTTheme.volt : MTTheme.textTertiary)
+                    .fill(dayCalories > 0 ? MTTheme.accentText : MTTheme.textTertiary)
                     .frame(width: 6, height: 6)
             }
             .frame(maxWidth: .infinity)
@@ -314,7 +314,7 @@ struct MealPrepView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "takeoutbag.and.cup.and.straw.fill")
                                 .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                             Text("Weekly shopping list")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(MTTheme.textPrimary)
@@ -331,7 +331,7 @@ struct MealPrepView: View {
                         ShareLink(item: groceryShareText) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                                 .frame(width: 32, height: 32)
                                 .background(MTTheme.voltDim, in: Circle())
                         }
@@ -375,7 +375,7 @@ struct MealPrepView: View {
             HStack(spacing: 12) {
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 18))
-                    .foregroundStyle(isChecked ? MTTheme.volt : MTTheme.textTertiary)
+                    .foregroundStyle(isChecked ? MTTheme.accentText : MTTheme.textTertiary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(line.name)
                         .font(.system(size: 14, weight: .semibold))
@@ -414,7 +414,7 @@ struct MealPrepView: View {
         } label: {
             Image(systemName: isFav ? "heart.fill" : "heart")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(isFav ? MTTheme.volt : MTTheme.textTertiary)
+                .foregroundStyle(isFav ? MTTheme.accentText : MTTheme.textTertiary)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isFav ? "Remove meal from favorites" : "Save meal to favorites")
@@ -445,7 +445,7 @@ struct MealPrepView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                     Text("Favorite meals")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(MTTheme.textPrimary)
@@ -471,7 +471,7 @@ struct MealPrepView: View {
                 HStack(spacing: 12) {
                     Image(systemName: meal.mealType.symbolName)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .frame(width: 32, height: 32)
                         .background(MTTheme.voltDim, in: Circle())
                     VStack(alignment: .leading, spacing: 2) {
@@ -629,7 +629,7 @@ struct MealDetailSheet: View {
                                    startPoint: .topLeading, endPoint: .bottomTrailing)
                     Image(systemName: meal.mealType.symbolName)
                         .font(.system(size: 44, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
             }
         }
@@ -680,7 +680,7 @@ struct MealDetailSheet: View {
                     HStack(alignment: .top, spacing: 10) {
                         Text(servingsText(item.servings) + "×")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                             .frame(width: 40, alignment: .leading)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.food.name)
@@ -719,7 +719,7 @@ struct MealDetailSheet: View {
                             Circle().fill(MTTheme.voltDim).frame(width: 24, height: 24)
                             Text("\(index + 1)")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                         }
                         Text(step)
                             .font(.system(size: 13))
@@ -800,7 +800,7 @@ struct DietPreferencesSheet: View {
                                     Image(systemName: preference == option
                                           ? "checkmark.circle.fill" : "circle")
                                         .foregroundStyle(preference == option
-                                                         ? MTTheme.volt : MTTheme.textTertiary)
+                                                         ? MTTheme.accentText : MTTheme.textTertiary)
                                 }
                                 .padding(.vertical, 4)
                             }

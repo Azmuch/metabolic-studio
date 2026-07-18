@@ -177,7 +177,7 @@ struct FoodSearchView: View {
             HStack(spacing: 12) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Create \"\(trimmedQuery)\"")
                         .font(.system(size: 15, weight: .semibold))
@@ -338,7 +338,7 @@ private struct FoodPortionSheet: View {
                                     ?? "Weigh with smart scale")
                                     .font(.system(size: 13, weight: .semibold))
                             }
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
                             .background(MTTheme.voltDim, in: Capsule())

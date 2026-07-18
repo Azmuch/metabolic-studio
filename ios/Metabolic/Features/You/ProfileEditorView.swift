@@ -451,7 +451,7 @@ struct ProfileEditorView: View {
                     .foregroundStyle(MTTheme.textPrimary)
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? MTTheme.volt : MTTheme.textTertiary)
+                    .foregroundStyle(isSelected ? MTTheme.accentText : MTTheme.textTertiary)
             }
             .padding(.vertical, 4)
         }

@@ -69,7 +69,7 @@ struct OnboardingWelcomeStep: View {
                     .opacity(pulse ? 1 : 0.7)
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
@@ -253,7 +253,7 @@ struct OnboardingGoalStep: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 44, height: 44)
                     Image(systemName: symbol(for: goal))
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 8) {
@@ -278,7 +278,7 @@ struct OnboardingGoalStep: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
             }
             .padding(16)
@@ -729,7 +729,7 @@ struct OnboardingSyncBuildStep: View {
                             Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
                             Image(systemName: "heart.fill")
                                 .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(MTTheme.volt)
+                                .foregroundStyle(MTTheme.accentText)
                         }
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Apple Health")

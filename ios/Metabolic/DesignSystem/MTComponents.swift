@@ -263,7 +263,7 @@ struct MTEmptyState: View {
                 Circle().fill(MTTheme.voltDim).frame(width: 64, height: 64)
                 Image(systemName: symbol)
                     .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             Text(title)
                 .font(.system(size: 19, weight: .bold))

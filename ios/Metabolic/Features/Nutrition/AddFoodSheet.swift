@@ -68,7 +68,7 @@ struct AddFoodSheet: View {
                                 .easeInOut(duration: 1.1)
                             }
                     }
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") { dismiss() }

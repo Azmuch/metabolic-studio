@@ -207,7 +207,7 @@ struct ExerciseDetailView: View {
             HStack(spacing: 12) {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Part of the \(pack.title) Pack")
                         .font(.system(size: 14, weight: .semibold))
@@ -364,7 +364,7 @@ struct ExerciseDetailView: View {
                     ShareLink(item: shareURL) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                             .frame(width: 44, height: 44)
                             .background(MTTheme.voltDim, in: Circle())
                     }
@@ -480,18 +480,28 @@ struct ExerciseDetailView: View {
         }
     }
 
+    /// Each chip carries the movement's fixed tier badge, so an advanced sibling reads as
+    /// advanced even while a Beginner preset is active.
     private func variationChip(_ variation: Exercise) -> some View {
         let selected = variation.id == active.id
         return Button {
             Haptics.tap()
             selectVariant(variation.id)
         } label: {
-            Text(variation.name)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(selected ? Color.black : MTTheme.textSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(selected ? MTTheme.volt : MTTheme.surface2, in: Capsule())
+            HStack(spacing: 6) {
+                Text(variation.name)
+                    .font(.system(size: 13, weight: .semibold))
+                if let tier = ExerciseProgressions.tier(of: variation.id) {
+                    Text(tier.shortName)
+                        .font(.system(size: 9, weight: .bold))
+                        .tracking(0.5)
+                        .foregroundStyle(selected ? Color.black.opacity(0.55) : MTTheme.textTertiary)
+                }
+            }
+            .foregroundStyle(selected ? Color.black : MTTheme.textSecondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(selected ? MTTheme.volt : MTTheme.surface2, in: Capsule())
         }
         .buttonStyle(.plain)
     }
@@ -506,10 +516,11 @@ struct ExerciseDetailView: View {
         applyVolumePreset(level)
     }
 
-    /// Level presets step through the progression family *relative to the exercise this screen
-    /// opened on*: Beginner = one step easier, Advanced = one step harder, Intermediate = the
-    /// original movement. Freestyle keeps whatever the user picked. Steps clamp at the family
-    /// edges, and the volume preset is applied to whichever movement ends up active.
+    /// Level presets map onto the family's **fixed** tiers: every exercise carries one absolute
+    /// difficulty (L-Sit is Advanced everywhere), so Beginner always selects the family's
+    /// beginner-tier movement regardless of which sibling the screen opened on. Freestyle keeps
+    /// the user's manual pick — and a manual pick never re-labels the movement's own tier. The
+    /// volume preset applies to whichever movement ends up active.
     private func applyLevel(_ level: TrainingLevel) {
         if let targetID = levelVariantID(for: level), targetID != active.id,
            let target = ExerciseLibrary.exercise(id: targetID) {
@@ -521,17 +532,15 @@ struct ExerciseDetailView: View {
     }
 
     private func levelVariantID(for level: TrainingLevel) -> String? {
-        guard let family = ExerciseProgressions.family(containing: exercise.id),
-              let baseIndex = family.firstIndex(of: exercise.id) else { return nil }
-        let offset: Int
+        guard let family = ExerciseProgressions.family(containing: exercise.id) else { return nil }
+        let tier: ProgressionTier
         switch level {
-        case .beginner: offset = -1
-        case .intermediate: offset = 0
-        case .advanced: offset = 1
+        case .beginner: tier = .beginner
+        case .intermediate: tier = .intermediate
+        case .advanced: tier = .advanced
         case .freestyle: return nil
         }
-        let index = min(max(baseIndex + offset, 0), family.count - 1)
-        return family[index]
+        return ExerciseProgressions.member(of: family, tier: tier)
     }
 
     private func applyVolumePreset(_ level: TrainingLevel) {
@@ -594,7 +603,7 @@ struct ExerciseDetailView: View {
                                 Circle().fill(MTTheme.voltDim).frame(width: 26, height: 26)
                                 Text("\(index + 1)")
                                     .font(.system(size: 13, weight: .bold))
-                                    .foregroundStyle(MTTheme.volt)
+                                    .foregroundStyle(MTTheme.accentText)
                             }
                             Text(cue)
                                 .font(.system(size: 15))

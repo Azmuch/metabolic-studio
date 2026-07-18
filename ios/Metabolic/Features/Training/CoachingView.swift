@@ -103,7 +103,7 @@ struct CoachingView: View {
                         .fill(MTTheme.voltDim)
                     Image(systemName: "play.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 .frame(width: 56, height: 56)
 

@@ -216,7 +216,7 @@ struct TodayWorkoutWidget: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 56, height: 56)
                         Image(systemName: "moon.zzz.fill")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Rest & Recover")
@@ -302,7 +302,7 @@ struct StreakWidget: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 56, height: 56)
                     Image(systemName: "flame.fill")
                         .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -379,7 +379,7 @@ struct WeightTrendWidget: View {
                             y: .value("Weight", entry.weightKg)
                         )
                         .interpolationMethod(.catmullRom)
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
                     }
                     .chartXAxis(.hidden)
@@ -445,7 +445,7 @@ struct ScanShortcutWidget: View {
                             .frame(width: 48, height: 48)
                         Image(systemName: "barcode.viewfinder")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {

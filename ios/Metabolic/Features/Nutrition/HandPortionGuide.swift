@@ -88,7 +88,7 @@ struct HandPortionGuide: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 40, height: 40)
                         Image(systemName: "hand.raised.fill")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
                     Text("Hand portions")
                         .font(.system(size: 18, weight: .bold))
@@ -111,7 +111,7 @@ struct HandPortionGuide: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 40, height: 40)
                         Image(systemName: kind.symbolName)
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(kind.title)

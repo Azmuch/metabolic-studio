@@ -125,7 +125,7 @@ struct ExerciseLibraryView: View {
             if appState.isFavorite(exercise.id) {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 13))
-                    .foregroundStyle(MTTheme.volt)
+                    .foregroundStyle(MTTheme.accentText)
             }
             Image(systemName: "chevron.right")
                 .font(.system(size: 12, weight: .semibold))

@@ -72,7 +72,7 @@ struct ManualFoodEntryView: View {
                                 Image(systemName: "scalemass.fill")
                                     .symbolEffect(.pulse)
                                     .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(MTTheme.volt)
+                                    .foregroundStyle(MTTheme.accentText)
                                     .frame(width: 30, height: 30)
                                     .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 9))
                             }

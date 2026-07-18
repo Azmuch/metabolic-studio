@@ -78,7 +78,7 @@ struct YouView: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 56, height: 56)
                         Image(systemName: "figure.run")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your profile")
@@ -214,7 +214,7 @@ struct YouView: View {
         HStack(spacing: 12) {
             Image(systemName: symbol)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(MTTheme.volt)
+                .foregroundStyle(MTTheme.accentText)
                 .frame(width: 36, height: 36)
                 .background(MTTheme.voltDim, in: RoundedRectangle(cornerRadius: 10))
             VStack(alignment: .leading, spacing: 2) {

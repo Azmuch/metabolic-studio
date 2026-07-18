@@ -169,7 +169,7 @@ struct TrainingView: View {
                 } label: {
                     Image(systemName: "square.and.arrow.down")
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                         .frame(width: 48, height: 48)
                         .background(MTTheme.voltDim, in: Circle())
                 }
@@ -210,6 +210,18 @@ struct TrainingView: View {
                         .foregroundStyle(MTTheme.textSecondary)
                 }
                 Spacer(minLength: 0)
+                // Visible share affordance — the context menu alone made sharing undiscoverable.
+                if let url = WorkoutShare.exportURL(for: workout) {
+                    ShareLink(item: url,
+                              message: Text(WorkoutShare.shareText(for: workout))) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(MTTheme.textSecondary)
+                            .frame(width: 38, height: 38)
+                            .background(MTTheme.surface2, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
                 Button {
                     Haptics.tap()
                     editingWorkout = workout
@@ -366,7 +378,7 @@ struct TrainingView: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 56, height: 56)
                     Image(systemName: "moon.zzz.fill")
                         .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Rest & Recover")
@@ -664,7 +676,7 @@ struct TrainingView: View {
                         Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
                         Image(systemName: "video.fill")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(MTTheme.volt)
+                            .foregroundStyle(MTTheme.accentText)
                     }
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Coaching")
@@ -699,7 +711,7 @@ struct TrainingView: View {
                 } label: {
                     Text("See all")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 .buttonStyle(.plain)
             }
@@ -762,7 +774,7 @@ struct TrainingView: View {
                     Circle().fill(MTTheme.voltDim).frame(width: 48, height: 48)
                     Image(systemName: "lock.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 }
                 Text("+\(lockedLibraryCount) more")
                     .font(.system(size: 14, weight: .semibold))

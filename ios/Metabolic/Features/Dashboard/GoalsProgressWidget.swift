@@ -134,7 +134,7 @@ struct GoalsProgressWidget: View {
                 if met {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(MTTheme.volt)
+                        .foregroundStyle(MTTheme.accentText)
                 } else {
                     MTRing(progress: progress, lineWidth: 3, tint: tint)
                 }
