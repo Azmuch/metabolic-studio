@@ -178,28 +178,21 @@ struct MealPrepView: View {
 
     // MARK: - Meal cards
 
+    /// The whole card opens the meal detail (larger tap target than the title alone); the
+    /// heart and Log buttons still capture their own taps because inner buttons win.
     private func mealCard(_ meal: PlannedMeal, dayIndex: Int) -> some View {
         MTCard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    Button {
-                        Haptics.tap()
-                        selectedMeal = meal
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: meal.mealType.symbolName)
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(MTTheme.textSecondary)
-                            Text(meal.mealType.displayName)
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(MTTheme.textPrimary)
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(MTTheme.textTertiary)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
+                    Image(systemName: meal.mealType.symbolName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(MTTheme.textSecondary)
+                    Text(meal.mealType.displayName)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(MTTheme.textPrimary)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(MTTheme.textTertiary)
                     Spacer()
                     Text("\(Int(meal.calories.rounded())) kcal")
                         .font(.system(size: 13, weight: .semibold))
@@ -231,6 +224,11 @@ struct MealPrepView: View {
                     .opacity(logged ? 0.5 : 1)
                 }
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            Haptics.tap()
+            selectedMeal = meal
         }
     }
 
@@ -769,8 +767,6 @@ struct DietPreferencesSheet: View {
 
     @State private var preference: DietaryPreference = .none
     @State private var allergies: Set<FoodAllergen> = []
-    @State private var favoriteFoods: [String] = []
-    @State private var favoriteFoodText = ""
     @State private var loaded = false
 
     private let columns = [GridItem(.adaptive(minimum: 110), spacing: 8)]
@@ -844,60 +840,10 @@ struct DietPreferencesSheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                MTCard {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("FAVORITE FOODS")
-                            .font(.system(size: 11, weight: .semibold))
-                            .tracking(1.2)
-                            .foregroundStyle(MTTheme.textTertiary)
-                        HStack(spacing: 10) {
-                            TextField("e.g. Salmon", text: $favoriteFoodText)
-                                .font(.system(size: 15))
-                                .foregroundStyle(MTTheme.textPrimary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: MTTheme.controlRadius))
-                            Button {
-                                let trimmed = favoriteFoodText.trimmingCharacters(in: .whitespacesAndNewlines)
-                                guard !trimmed.isEmpty, !favoriteFoods.contains(trimmed) else { return }
-                                Haptics.tap()
-                                favoriteFoods.append(trimmed)
-                                favoriteFoodText = ""
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundStyle(Color.black)
-                                    .frame(width: 40, height: 40)
-                                    .background(MTTheme.volt, in: Circle())
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(favoriteFoodText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        }
-                        if !favoriteFoods.isEmpty {
-                            LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
-                                ForEach(favoriteFoods, id: \.self) { food in
-                                    Button {
-                                        Haptics.tap()
-                                        favoriteFoods.removeAll { $0 == food }
-                                    } label: {
-                                        MTChip(text: food, systemImage: "xmark", isActive: true)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                        }
-                        Text("We'll lean toward these when they fit your targets.")
-                            .font(.system(size: 12))
-                            .foregroundStyle(MTTheme.textTertiary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
                 MTPrimaryButton(title: "Build my plan", systemImage: "sparkles") {
                     var profile = appState.profile
                     profile.dietaryPreference = preference
                     profile.allergies = allergies
-                    profile.favoriteFoods = favoriteFoods
                     appState.profile = profile
                     UserDefaults.standard.set(true, forKey: mealPrepDietPromptedKey)
                     Haptics.success()
@@ -914,7 +860,6 @@ struct DietPreferencesSheet: View {
             guard !loaded else { return }
             preference = appState.profile.dietaryPreference
             allergies = appState.profile.allergies
-            favoriteFoods = appState.profile.favoriteFoods
             loaded = true
         }
     }

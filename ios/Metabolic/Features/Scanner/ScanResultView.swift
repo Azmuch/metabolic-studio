@@ -1,6 +1,13 @@
 import SwiftUI
 import MetabolicCore
 
+/// Identifiable wrapper so tapping a healthier alternative can present its own report sheet.
+private struct AlternativeSelection: Identifiable {
+    let product: ScannedProduct
+    let score: ProductScore
+    var id: String { product.barcode }
+}
+
 /// Yuka-style product report: score gauge, factor breakdown, healthier alternatives.
 struct ScanResultView: View {
     let product: ScannedProduct
@@ -11,6 +18,7 @@ struct ScanResultView: View {
     @State private var alternatives: [(ScannedProduct, ProductScore)] = []
     @State private var loadingAlternatives = true
     @State private var showScoringInfo = false
+    @State private var selectedAlternative: AlternativeSelection?
 
     init(product: ScannedProduct, score: ProductScore) {
         self.product = product
@@ -52,6 +60,10 @@ struct ScanResultView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .sheet(isPresented: $showScoringInfo) { ScoringInfoView() }
+        // Tapping a healthier alternative opens its own full report for side-by-side judgment.
+        .sheet(item: $selectedAlternative) { selection in
+            ScanResultView(product: selection.product, score: selection.score)
+        }
         .task { await loadAlternatives() }
     }
 
@@ -224,18 +236,25 @@ struct ScanResultView: View {
                         ScrollView(.horizontal) {
                             HStack(spacing: 12) {
                                 ForEach(alternatives, id: \.0.barcode) { alternative, altScore in
-                                    VStack(spacing: 8) {
-                                        productImage(urlString: alternative.imageURLString, size: 64, corner: 14)
-                                        Text(alternative.name)
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundStyle(MTTheme.textPrimary)
-                                            .lineLimit(2)
-                                            .multilineTextAlignment(.center)
-                                        ScoreBadge(score: altScore.value, rating: altScore.rating)
+                                    Button {
+                                        Haptics.tap()
+                                        selectedAlternative = AlternativeSelection(
+                                            product: alternative, score: altScore)
+                                    } label: {
+                                        VStack(spacing: 8) {
+                                            productImage(urlString: alternative.imageURLString, size: 64, corner: 14)
+                                            Text(alternative.name)
+                                                .font(.system(size: 13, weight: .medium))
+                                                .foregroundStyle(MTTheme.textPrimary)
+                                                .lineLimit(2)
+                                                .multilineTextAlignment(.center)
+                                            ScoreBadge(score: altScore.value, rating: altScore.rating)
+                                        }
+                                        .frame(width: 108)
+                                        .padding(10)
+                                        .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: 14))
                                     }
-                                    .frame(width: 108)
-                                    .padding(10)
-                                    .background(MTTheme.surface2, in: RoundedRectangle(cornerRadius: 14))
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
