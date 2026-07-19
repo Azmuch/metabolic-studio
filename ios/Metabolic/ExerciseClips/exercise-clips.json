@@ -105,9 +105,39 @@
     },
     "lSit": {
       "file": "lSit.mp4",
-      "bytes": 154000,
+      "bytes": 131818,
       "type": "hold",
-      "note": "grid method. Seated->L-sit supported on the hands; float fixed with an explicit support cue in the prompt."
+      "note": "grid method (batch 2). Seated->L-sit supported on hands; core + quads green."
+    },
+    "backSquat": {
+      "file": "backSquat.mp4",
+      "bytes": 184453,
+      "type": "rep",
+      "note": "grid method (batch 2). Bar on traps, below parallel; app ping-pongs."
+    },
+    "overheadSquat": {
+      "file": "overheadSquat.mp4",
+      "bytes": 166345,
+      "type": "rep",
+      "note": "grid method (batch 2). Bar locked overhead through full depth; app ping-pongs."
+    },
+    "benchPress": {
+      "file": "benchPress.mp4",
+      "bytes": 95887,
+      "type": "rep",
+      "note": "grid method (batch 2). Chest->lockout on a flat bench; app ping-pongs."
+    },
+    "pushPress": {
+      "file": "pushPress.mp4",
+      "bytes": 207008,
+      "type": "rep",
+      "note": "grid method (batch 2). Rack + dip -> overhead lockout; app ping-pongs."
+    },
+    "chestToBar": {
+      "file": "chestToBar.mp4",
+      "bytes": 217506,
+      "type": "rep",
+      "note": "grid method (batch 2). 3/4-front, scale-locked so the body rises to a fixed bar; app ping-pongs."
     }
   }
 }

@@ -42,6 +42,28 @@ reference frames and causes overshoot (e.g. plank → pike) and highlight loss.
 (For a REP, replace the hold with "returns to the start"; the app ping-pongs the A→B clip.)
 Params: `aspect_ratio:"9:16", duration:4, generate_audio:false, resolution:"720p"`.
 
+### Grid authoring rules (learned across batches)
+- **HARD RULE 0 applies to the GRID too — never describe the figure.** Do NOT write the figure's
+  appearance, colour, render style ("translucent blue-violet", "not grey"), or anatomy ("two
+  arms", "no extra limbs") in the grid prompt. The `<<<écorché>>>` reference drives ALL of that;
+  re-describing it splits attention and *causes* the drift (grey renders, extra limbs). Describe
+  ONLY: exercise name, the two poses, camera, equipment, green highlight, framing. If a defect
+  like an extra limb appears, re-roll — don't try to prompt it away with anatomy description.
+- **Name the exercise, and lead the grid prompt with it.** Start the grid prompt with the
+  exercise name in caps ("RING ROW (inverted row) — two-panel reference…"), and name it in the
+  Seedance prompt too. Both models render the right movement far more reliably when named.
+- **Camera by movement plane.** Side-profile for sagittal moves (squat, hinge, press, lunge,
+  plank, floor core) — shows depth. **¾-front** for bar pulls (pull-up, chest-to-bar, muscle-up,
+  toes-to-bar) so BOTH hands + grip are visible; side profile hides the far arm and the grip.
+- **Guard against baked text.** NB sometimes turns the anatomical style into an instructional
+  diagram with labels. Add "NO text, labels, captions, annotations, arrows — only the figure."
+- **Equipment consistency.** State "exactly ONE bar in the identical position in both panels,
+  no extra/diagonal bars" — NB otherwise draws different rigs per panel.
+- **Big vertical-translation moves (pull-ups).** "Full body in frame both panels" + "bar fixed
+  at top" conflict → NB rescales the figure to compensate. Instead: lock scale explicitly ("the
+  figure is the IDENTICAL size in both panels, do not zoom") and let the body RISE — feet lift
+  off the ground with empty space below in the pulled-up panel. Don't force feet-to-bottom.
+
 ### Two hard-won Seedance lessons
 1. **`end_image` is a SOFT target.** When Seedance's motion prior conflicts with the end pose,
    the prior wins (forearm plank → straight-arm plank). Name the *specific* variant in the
