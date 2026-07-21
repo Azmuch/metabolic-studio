@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "note": "type=hold => app plays the entry once and freezes on the final (held) frame for the full countdown; no reverse exit (the UI moves to the Rest screen). type=rep => seamless loop; author one-way 'ping-pong' reps (gobletSquat, walkingLunge, vUp) as a baked forward+reverse boomerang so they loop cleanly.",
+  "baseUrl": "",
+  "clips": {
+    "squat": {
+      "file": "squat.mp4",
+      "bytes": 199559,
+      "type": "rep",
+      "note": "grid method replacement (side profile). Fixed head-crop from the old text-to-video clip."
+    },
+    "pushUp": {
+      "file": "pushUp.mp4",
+      "bytes": 299314,
+      "type": "rep"
+    },
+    "reverseLunge": {
+      "file": "reverseLunge.mp4",
+      "bytes": 357931,
+      "type": "rep"
+    },
+    "bulgarianSplitSquat": {
+      "file": "bulgarianSplitSquat.mp4",
+      "bytes": 244809,
+      "type": "rep"
+    },
+    "boxSquat": {
+      "file": "boxSquat.mp4",
+      "bytes": 328935,
+      "type": "rep"
+    },
+    "frontSquat": {
+      "file": "frontSquat.mp4",
+      "bytes": 343384,
+      "type": "rep",
+      "note": "trainer re-check: confirm bar is racked on FRONT delts, not the back. Regenerate via grid if wrong."
+    },
+    "kneePushUp": {
+      "file": "kneePushUp.mp4",
+      "bytes": 238598,
+      "type": "rep",
+      "note": "trainer re-check: confirm knees stay down (beginner regression), not a full push-up. Regenerate via grid if wrong."
+    },
+    "pullUp": {
+      "file": "pullUp.mp4",
+      "bytes": 213894,
+      "type": "rep"
+    },
+    "burpee": {
+      "file": "burpee.mp4",
+      "bytes": 390531,
+      "type": "rep"
+    },
+    "mountainClimber": {
+      "file": "mountainClimber.mp4",
+      "bytes": 271472,
+      "type": "rep"
+    },
+    "deepSquatHold": {
+      "file": "deepSquatHold.mp4",
+      "bytes": 250801,
+      "type": "hold"
+    },
+    "candlestick": {
+      "file": "candlestick.mp4",
+      "bytes": 149708,
+      "type": "hold",
+      "note": "one-way entry into inverted candlestick/shoulder-stand; trainer to confirm name"
+    },
+    "hollowHold": {
+      "file": "hollowHold.mp4",
+      "bytes": 99793,
+      "type": "hold",
+      "note": "grid method (final). Clean grounded hollow entry+hold, green core."
+    },
+    "plank": {
+      "file": "plank.mp4",
+      "bytes": 82755,
+      "type": "hold",
+      "note": "grid method. Clean forearm-plank entry+hold, green core preserved."
+    },
+    "vUp": {
+      "file": "vUp.mp4",
+      "bytes": 96487,
+      "type": "rep",
+      "note": "grid method. Fold to a balanced V; app ping-pongs A->B for the full rep."
+    },
+    "kneePlank": {
+      "file": "kneePlank.mp4",
+      "bytes": 74357,
+      "type": "hold",
+      "note": "grid method. Knees-down plank, green core."
+    },
+    "gobletSquat": {
+      "file": "gobletSquat.mp4",
+      "bytes": 174782,
+      "type": "rep",
+      "note": "grid method. Standing->bottom of squat, kettlebell at chest; app ping-pongs for the rep."
+    },
+    "walkingLunge": {
+      "file": "walkingLunge.mp4",
+      "bytes": 198986,
+      "type": "rep",
+      "note": "grid method. Standing->forward lunge 90/90; app ping-pongs for the rep."
+    },
+    "lSit": {
+      "file": "lSit.mp4",
+      "bytes": 131818,
+      "type": "hold",
+      "note": "grid method (batch 2). Seated->L-sit supported on hands; core + quads green."
+    },
+    "backSquat": {
+      "file": "backSquat.mp4",
+      "bytes": 184453,
+      "type": "rep",
+      "note": "grid method (batch 2). Bar on traps, below parallel; app ping-pongs."
+    },
+    "overheadSquat": {
+      "file": "overheadSquat.mp4",
+      "bytes": 166345,
+      "type": "rep",
+      "note": "grid method (batch 2). Bar locked overhead through full depth; app ping-pongs."
+    },
+    "benchPress": {
+      "file": "benchPress.mp4",
+      "bytes": 95887,
+      "type": "rep",
+      "note": "grid method (batch 2). Chest->lockout on a flat bench; app ping-pongs."
+    },
+    "pushPress": {
+      "file": "pushPress.mp4",
+      "bytes": 207008,
+      "type": "rep",
+      "note": "grid method (batch 2). Rack + dip -> overhead lockout; app ping-pongs."
+    },
+    "chestToBar": {
+      "file": "chestToBar.mp4",
+      "bytes": 217506,
+      "type": "rep",
+      "note": "grid method (batch 2). 3/4-front, scale-locked so the body rises to a fixed bar; app ping-pongs."
+    }
+  }
+}
