@@ -486,6 +486,74 @@ public enum ExerciseLibrary {
             keyframes: ExercisePoses.plank(), secondsPerCycle: 3.0
         ),
 
+        // MARK: Barbell strength (Seedance clip set, batch 2)
+
+        Exercise(
+            id: "backSquat", name: "Back Squat",
+            muscleGroups: [.quads, .glutes, .core],
+            equipment: [.barbell], contraindications: [.knee, .hip, .lowerBack],
+            met: 5.0, kind: .reps(8),
+            instructions: [
+                "Bar on your traps, feet shoulder-width, brace hard.",
+                "Sit down between your hips, chest tall.",
+                "Break below parallel with control.",
+                "Drive through mid-foot to stand.",
+            ],
+            keyframes: ExercisePoses.gobletSquat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "overheadSquat", name: "Overhead Squat",
+            muscleGroups: [.quads, .glutes, .shoulders, .core],
+            equipment: [.barbell], contraindications: [.knee, .shoulder, .lowerBack],
+            met: 5.0, kind: .reps(6),
+            instructions: [
+                "Lock the bar overhead, wide grip, arms active.",
+                "Squat to full depth without letting the bar drift.",
+                "Keep the torso upright and the bar stacked over mid-foot.",
+                "Stand tall, bar steady overhead throughout.",
+            ],
+            keyframes: ExercisePoses.squat(), secondsPerCycle: 3.0
+        ),
+        Exercise(
+            id: "benchPress", name: "Bench Press",
+            muscleGroups: [.chest, .arms, .shoulders],
+            equipment: [.barbell, .bench], contraindications: [.shoulder, .wrist],
+            met: 5.0, kind: .reps(8),
+            instructions: [
+                "Flat bench, shoulder blades pinned, feet planted.",
+                "Lower the bar to mid-chest under control.",
+                "Press to lockout, driving the bar slightly back.",
+                "Keep the wrists stacked over the elbows.",
+            ],
+            keyframes: ExercisePoses.pushUp(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "pushPress", name: "Push Press",
+            muscleGroups: [.shoulders, .arms, .quads],
+            equipment: [.barbell], contraindications: [.shoulder, .neck, .lowerBack],
+            met: 6.0, kind: .reps(6),
+            instructions: [
+                "Bar racked on the front of the shoulders.",
+                "Dip at the knees, then drive explosively.",
+                "Punch the bar to lockout overhead.",
+                "Lower to the rack and reset each rep.",
+            ],
+            keyframes: ExercisePoses.dbShoulderPress(), secondsPerCycle: 2.5
+        ),
+        Exercise(
+            id: "chestToBar", name: "Chest-to-Bar Pull-Up",
+            muscleGroups: [.back, .arms],
+            equipment: [.pullUpBar], contraindications: [.shoulder, .wrist],
+            met: 8.0, kind: .reps(5),
+            instructions: [
+                "Hang with a full grip, shoulders active.",
+                "Pull explosively until your chest meets the bar.",
+                "Drive the elbows down and back.",
+                "Lower all the way to a dead hang.",
+            ],
+            keyframes: ExercisePoses.pullUp(), secondsPerCycle: 3.0
+        ),
+
         // MARK: Mobility / physical-therapy block (v2)
 
         Exercise(

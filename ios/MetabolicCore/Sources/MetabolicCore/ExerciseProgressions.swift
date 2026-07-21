@@ -30,10 +30,12 @@ public enum ExerciseProgressions {
     /// Each family is ordered easiest → hardest; weighted variants sit at the harder end of
     /// their bodyweight pattern so progressions naturally graduate onto load.
     public static let families: [[String]] = [
-        // Push pattern (graduates onto weighted overhead pressing)
-        ["kneePushUp", "pushUp", "dbShoulderPress"],
-        // Squat pattern
-        ["boxSquat", "squat", "gobletSquat", "frontSquat"],
+        // Horizontal push (bodyweight → barbell bench)
+        ["kneePushUp", "pushUp", "benchPress"],
+        // Vertical press (isolation → compound → explosive)
+        ["lateralRaise", "dbShoulderPress", "pushPress"],
+        // Squat pattern (bodyweight → loaded → overhead)
+        ["boxSquat", "squat", "gobletSquat", "backSquat", "frontSquat", "overheadSquat"],
         // Single-leg / lunge pattern
         ["reverseLunge", "lunge", "walkingLunge", "bulgarianSplitSquat"],
         // Hip hinge (bridge graduates onto loaded hinging and power)
@@ -42,10 +44,8 @@ public enum ExerciseProgressions {
         ["kneePlank", "plank", "sidePlank"],
         // Hollow-body core line
         ["deadBug", "hollowHold", "vUp", "candlestick", "lSit"],
-        // Horizontal/vertical pull
-        ["bandRow", "dbRow", "pullUp"],
-        // Shoulder isolation → compound press
-        ["lateralRaise", "dbShoulderPress"],
+        // Pull (band → dumbbell → bodyweight → chest-to-bar)
+        ["bandRow", "dbRow", "pullUp", "chestToBar"],
         // Quad isometric holds
         ["wallSit", "deepSquatHold"],
     ]
@@ -59,10 +59,13 @@ public enum ExerciseProgressions {
     /// regardless of the user's level preference or which sibling they opened. Tiers can repeat
     /// within a family (two beginners, two advanced) and some families skip a tier.
     public static let tiers: [String: ProgressionTier] = [
-        // Push
-        "kneePushUp": .beginner, "pushUp": .intermediate, "dbShoulderPress": .advanced,
+        // Horizontal push
+        "kneePushUp": .beginner, "pushUp": .intermediate, "benchPress": .advanced,
+        // Vertical press
+        "lateralRaise": .beginner, "dbShoulderPress": .intermediate, "pushPress": .advanced,
         // Squat
-        "boxSquat": .beginner, "squat": .beginner, "gobletSquat": .intermediate, "frontSquat": .advanced,
+        "boxSquat": .beginner, "squat": .beginner, "gobletSquat": .intermediate,
+        "backSquat": .intermediate, "frontSquat": .advanced, "overheadSquat": .advanced,
         // Lunge / single-leg
         "reverseLunge": .beginner, "lunge": .intermediate, "walkingLunge": .intermediate,
         "bulgarianSplitSquat": .advanced,
@@ -74,9 +77,7 @@ public enum ExerciseProgressions {
         "deadBug": .beginner, "hollowHold": .intermediate, "vUp": .intermediate,
         "candlestick": .advanced, "lSit": .advanced,
         // Pull
-        "bandRow": .beginner, "dbRow": .intermediate, "pullUp": .advanced,
-        // Shoulders
-        "lateralRaise": .beginner,
+        "bandRow": .beginner, "dbRow": .intermediate, "pullUp": .advanced, "chestToBar": .advanced,
         // Quad holds
         "wallSit": .beginner, "deepSquatHold": .intermediate,
     ]
